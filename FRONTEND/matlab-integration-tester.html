@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 MATLAB Integration Tester</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #e8f5e8 0%, #a8e6a3 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .content {
+            padding: 30px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #28a745;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 8px 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        button.test {
+            background: #007bff;
+        }
+        button.test:hover {
+            background: #0056b3;
+        }
+        button.danger {
+            background: #dc3545;
+        }
+        button.danger:hover {
+            background: #c82333;
+        }
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .step {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #dee2e6;
+        }
+        .step-number {
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 MATLAB Integration Tester</h1>
+            <p>Test and verify your MATLAB cough analysis integration</p>
+        </div>
+        
+        <div class="content">
+            <div class="status info">
+                <strong>🎯 Goal:</strong> Replace the fake random analysis with your real MATLAB frequency analysis algorithm.
+            </div>
+            
+            <div class="test-section">
+                <h2>📋 Integration Checklist</h2>
+                
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Backend Modified:</strong> ✅ simulateMatlabCoughAnalysis() replaced with callMatlabAnalysis()
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>MATLAB Function:</strong> ✅ cough_analysis.m created in BACKEND folder
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Test MATLAB:</strong> ⏳ Test if MATLAB is accessible from Node.js
+                    <button onclick="testMatlabAccess()" class="test">Test MATLAB Access</button>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Test Integration:</strong> ⏳ Upload audio and test real analysis
+                    <input type="file" id="testAudio" accept="audio/*" style="margin: 10px 0;">
+                    <button onclick="testRealAnalysis()" class="test">Test Real MATLAB Analysis</button>
+                </div>
+                
+                <div id="testResults"></div>
+            </div>
+            
+            <div class="test-section">
+                <h2>🚀 Quick Setup Commands</h2>
+                
+                <h4>1. Restart Backend Server:</h4>
+                <pre>cd "C:\Users\Madhukumar\OneDrive\Desktop\train model1 add features\BACKEND"
+node server.js</pre>
+                
+                <h4>2. Test MATLAB Command (run in terminal):</h4>
+                <pre>matlab -batch "disp('MATLAB is working!'); exit"</pre>
+                
+                <h4>3. Test Your MATLAB Function:</h4>
+                <pre>matlab -batch "addpath('C:\Users\Madhukumar\OneDrive\Desktop\train model1 add features\BACKEND'); disp('Testing...'); exit"</pre>
+            </div>
+            
+            <div class="test-section">
+                <h2>🔧 Troubleshooting</h2>
+                
+                <div class="status warning">
+                    <strong>Common Issues:</strong>
+                    <ul>
+                        <li><strong>MATLAB not found:</strong> Make sure MATLAB is in your system PATH</li>
+                        <li><strong>Permission errors:</strong> Check if Node.js can create temp files</li>
+                        <li><strong>Audio format issues:</strong> Ensure audio is in WAV format</li>
+                        <li><strong>Timeout errors:</strong> Increase timeout if analysis takes longer</li>
+                    </ul>
+                </div>
+                
+                <h4>Fix MATLAB Path (if needed):</h4>
+                <p>If MATLAB is not in PATH, update the command in server.js:</p>
+                <pre>// Replace this line in server.js:
+const matlabCommand = `matlab -batch "addpath('${__dirname}'); cough_analysis('${tempFilePath}')"`;
+
+// With full MATLAB path:
+const matlabCommand = `"C:\\Program Files\\MATLAB\\R2023b\\bin\\matlab.exe" -batch "addpath('${__dirname}'); cough_analysis('${tempFilePath}')"`;
+</pre>
+            </div>
+            
+            <div class="test-section">
+                <h2>📊 Expected Results</h2>
+                
+                <div class="status success">
+                    <strong>✅ Success Indicators:</strong>
+                    <ul>
+                        <li>Backend shows "MATLAB analysis complete" in console</li>
+                        <li>Results show actual frequency analysis (not random)</li>
+                        <li>Same audio file gives same results (consistency)</li>
+                        <li>Analysis takes 2-10 seconds (real processing time)</li>
+                    </ul>
+                </div>
+                
+                <div class="status error">
+                    <strong>❌ Failure Signs:</strong>
+                    <ul>
+                        <li>Still getting random/different results for same audio</li>
+                        <li>"MATLAB execution failed" errors</li>
+                        <li>Results appear instantly (still using simulation)</li>
+                        <li>Confidence scores are still 70-95% random range</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="status info">
+                <h3>🎯 Next Steps After Integration:</h3>
+                <ol>
+                    <li><strong>Validate Results:</strong> Test with known audio samples</li>
+                    <li><strong>Improve Algorithm:</strong> Add advanced features (MFCC, etc.)</li>
+                    <li><strong>Collect Training Data:</strong> Gather validated cough samples</li>
+                    <li><strong>Medical Validation:</strong> Get healthcare professional input</li>
+                    <li><strong>Accuracy Testing:</strong> Measure performance against known conditions</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testMatlabAccess() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="status info">🔄 Testing MATLAB access...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ Backend server is running!
+                            <p><strong>Next:</strong> Try uploading an audio file to test MATLAB integration.</p>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="status error">
+                            ❌ Backend server not responding. Please start it:
+                            <pre>cd BACKEND
+node server.js</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ Cannot connect to backend server: ${error.message}
+                        <p>Make sure the server is running on http://localhost:5000</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testRealAnalysis() {
+            const fileInput = document.getElementById('testAudio');
+            const resultsDiv = document.getElementById('testResults');
+            
+            if (!fileInput.files[0]) {
+                resultsDiv.innerHTML = '<div class="status error">❌ Please select an audio file first</div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<div class="status info">🔄 Testing MATLAB integration with real audio...</div>';
+            
+            try {
+                const formData = new FormData();
+                formData.append('audio', fileInput.files[0]);
+                
+                const startTime = Date.now();
+                const response = await fetch('http://localhost:5000/api/cough/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                const endTime = Date.now();
+                const processingTime = endTime - startTime;
+                
+                const data = await response.json();
+                
+                if (response.ok && data.ok) {
+                    const isRealAnalysis = processingTime > 1000 && // Took more than 1 second
+                                         data.analysis.analysisMethod.includes('MATLAB') &&
+                                         data.analysis.dominantFrequency > 0;
+                    
+                    if (isRealAnalysis) {
+                        resultsDiv.innerHTML = `
+                            <div class="status success">
+                                ✅ <strong>MATLAB Integration Working!</strong>
+                                <ul>
+                                    <li>Processing time: ${processingTime}ms</li>
+                                    <li>Dominant frequency: ${data.analysis.dominantFrequency} Hz</li>
+                                    <li>Pattern: ${data.analysis.pattern}</li>
+                                    <li>Confidence: ${data.analysis.confidence}%</li>
+                                    <li>Method: ${data.analysis.analysisMethod}</li>
+                                </ul>
+                                <p><strong>🎉 Success!</strong> You're now using real MATLAB analysis instead of simulation!</p>
+                            </div>
+                        `;
+                    } else {
+                        resultsDiv.innerHTML = `
+                            <div class="status warning">
+                                ⚠️ <strong>Still Using Simulation</strong>
+                                <p>Processing time: ${processingTime}ms (too fast for real analysis)</p>
+                                <p>The system is still using the simulation function. Check:</p>
+                                <ul>
+                                    <li>Is MATLAB properly installed and in PATH?</li>
+                                    <li>Did you restart the Node.js server after changes?</li>
+                                    <li>Check console for MATLAB execution errors</li>
+                                </ul>
+                            </div>
+                        `;
+                    }
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="status error">
+                            ❌ <strong>Analysis Failed:</strong> ${data.error || 'Unknown error'}
+                            <p>This might indicate MATLAB integration issues. Check the server console for details.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ <strong>Network Error:</strong> ${error.message}
+                        <p>Make sure the backend server is running.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-test connection on page load
+        window.onload = function() {
+            setTimeout(testMatlabAccess, 1000);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"error":"Error writing to output stream.\niostream stream error\n","dominantFrequency":0,"pattern":"Analysis failed","healthStatus":"Error in analysis","possibleConditions":"Unable to analyze","recommendation":"Please try again or consult healthcare professional","confidence":0,"analysisMethod":"MATLAB Analysis (Error)"}

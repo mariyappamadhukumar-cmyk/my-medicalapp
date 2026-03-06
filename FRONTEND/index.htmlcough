@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pranava Health AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.8); }
+        }
+        
+        @keyframes recording-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(239, 68, 68, 1);
+                transform: scale(1.05);
+            }
+        }
+        
+        .glow-green {
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+        }
+        
+        .glow-blue {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .recording {
+            animation: recording-pulse 1.5s infinite;
+        }
+        
+        .voice-button:hover {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        .chat-container {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .message-bubble {
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white font-sans">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-2xl h-[700px] chat-container rounded-2xl shadow-2xl border border-slate-700 flex flex-col">
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-700 bg-slate-800/50 rounded-t-2xl">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center glow-green">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-white">Pranava Health AI</h1>
+                        <p class="text-sm text-slate-400">Your personal health companion</p>
+                    </div>
+                    <div class="ml-auto">
+                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chatContainer">
+                <!-- AI Welcome Message -->
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div class="message-bubble bg-slate-800/60 border border-slate-600 rounded-2xl rounded-tl-sm p-4 max-w-xs">
+                        <p class="text-sm text-slate-200">Hello! I'm your AI health assistant. You can describe your symptoms by typing or using voice. How can I help you today?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Controls -->
+            <div class="px-6 py-4 border-t border-slate-700">
+                <div class="flex justify-center space-x-6 mb-4">
+                    <!-- Voice Upload Button -->
+                    <button id="voiceUploadBtn" class="voice-button flex flex-col items-center space-y-2 p-4 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-600 transition-all duration-300 glow-blue">
+                        <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                        </svg>
+                        <span class="text-xs text-slate-300">Upload Voice</span>
+                    </button>
+
+                    <!-- Record Voice Button -->
+                    <button id="recordBtn" class="voice-button flex flex-col items-center space-y-2 p-4 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-600 transition-all duration-300 glow-green">
+                        <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                        <span class="text-xs text-slate-300" id="recordText">Record Voice</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-6 pt-0">
+                <div class="flex items-center space-x-3 bg-slate-800/60 border border-slate-600 rounded-2xl p-3">
+                    <input 
+                        type="text" 
+                        id="messageInput"
+                        placeholder="Describe your symptoms or record your voice..."
+                        class="flex-1 bg-transparent text-white placeholder-slate-400 focus:outline-none text-sm"
+                    >
+                    <button id="sendBtn" class="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white p-2 rounded-xl transition-all duration-300 glow-green">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRecording = false;
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const recordBtn = document.getElementById('recordBtn');
+        const recordText = document.getElementById('recordText');
+        const voiceUploadBtn = document.getElementById('voiceUploadBtn');
+
+        // Add message to chat
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex items-start space-x-3 ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`;
+            
+            const avatar = isUser ? 
+                `<div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>` :
+                `<div class="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                </div>`;
+
+            messageDiv.innerHTML = `
+                ${avatar}
+                <div class="message-bubble ${isUser ? 'bg-gradient-to-r from-green-600 to-blue-600' : 'bg-slate-800/60 border border-slate-600'} rounded-2xl ${isUser ? 'rounded-tr-sm' : 'rounded-tl-sm'} p-4 max-w-xs">
+                    <p class="text-sm text-slate-200">${message}</p>
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Send message
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                messageInput.value = '';
+                
+                // Simulate AI response
+                setTimeout(() => {
+                    const responses = [
+                        "I understand you're experiencing some symptoms. Can you tell me more about when they started?",
+                        "Thank you for sharing that information. Based on what you've described, I'd recommend consulting with a healthcare professional.",
+                        "I've noted your symptoms. It's important to monitor how you're feeling and seek medical attention if symptoms worsen.",
+                        "That's helpful information. Have you noticed any patterns or triggers for these symptoms?"
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage(randomResponse);
+                }, 1000);
+            }
+        }
+
+        // Record voice functionality
+        recordBtn.addEventListener('click', () => {
+            if (!isRecording) {
+                isRecording = true;
+                recordBtn.classList.add('recording');
+                recordText.textContent = 'Recording...';
+                recordBtn.querySelector('svg').classList.add('text-red-400');
+                
+                // Simulate recording for 3 seconds
+                setTimeout(() => {
+                    isRecording = false;
+                    recordBtn.classList.remove('recording');
+                    recordText.textContent = 'Record Voice';
+                    recordBtn.querySelector('svg').classList.remove('text-red-400');
+                    recordBtn.querySelector('svg').classList.add('text-green-400');
+                    
+                    addMessage("🎤 Voice message recorded: 'I've been having headaches for the past few days...'", true);
+                    
+                    setTimeout(() => {
+                        addMessage("I heard you mention headaches. Can you describe the intensity and frequency? This will help me provide better guidance.");
+                    }, 1000);
+                }, 3000);
+            }
+        });
+
+        // Voice upload functionality
+        voiceUploadBtn.addEventListener('click', () => {
+            // Create a hidden file input
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'audio/*';
+            fileInput.style.display = 'none';
+            
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    addMessage(`🎵 Voice file uploaded: "${file.name}"`, true);
+                    
+                    setTimeout(() => {
+                        addMessage("I've received your voice message. I'm analyzing the audio content to better understand your health concerns.");
+                    }, 1000);
+                }
+            });
+            
+            document.body.appendChild(fileInput);
+            fileInput.click();
+            document.body.removeChild(fileInput);
+        });
+
+        // Send button and Enter key
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9869026001767ff5',t:'MTc1OTEyMjk5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

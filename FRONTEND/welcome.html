@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏥 MediCare Health Platform</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #4169E1;
+      --primary-dark: #1E90FF;
+      --secondary: #8B5CF6;
+      --accent: #10b981;
+      --bg-gradient-1: #FFE4E6;
+      --bg-gradient-2: #FFCCD5;
+      --card-bg: rgba(255, 255, 255, 0.25);
+      --border: rgba(65, 105, 225, 0.3);
+      --text-primary: #1f2937;
+      --text-secondary: #4b5563;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+      position: relative;
+    }
+
+    /* Animated background particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(100, 149, 237, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(65, 105, 225, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 75% 25%, rgba(139, 92, 246, 0.10) 0%, transparent 50%);
+      z-index: -1;
+      animation: gradient 15s ease infinite;
+      background-size: 400% 400%;
+    }
+
+    @keyframes gradient {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+      animation: fadeInDown 0.8s ease-out;
+      position: relative;
+    }
+
+    .auth-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+    }
+
+    .auth-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(65, 105, 225, 0.4);
+    }
+
+    .auth-button.logout {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .user-greeting {
+      position: absolute;
+      top: 5px;
+      right: 150px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+    }
+
+    .user-avatar {
+      width: 35px;
+      height: 35px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 25px;
+      margin-bottom: 25px;
+      animation: logoEntrance 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    @keyframes logoEntrance {
+      0% {
+        opacity: 0;
+        transform: scale(0) rotate(-180deg);
+      }
+      60% {
+        transform: scale(1.1) rotate(10deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+    }
+
+    .main-logo {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      box-shadow: 
+        0 20px 60px rgba(99, 102, 241, 0.4),
+        0 0 0 10px rgba(255, 255, 255, 0.1),
+        0 0 0 20px rgba(255, 255, 255, 0.05);
+      animation: logoFloat 3s ease-in-out infinite;
+      position: relative;
+    }
+
+    .main-logo::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+      border-radius: 35px;
+      z-index: -1;
+      opacity: 0.5;
+      filter: blur(20px);
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-15px) rotate(5deg);
+      }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% {
+        opacity: 0.5;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+      }
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff, #f0f0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      letter-spacing: -1px;
+      animation: titleShine 3s ease-in-out infinite;
+    }
+
+    @keyframes titleShine {
+      0%, 100% {
+        filter: brightness(1);
+      }
+      50% {
+        filter: brightness(1.2);
+      }
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      animation: subtitleFade 2s ease-out;
+    }
+
+    @keyframes subtitleFade {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Options Grid */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 35px;
+      max-width: 1200px;
+      margin: 0 auto;
+      perspective: 1000px;
+    }
+
+    .option-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(30px);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 30px;
+      padding: 45px 35px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.8s ease-out backwards;
+      transform-style: preserve-3d;
+    }
+
+    .option-card:nth-child(1) { animation-delay: 0.1s; }
+    .option-card:nth-child(2) { animation-delay: 0.2s; }
+    .option-card:nth-child(3) { animation-delay: 0.3s; }
+    .option-card:nth-child(4) { animation-delay: 0.4s; }
+    .option-card:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(60px) rotateX(-20deg);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0deg);
+      }
+    }
+
+    /* Gradient overlay on hover */
+    .option-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      border-radius: 30px;
+    }
+
+    .option-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Animated border effect */
+    .option-card::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #6366f1, #8b5cf6, #ec4899, #14b8a6);
+      background-size: 300% 300%;
+      border-radius: 30px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      animation: gradientRotate 3s ease infinite;
+    }
+
+    @keyframes gradientRotate {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .option-card:hover::after {
+      opacity: 1;
+    }
+
+    .option-card:hover {
+      transform: translateY(-15px) scale(1.03) rotateX(5deg);
+      box-shadow: 
+        0 25px 70px rgba(99, 102, 241, 0.3),
+        0 10px 30px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      border-color: rgba(99, 102, 241, 0.5);
+    }
+
+    .option-card:active {
+      transform: translateY(-10px) scale(1.01);
+    }
+
+    .option-icon {
+      font-size: 5rem;
+      margin-bottom: 25px;
+      display: inline-block;
+      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+      position: relative;
+    }
+
+    .option-card:hover .option-icon {
+      transform: scale(1.25) rotate(10deg) translateY(-10px);
+      filter: drop-shadow(0 10px 25px rgba(99, 102, 241, 0.4));
+    }
+
+    /* Icon glow effect */
+    .option-icon::after {
+      content: attr(data-icon);
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      filter: blur(20px);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .option-card:hover .option-icon::after {
+      opacity: 0.6;
+    }
+
+    .option-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+      background: linear-gradient(135deg, #1f2937, #4b5563);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: all 0.3s ease;
+    }
+
+    .option-card:hover .option-title {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transform: scale(1.05);
+    }
+
+    .option-description {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 25px;
+      transition: color 0.3s ease;
+    }
+
+    .option-card:hover .option-description {
+      color: var(--text-primary);
+    }
+
+    .option-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-top: 12px;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .option-card:hover .option-badge {
+      transform: scale(1.1);
+      box-shadow: 0 6px 25px rgba(99, 102, 241, 0.5);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 80px;
+      padding: 25px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.95rem;
+      animation: fadeIn 2s ease-out;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .footer p:first-child {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    /* Stats Section */
+    .stats-section {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin: 40px 0 60px 0;
+      flex-wrap: wrap;
+      animation: fadeInUp 1s ease-out 0.6s backwards;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      padding: 30px 40px;
+      text-align: center;
+      min-width: 180px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+      animation: shimmer 2s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 50px rgba(99, 102, 241, 0.3);
+    }
+
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Floating shapes decoration */
+    .floating-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .shape {
+      position: absolute;
+      opacity: 0.1;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    .shape:nth-child(1) {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 50%;
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .shape:nth-child(2) {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      border-radius: 30%;
+      top: 60%;
+      right: 10%;
+      animation-delay: 2s;
+    }
+
+    .shape:nth-child(3) {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #14b8a6, #6366f1);
+      border-radius: 20%;
+      bottom: 10%;
+      left: 15%;
+      animation-delay: 4s;
+    }
+
+    .shape:nth-child(4) {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #f59e0b, #ec4899);
+      border-radius: 50%;
+      top: 30%;
+      right: 20%;
+      animation-delay: 1s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) rotate(0deg);
+      }
+      25% {
+        transform: translateY(-30px) rotate(90deg);
+      }
+      50% {
+        transform: translateY(0) rotate(180deg);
+      }
+      75% {
+        transform: translateY(30px) rotate(270deg);
+      }
+    }
+
+    /* Wave animation at bottom */
+    .waves {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 200px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .wave {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      background-repeat: repeat-x;
+      animation: wave 25s linear infinite;
+    }
+
+    .wave:nth-child(1) {
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+      animation-duration: 25s;
+      opacity: 0.7;
+    }
+
+    .wave:nth-child(2) {
+      background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+      animation-duration: 20s;
+      animation-delay: -5s;
+      opacity: 0.5;
+    }
+
+    .wave:nth-child(3) {
+      background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.1), transparent);
+      animation-duration: 30s;
+      animation-delay: -2s;
+      opacity: 0.3;
+    }
+
+    @keyframes wave {
+      0% {
+        transform: translateX(0) translateZ(0) scaleY(1);
+      }
+      50% {
+        transform: translateX(-25%) translateZ(0) scaleY(0.8);
+      }
+      100% {
+        transform: translateX(-50%) translateZ(0) scaleY(1);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+      }
+
+      .main-logo {
+        width: 80px;
+        height: 80px;
+        font-size: 40px;
+      }
+
+      .options-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+      }
+
+      .option-card {
+        padding: 35px 25px;
+      }
+
+      .option-icon {
+        font-size: 4rem;
+      }
+
+      .option-title {
+        font-size: 1.4rem;
+      }
+
+      .auth-button {
+        position: static;
+        margin: 0 auto 20px;
+      }
+
+      .user-greeting {
+        position: static;
+        margin: 0 auto 15px;
+        width: fit-content;
+      }
+
+      .header {
+        margin-bottom: 50px;
+      }
+
+      .stats-section {
+        gap: 20px;
+      }
+
+      .stat-card {
+        min-width: 140px;
+        padding: 25px 30px;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+      }
+
+      .floating-shapes {
+        display: none; /* Hide on mobile for better performance */
+      }
+    }
+
+    /* Loading animation */
+    .loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      padding: 20px 40px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    .loading.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(65, 105, 225, 0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Hamburger Menu Button */
+    .menu-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      z-index: 1001;
+      box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .menu-toggle:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(65, 105, 225, 0.4);
+    }
+
+    .menu-toggle span {
+      width: 24px;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .menu-toggle.active span:nth-child(1) {
+      transform: translateY(9px) rotate(45deg);
+    }
+
+    .menu-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .menu-toggle.active span:nth-child(3) {
+      transform: translateY(-9px) rotate(-45deg);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -320px;
+      width: 320px;
+      height: 100vh;
+      background: white;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .sidebar-header {
+      background: linear-gradient(135deg, #4169E1, #8B5CF6);
+      color: white;
+      padding: 25px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .sidebar-logo-icon {
+      font-size: 2.5em;
+    }
+
+    .sidebar-logo-text h3 {
+      font-size: 1.3em;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .sidebar-logo-text p {
+      font-size: 0.85em;
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+
+    .menu-section-title {
+      padding: 15px 20px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px 20px;
+      color: #333;
+      text-decoration: none;
+      border-left: 4px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .menu-item:hover {
+      background: linear-gradient(90deg, rgba(65, 105, 225, 0.1), transparent);
+      border-left-color: #4169E1;
+    }
+
+    .menu-item.active {
+      background: linear-gradient(90deg, rgba(65, 105, 225, 0.15), rgba(65, 105, 225, 0.05));
+      border-left-color: #4169E1;
+      font-weight: 600;
+    }
+
+    .menu-item-icon {
+      font-size: 20px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .menu-item-text {
+      flex: 1;
+      font-size: 0.95rem;
+    }
+
+    .sidebar-footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      border-top: 1px solid #e9ecef;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hamburger Menu Button -->
+  <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="sidebar-logo-icon">🏥</span>
+        <div class="sidebar-logo-text">
+          <h3>MediCare</h3>
+          <p>Health Platform</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-menu">
+      <div class="menu-section-title">Quick Access</div>
+      
+      <a href="health-dashboard.html" class="menu-item">
+        <span class="menu-item-icon">📊</span>
+        <span class="menu-item-text">Health Dashboard</span>
+      </a>
+
+      <a href="hospital.html" class="menu-item">
+        <span class="menu-item-icon">�</span>
+        <span class="menu-item-text">Nearby Hospitals</span>
+      </a>
+
+      <!-- Coming Soon - More Options -->
+      <!--
+      <a href="cough-prediction.html" class="menu-item">
+        <span class="menu-item-icon">🎤</span>
+        <span class="menu-item-text">Cough Analysis</span>
+      </a>
+
+      <a href="index.html" class="menu-item">
+        <span class="menu-item-icon">�</span>
+        <span class="menu-item-text">AI Doctor Chat</span>
+      </a>
+
+      <a href="doctor-options.html" class="menu-item">
+        <span class="menu-item-icon">👨‍⚕️</span>
+        <span class="menu-item-text">Find Doctors</span>
+      </a>
+      -->
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="menu-item" onclick="handleAuth()" style="color: #ef4444;">
+        <span class="menu-item-icon">🚪</span>
+        <span class="menu-item-text">Logout</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating shapes decoration -->
+  <div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+
+  <!-- Wave animation -->
+  <div class="waves">
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
+
+  <div class="container">
+    <header class="header">
+      <!-- User greeting (shown when logged in) -->
+      <div class="user-greeting" id="userGreeting" style="display: none;">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <span class="user-name" id="userName">User</span>
+      </div>
+
+      <!-- Login/Logout button -->
+      <button class="auth-button" id="authButton" onclick="handleAuth()">
+        🔐 Login
+      </button>
+
+      <div class="logo-section">
+        <div class="main-logo">🏥</div>
+      </div>
+      <h1>MediCare Health Platform</h1>
+      <p class="subtitle">Your Intelligent Healthcare Companion</p>
+    </header>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+      <div class="stat-card">
+        <span class="stat-number" data-target="95">0</span>
+        <span class="stat-label">Accuracy %</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" data-target="24">0</span>
+        <span class="stat-label">Available 24/7</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" data-target="100">0</span>
+        <span class="stat-label">Trusted</span>
+      </div>
+    </section>
+
+    <main class="options-grid">
+      <!-- Option 1: AI Health Chatbot -->
+      <div class="option-card" onclick="navigateTo('chatbot')">
+        <div class="option-icon">💬</div>
+        <h2 class="option-title">AI Health Chatbot</h2>
+        <p class="option-description">
+          Chat with our intelligent AI assistant for instant health guidance, symptom analysis, and wellness tips.
+        </p>
+        <span class="option-badge">Instant Response</span>
+      </div>
+
+      <!-- Option 2: Cough Disease Prediction -->
+      <div class="option-card" onclick="navigateTo('cough')">
+        <div class="option-icon">🫁</div>
+        <h2 class="option-title">Cough Disease Prediction</h2>
+        <p class="option-description">
+          Advanced AI-powered cough analysis to identify potential respiratory conditions and provide recommendations.
+        </p>
+        <span class="option-badge">AI Diagnosis</span>
+      </div>
+
+      <!-- Option 3: Doctor Consultation -->
+      <div class="option-card" onclick="navigateTo('doctor')">
+        <div class="option-icon">🩺</div>
+        <h2 class="option-title">Doctor Consultation</h2>
+        <p class="option-description">
+          Choose between AI-powered online consultation or find nearby offline doctors for in-person visits.
+        </p>
+        <span class="option-badge">New Feature</span>
+      </div>
+
+      <!-- Option 4: Nearby Hospitals -->
+      <div class="option-card" onclick="navigateTo('hospitals')">
+        <div class="option-icon">🏥</div>
+        <h2 class="option-title">Nearby Hospitals</h2>
+        <p class="option-description">
+          Find hospitals and emergency centres close to you — turn on location to see nearby results on the map.
+        </p>
+        <span class="option-badge">Location</span>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>⚕️ MediCare Health Platform • Not a substitute for professional medical advice</p>
+      <p style="margin-top: 10px; font-size: 0.85rem;">© 2025 MediCare. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <span>Loading...</span>
+  </div>
+
+  <!-- Nearby hospitals modal -->
+  <div id="hospModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <h3>Nearby Hospitals</h3>
+      <p id="hospLocationText">Finding your location...</p>
+      <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap;">
+        <button id="openMapsBtn" class="btn-primary">Open in Google Maps</button>
+        <button id="searchHospBtn" class="btn-secondary">Search Hospitals</button>
+        <button id="closeHospBtn" class="btn-ghost">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Animated Stats Counter
+    function animateStats() {
+      const statNumbers = document.querySelectorAll('.stat-number');
+      
+      statNumbers.forEach(stat => {
+        const target = parseInt(stat.getAttribute('data-target'));
+        const duration = 2000; // 2 seconds
+        const increment = target / (duration / 16); // 60fps
+        let current = 0;
+        
+        const updateCounter = () => {
+          current += increment;
+          if (current < target) {
+            stat.textContent = Math.floor(current);
+            requestAnimationFrame(updateCounter);
+          } else {
+            stat.textContent = target;
+          }
+        };
+        
+        updateCounter();
+      });
+    }
+
+    // Run stats animation when page loads
+    window.addEventListener('load', () => {
+      setTimeout(animateStats, 500);
+    });
+
+    // Add parallax effect to floating shapes
+    document.addEventListener('mousemove', (e) => {
+      const shapes = document.querySelectorAll('.shape');
+      const mouseX = e.clientX / window.innerWidth;
+      const mouseY = e.clientY / window.innerHeight;
+      
+      shapes.forEach((shape, index) => {
+        const speed = (index + 1) * 20;
+        const x = (mouseX - 0.5) * speed;
+        const y = (mouseY - 0.5) * speed;
+        shape.style.transform = `translate(${x}px, ${y}px)`;
+      });
+    });
+
+    // Toggle Sidebar Menu
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const menuToggle = document.getElementById('menuToggle');
+      
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+      menuToggle.classList.toggle('active');
+    }
+
+    function navigateTo(option) {
+      const loading = document.getElementById('loading');
+      loading.classList.add('active');
+
+      // Navigate based on option
+      setTimeout(() => {
+        switch(option) {
+          case 'chatbot':
+            window.location.href = 'index.html';
+            break;
+          case 'dashboard':
+            window.location.href = 'health-dashboard.html';
+            break;
+          case 'cough':
+            window.location.href = 'cough-prediction.html';
+            break;
+          case 'doctor':
+            window.location.href = 'doctor-options.html';
+            break;
+            case 'hospitals':
+              // open the full hospital finder page robustly (handle file:// and http(s) served cases)
+              loading.classList.remove('active');
+              (async () => {
+                // If served over HTTP(S) try the server path first
+                if (location.protocol === 'http:' || location.protocol === 'https:') {
+                  try {
+                    const resp = await fetch('/hospital-finder.html', { method: 'HEAD' });
+                    if (resp.ok) {
+                      window.location.href = '/hospital-finder.html';
+                      return;
+                    }
+                  } catch (e) {
+                    // ignore and try localhost fallback
+                  }
+                  // fallback to common dev server on localhost
+                  window.open('http://localhost:5000/hospital-finder.html', '_blank');
+                  return;
+                }
+
+                // If opened via file:// attempt to map to the BACKEND/public file and open it
+                if (location.protocol === 'file:') {
+                  try {
+                    const href = location.href.replace(/\\\\/g, '/');
+                    const target = href.replace(/\/FRONTEND\//i, '/BACKEND/public/').replace(/[^/]*$/, 'hospital-finder.html');
+                    window.open(target, '_blank');
+                    return;
+                  } catch (err) {
+                    // last resort fallback
+                    window.open('http://localhost:5000/hospital-finder.html', '_blank');
+                    return;
+                  }
+                }
+
+                // Default fallback
+                window.open('/hospital-finder.html', '_blank');
+              })();
+              return;
+          default:
+            loading.classList.remove('active');
+        }
+      }, 500);
+    }
+
+    // Add particle animation
+    function createParticles() {
+      const particlesContainer = document.createElement('div');
+      particlesContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+      `;
+      document.body.appendChild(particlesContainer);
+
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.style.cssText = `
+          position: absolute;
+          width: ${Math.random() * 4 + 2}px;
+          height: ${Math.random() * 4 + 2}px;
+          background: rgba(65, 105, 225, 0.4);
+          border-radius: 50%;
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          animation: float ${Math.random() * 6 + 6}s ease-in-out infinite;
+          animation-delay: ${Math.random() * 6}s;
+        `;
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 0.7;
+        }
+        50% {
+          transform: translateY(-100px) rotate(180deg);
+          opacity: 1;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    document.addEventListener('DOMContentLoaded', createParticles);
+
+    // Authentication Management
+    function checkAuthStatus() {
+      const token = localStorage.getItem('authToken');
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const authButton = document.getElementById('authButton');
+      const userGreeting = document.getElementById('userGreeting');
+      const userName = document.getElementById('userName');
+      const userAvatar = document.getElementById('userAvatar');
+
+      if (token && userInfo.name) {
+        // User is logged in
+        authButton.innerHTML = '🚪 Logout';
+        authButton.classList.add('logout');
+        
+        // Show user greeting
+        userGreeting.style.display = 'flex';
+        userName.textContent = userInfo.name;
+        userAvatar.textContent = userInfo.name.charAt(0).toUpperCase();
+      } else {
+        // User is not logged in
+        authButton.innerHTML = '🔐 Login';
+        authButton.classList.remove('logout');
+        userGreeting.style.display = 'none';
+      }
+    }
+
+    function handleAuth() {
+      const token = localStorage.getItem('authToken');
+      
+      if (token) {
+        // User is logged in - logout
+        if (confirm('Are you sure you want to logout?')) {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('userInfo');
+          checkAuthStatus();
+          alert('You have been logged out successfully!');
+        }
+      } else {
+        // User is not logged in - go to login page
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Check auth status on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuthStatus();
+      createParticles();
+    });
+
+    // Modal and geolocation helpers
+    const hospModal = document.getElementById('hospModal');
+    const hospLocationText = document.getElementById('hospLocationText');
+    const openMapsBtn = document.getElementById('openMapsBtn');
+    const searchHospBtn = document.getElementById('searchHospBtn');
+    const closeHospBtn = document.getElementById('closeHospBtn');
+
+    function showModal() {
+      hospModal.style.display = 'flex';
+      hospModal.setAttribute('aria-hidden', 'false');
+    }
+    function hideModal() {
+      hospModal.style.display = 'none';
+      hospModal.setAttribute('aria-hidden', 'true');
+    }
+
+    closeHospBtn.addEventListener('click', hideModal);
+
+    function requestAndShowHospitals() {
+      hospLocationText.textContent = 'Requesting location permission...';
+      showModal();
+      if (!navigator.geolocation) {
+        hospLocationText.textContent = 'Geolocation is not supported by your browser.';
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lng = pos.coords.longitude.toFixed(6);
+        hospLocationText.textContent = `Your location: ${lat}, ${lng}`;
+
+        const mapsUrl = `https://www.google.com/maps/search/hospital+near+${lat},${lng}`;
+        openMapsBtn.onclick = () => window.open(mapsUrl, '_blank');
+        searchHospBtn.onclick = () => window.open(mapsUrl, '_blank');
+
+      }, (err) => {
+        hospLocationText.textContent = 'Unable to access location. Please allow location access in your browser or try again.';
+      }, { enableHighAccuracy: true, timeout: 8000 });
+    }
+
+    // Simple style improvements: make modal accessible initially hidden
+    hideModal();
+  </script>
+</body>
+</html>

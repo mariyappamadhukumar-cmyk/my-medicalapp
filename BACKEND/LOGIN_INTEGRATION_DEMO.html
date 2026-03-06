@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 Login Integration Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+        }
+
+        .demo-section {
+            margin-bottom: 40px;
+        }
+
+        .demo-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .mockup {
+            background: linear-gradient(135deg, #FFE4E6 0%, #FFCCD5 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mockup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .mockup-logo {
+            text-align: center;
+            flex: 1;
+        }
+
+        .mockup-logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4169E1, #8B5CF6);
+            border-radius: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .mockup-title {
+            font-size: 1.8rem;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .mockup-subtitle {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .auth-button-demo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #4169E1, #8B5CF6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+        }
+
+        .auth-button-demo.logout {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .user-greeting-demo {
+            position: absolute;
+            top: 5px;
+            right: 150px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+        }
+
+        .user-avatar-demo {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #4169E1, #8B5CF6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .user-name-demo {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.9rem;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 3rem;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .step-card {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .step-description {
+            color: #666;
+            font-size: 0.95rem;
+            margin-left: 50px;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-left: 5px solid #10b981;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .highlight-box h3 {
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+
+        .code-snippet {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .feature-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-text {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Welcome Page Login Integration Demo</h1>
+
+        <!-- Before Login State -->
+        <div class="demo-section">
+            <h2>📱 Before Login (Guest User)</h2>
+            
+            <div class="mockup">
+                <div class="mockup-header">
+                    <button class="auth-button-demo">🔐 Login</button>
+                </div>
+                <div class="mockup-logo">
+                    <div class="mockup-logo-icon">🏥</div>
+                    <div class="mockup-title">MediCare Health Platform</div>
+                    <div class="mockup-subtitle">Your Intelligent Healthcare Companion</div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">1</span>
+                <div class="step-title">Guest View</div>
+                <div class="step-description">
+                    User sees only the "🔐 Login" button in the top right corner. No personalization yet.
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <!-- After Login State -->
+        <div class="demo-section">
+            <h2>👤 After Login (Authenticated User)</h2>
+            
+            <div class="mockup">
+                <div class="mockup-header">
+                    <div class="user-greeting-demo">
+                        <div class="user-avatar-demo">J</div>
+                        <span class="user-name-demo">John Doe</span>
+                    </div>
+                    <button class="auth-button-demo logout">🚪 Logout</button>
+                </div>
+                <div class="mockup-logo">
+                    <div class="mockup-logo-icon">🏥</div>
+                    <div class="mockup-title">MediCare Health Platform</div>
+                    <div class="mockup-subtitle">Your Intelligent Healthcare Companion</div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">2</span>
+                <div class="step-title">Authenticated View</div>
+                <div class="step-description">
+                    User sees their name with avatar (first letter), plus a "🚪 Logout" button. Fully personalized experience!
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <!-- User Flow -->
+        <div class="demo-section">
+            <h2>🔄 Complete User Flow</h2>
+
+            <div class="step-card">
+                <span class="step-number">1</span>
+                <div class="step-title">User Opens Welcome Page</div>
+                <div class="step-description">
+                    User navigates to <code>welcome.html</code> in their browser
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">2</span>
+                <div class="step-title">Click "🔐 Login"</div>
+                <div class="step-description">
+                    Redirected to <code>login.html</code> page
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">3</span>
+                <div class="step-title">Enter Credentials or Register</div>
+                <div class="step-description">
+                    Login with existing account or click "Register here" for new account
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">4</span>
+                <div class="step-title">JWT Token Stored</div>
+                <div class="step-description">
+                    On successful login, JWT token saved to <code>localStorage</code>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">5</span>
+                <div class="step-title">Redirect to Welcome Page</div>
+                <div class="step-description">
+                    Automatically redirected back to <code>welcome.html</code>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">6</span>
+                <div class="step-title">Display User Info</div>
+                <div class="step-description">
+                    JavaScript reads token, displays name + avatar, changes button to "🚪 Logout"
+                </div>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">7</span>
+                <div class="step-title">Access Features</div>
+                <div class="step-description">
+                    User can now access Health Dashboard, Cough Analysis with personalized data!
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="demo-section">
+            <h2>✨ Key Features</h2>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🔐</div>
+                    <div class="feature-text">Login Button</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">👤</div>
+                    <div class="feature-text">User Avatar</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🚪</div>
+                    <div class="feature-text">Logout Button</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔄</div>
+                    <div class="feature-text">Auto-Redirect</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💾</div>
+                    <div class="feature-text">Token Persistence</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-text">Responsive Design</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Example -->
+        <div class="demo-section">
+            <h2>💻 How It Works (Code)</h2>
+
+            <h3 style="margin: 20px 0 10px;">Check Authentication Status:</h3>
+            <div class="code-snippet">
+function checkAuthStatus() {
+  const token = localStorage.getItem('authToken');
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  
+  if (token && userInfo.name) {
+    // User is logged in - show greeting
+    authButton.innerHTML = '🚪 Logout';
+    userGreeting.style.display = 'flex';
+    userName.textContent = userInfo.name;
+    userAvatar.textContent = userInfo.name.charAt(0).toUpperCase();
+  } else {
+    // User is not logged in - show login button
+    authButton.innerHTML = '🔐 Login';
+    userGreeting.style.display = 'none';
+  }
+}
+            </div>
+
+            <h3 style="margin: 20px 0 10px;">Handle Login/Logout:</h3>
+            <div class="code-snippet">
+function handleAuth() {
+  const token = localStorage.getItem('authToken');
+  
+  if (token) {
+    // Logout
+    if (confirm('Are you sure you want to logout?')) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userInfo');
+      checkAuthStatus();
+    }
+  } else {
+    // Go to login page
+    window.location.href = 'login.html';
+  }
+}
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="highlight-box">
+            <h3>🎉 Integration Complete!</h3>
+            <p><strong>Your welcome page is now fully integrated with the login system!</strong></p>
+            <ul style="margin-top: 15px; padding-left: 20px; line-height: 1.8;">
+                <li>✅ Login button redirects to login page</li>
+                <li>✅ User greeting displays after login</li>
+                <li>✅ Avatar shows first letter of name</li>
+                <li>✅ Logout button clears session</li>
+                <li>✅ Token persists across page reloads</li>
+                <li>✅ Fully responsive design</li>
+            </ul>
+            <p style="margin-top: 15px; font-weight: bold; color: #10b981;">
+                Test it now by opening FRONTEND/welcome.html!
+            </p>
+        </div>
+    </div>
+</body>
+</html>

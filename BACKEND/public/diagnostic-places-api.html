@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google Places API Diagnostic</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .box {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #4285f4;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #357ae8;
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .info { color: blue; }
+    pre {
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Google Places API Diagnostic</h1>
+  
+  <div class="box">
+    <h2>Step 1: Check Location</h2>
+    <button onclick="checkLocation()">Get My Location</button>
+    <div id="locationResult"></div>
+  </div>
+
+  <div class="box">
+    <h2>Step 2: Test API with Fixed Location (Mumbai)</h2>
+    <button onclick="testAPI()">Test API</button>
+    <div id="apiResult"></div>
+  </div>
+
+  <div class="box">
+    <h2>Step 3: Test with My Location</h2>
+    <button onclick="testWithMyLocation()">Test with My Location</button>
+    <div id="myLocationResult"></div>
+  </div>
+
+  <script>
+    let myLocation = null;
+
+    async function checkLocation() {
+      const result = document.getElementById('locationResult');
+      result.innerHTML = '<p class="info">Getting your location...</p>';
+      
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        
+        myLocation = {
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        };
+        
+        result.innerHTML = `
+          <p class="success">✅ Location found!</p>
+          <pre>${JSON.stringify(myLocation, null, 2)}</pre>
+        `;
+      } catch (error) {
+        result.innerHTML = `
+          <p class="error">❌ Error: ${error.message}</p>
+          <p>Error code: ${error.code}</p>
+          <p>Please allow location access in your browser settings</p>
+        `;
+      }
+    }
+
+    async function testAPI() {
+      const result = document.getElementById('apiResult');
+      result.innerHTML = '<p class="info">Testing API with Mumbai coordinates...</p>';
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/doctors/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            location: 'Mumbai',
+            latitude: 19.0760,
+            longitude: 72.8777,
+            specialization: 'all',
+            radius: 5000
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.ok) {
+          result.innerHTML = `
+            <p class="success">✅ API Working!</p>
+            <p><strong>Found:</strong> ${data.count} doctors</p>
+            <p><strong>Source:</strong> ${data.source}</p>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          `;
+        } else {
+          result.innerHTML = `
+            <p class="error">❌ API returned error:</p>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          `;
+        }
+      } catch (error) {
+        result.innerHTML = `
+          <p class="error">❌ Network Error: ${error.message}</p>
+          <p>Is the server running on http://localhost:5000?</p>
+        `;
+      }
+    }
+
+    async function testWithMyLocation() {
+      const result = document.getElementById('myLocationResult');
+      
+      if (!myLocation) {
+        result.innerHTML = '<p class="error">❌ Please get your location first (Step 1)</p>';
+        return;
+      }
+
+      result.innerHTML = '<p class="info">Testing API with your location...</p>';
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/doctors/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            location: 'Near me',
+            latitude: myLocation.lat,
+            longitude: myLocation.lon,
+            specialization: 'all',
+            radius: 10000  // 10km
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.ok) {
+          result.innerHTML = `
+            <p class="success">✅ Found ${data.count} doctors near you!</p>
+            <p><strong>Source:</strong> ${data.source}</p>
+            ${data.doctors && data.doctors.length > 0 ? `
+              <h3>Sample Doctors:</h3>
+              ${data.doctors.slice(0, 3).map(doc => `
+                <div style="border-left: 3px solid #4285f4; padding-left: 15px; margin: 10px 0;">
+                  <strong>${doc.name}</strong><br>
+                  ${doc.specialization}<br>
+                  ⭐ ${doc.rating}/5.0 (${doc.reviews} reviews)<br>
+                  📍 ${doc.distance || 'N/A'}<br>
+                  📞 ${doc.phone}<br>
+                  ${doc.googleMapsUrl ? `<a href="${doc.googleMapsUrl}" target="_blank">Open in Maps</a>` : ''}
+                </div>
+              `).join('')}
+            ` : ''}
+            <details>
+              <summary>View Full Response</summary>
+              <pre>${JSON.stringify(data, null, 2)}</pre>
+            </details>
+          `;
+        } else {
+          result.innerHTML = `
+            <p class="error">❌ API returned error:</p>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          `;
+        }
+      } catch (error) {
+        result.innerHTML = `
+          <p class="error">❌ Network Error: ${error.message}</p>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>

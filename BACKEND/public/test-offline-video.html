@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Video Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #4169E1;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #1E90FF;
+        }
+        .offline-button {
+            background: #4CAF50;
+        }
+        .offline-button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #4169E1;
+        }
+        .youtube-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #FF0000;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        .youtube-link:hover {
+            text-decoration: underline;
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .offline-section {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8f5e8;
+            border-radius: 5px;
+            border-left: 3px solid #4CAF50;
+        }
+        .download-section {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 5px;
+            border-left: 3px solid #ffc107;
+        }
+        .features {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .feature-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 5px 0;
+        }
+        .feature-list li:before {
+            content: "✅ ";
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🩺 Pranava Health AI - Offline Video Integration</h1>
+        
+        <div class="features">
+            <h3>🎯 New Offline Features</h3>
+            <ul class="feature-list">
+                <li>Download medical videos for offline viewing</li>
+                <li>Watch videos without internet connection</li>
+                <li>Automatic caching of top medical channel content</li>
+                <li>Browse and manage offline video library</li>
+                <li>Smart download with progress tracking</li>
+            </ul>
+        </div>
+        
+        <form onsubmit="analyzeSymptoms(event)">
+            <div class="input-group">
+                <label for="symptoms">Describe your symptoms:</label>
+                <textarea 
+                    id="symptoms" 
+                    rows="3" 
+                    placeholder="e.g., headache and fever, skin rash and itching, cough and sore throat"
+                    required
+                ></textarea>
+            </div>
+            <button type="submit">Analyze Symptoms</button>
+            <button type="button" class="offline-button" onclick="showOfflineVideos()">📱 View Offline Videos</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function analyzeSymptoms(event) {
+            event.preventDefault();
+            
+            const symptoms = document.getElementById('symptoms').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!symptoms) {
+                resultDiv.innerHTML = '<div class="result error">Please enter your symptoms.</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="result">Analyzing symptoms and preparing offline content...</div>';
+
+            try {
+                const response = await fetch('http://localhost:5000/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptoms })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                let resultHtml = `
+                    <div class="result">
+                        <h3>📋 Analysis Result</h3>
+                        <p><strong>Condition:</strong> ${data.disease}</p>
+                        <p><strong>Advice:</strong> ${data.advice}</p>
+                `;
+
+                if (data.youtube?.url) {
+                    const channelInfo = data.youtube.channelName ? 
+                        `<p style="margin-top: 4px; font-size: 12px; color: #888;">📋 From: <strong>${data.youtube.channelName}</strong></p>` : '';
+                    
+                    resultHtml += `
+                        <h4>📺 Trusted Medical Content</h4>
+                        <a href="${data.youtube.url}" target="_blank" class="youtube-link">
+                            <span style="font-size: 16px;">▶️</span>
+                            ${data.youtube.title || 'Watch a helpful video about this condition'}
+                        </a>
+                        ${channelInfo}
+                    `;
+                    
+                    if (data.youtube.description) {
+                        resultHtml += `<p style="margin-top: 8px; font-size: 14px; color: #666;">${data.youtube.description}</p>`;
+                    }
+
+                    // Offline functionality
+                    if (data.youtube.offlineAvailable) {
+                        resultHtml += `
+                            <div class="offline-section">
+                                <strong>📱 Offline Available</strong>
+                                <br>
+                                <a href="${data.youtube.offlinePath}" style="color: #4CAF50; text-decoration: none;">
+                                    ▶️ Watch Offline Version
+                                </a>
+                                <p style="font-size: 12px; color: #666; margin-top: 4px;">No internet required</p>
+                            </div>`;
+                    } else if (data.youtube.videoId) {
+                        resultHtml += `
+                            <div class="download-section">
+                                <strong>📥 Download for Offline</strong>
+                                <br>
+                                <button onclick="downloadVideo('${data.youtube.videoId}', '${data.youtube.title}')" 
+                                        class="offline-button" style="margin-top: 8px;">
+                                    📥 Download Video
+                                </button>
+                                <p style="font-size: 12px; color: #666; margin-top: 4px;">Download to watch without internet</p>
+                            </div>`;
+                    }
+                }
+
+                resultHtml += '</div>';
+                resultDiv.innerHTML = resultHtml;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function downloadVideo(videoId, title) {
+            const button = event.target;
+            const originalText = button.textContent;
+            
+            try {
+                button.textContent = '⏳ Downloading...';
+                button.disabled = true;
+
+                const response = await fetch('http://localhost:5000/api/download-video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ videoId, title })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    button.textContent = '✅ Downloaded!';
+                    button.style.background = '#4CAF50';
+                    
+                    setTimeout(() => {
+                        button.parentElement.innerHTML = `
+                            <div class="offline-section">
+                                <strong>📱 Offline Available</strong>
+                                <br>
+                                <a href="${result.localPath}" style="color: #4CAF50; text-decoration: none;">
+                                    ▶️ Watch Offline Version
+                                </a>
+                                <p style="font-size: 12px; color: #666; margin-top: 4px;">Video ready for offline viewing</p>
+                            </div>`;
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Download failed');
+                }
+            } catch (error) {
+                button.textContent = '❌ Failed';
+                button.style.background = '#f44336';
+                console.error('Download error:', error);
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#4CAF50';
+                    button.disabled = false;
+                }, 3000);
+            }
+        }
+
+        async function showOfflineVideos() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                resultDiv.innerHTML = '<div class="result">Loading offline videos...</div>';
+                
+                const response = await fetch('http://localhost:5000/api/offline-videos');
+                const result = await response.json();
+
+                if (result.success && result.videos.length > 0) {
+                    let videoList = `
+                        <div class="result">
+                            <h3>📱 Available Offline Videos (${result.count} videos)</h3>`;
+                    
+                    result.videos.forEach(video => {
+                        videoList += `
+                            <div style="margin: 12px 0; padding: 12px; background: #f0f8ff; border-radius: 5px; border-left: 3px solid #4CAF50;">
+                                <strong>${video.title}</strong><br>
+                                <a href="${video.localPath}" style="color: #4CAF50; text-decoration: none; margin-top: 4px; display: inline-block;">
+                                    ▶️ Watch Offline
+                                </a>
+                                <p style="font-size: 12px; color: #666; margin-top: 4px;">File: ${video.filename}</p>
+                            </div>`;
+                    });
+                    
+                    videoList += '</div>';
+                    resultDiv.innerHTML = videoList;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result">
+                            <h3>📱 No Offline Videos</h3>
+                            <p>No offline videos available yet. Analyze some symptoms first and download videos for offline viewing!</p>
+                        </div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Failed to load offline videos: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

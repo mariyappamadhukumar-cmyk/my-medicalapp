@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🤖 AI Doctor Consultation</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #8b5cf6;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --bg-dark: #0f172a;
+      --bg-darker: #020617;
+      --card-bg: rgba(15, 23, 42, 0.7);
+      --card-border: rgba(139, 92, 246, 0.3);
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --glow: rgba(139, 92, 246, 0.5);
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-darker);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated AI Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+      animation: gradientShift 15s ease infinite;
+      z-index: 0;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.1) rotate(5deg);
+        opacity: 0.8;
+      }
+    }
+
+    /* Floating particles effect */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(2px 2px at 20% 30%, rgba(139, 92, 246, 0.3), transparent),
+        radial-gradient(2px 2px at 60% 70%, rgba(99, 102, 241, 0.3), transparent),
+        radial-gradient(1px 1px at 50% 50%, rgba(6, 182, 212, 0.3), transparent),
+        radial-gradient(1px 1px at 80% 10%, rgba(139, 92, 246, 0.3), transparent),
+        radial-gradient(2px 2px at 90% 60%, rgba(99, 102, 241, 0.2), transparent);
+      background-size: 200% 200%;
+      animation: particleFloat 20s ease infinite;
+      z-index: 0;
+    }
+
+    @keyframes particleFloat {
+      0%, 100% {
+        background-position: 0% 0%;
+      }
+      50% {
+        background-position: 100% 100%;
+      }
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Back Button */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      padding: 12px 24px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .back-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .back-btn:hover::before {
+      left: 100%;
+    }
+
+    .back-btn:hover {
+      transform: translateX(-5px);
+      box-shadow: 0 12px 48px rgba(139, 92, 246, 0.4);
+      border-color: var(--secondary);
+    }
+
+    /* Header */
+    .header {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 24px 30px;
+      margin-bottom: 20px;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(139, 92, 246, 0.1) inset;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+      animation: headerGlow 8s linear infinite;
+    }
+
+    @keyframes headerGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .ai-avatar {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      box-shadow: 
+        0 4px 24px rgba(139, 92, 246, 0.5),
+        0 0 0 4px rgba(139, 92, 246, 0.2),
+        0 0 60px rgba(139, 92, 246, 0.3) inset;
+      animation: avatarPulse 2s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ai-avatar::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+      border-radius: 50%;
+      z-index: -1;
+      opacity: 0;
+      animation: avatarRing 2s ease-in-out infinite;
+    }
+
+    @keyframes avatarPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    @keyframes avatarRing {
+      0%, 100% { opacity: 0; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .header-text {
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-text h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+
+    .header-text p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .status-indicator {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--success);
+      font-weight: 600;
+      padding: 8px 16px;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: statusBlink 1.5s ease-in-out infinite;
+      box-shadow: 0 0 12px var(--success);
+    }
+
+    @keyframes statusBlink {
+      0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+      }
+      50% { 
+        opacity: 0.5; 
+        transform: scale(1.2);
+      }
+    }
+
+    /* Chat Container */
+    .chat-container {
+      flex: 1;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(139, 92, 246, 0.1) inset;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .messages::-webkit-scrollbar-track {
+      background: rgba(139, 92, 246, 0.1);
+      border-radius: 10px;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 16px 20px;
+      border-radius: 20px;
+      line-height: 1.6;
+      animation: messageSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    @keyframes messageSlide {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .message.ai::before {
+      content: '🤖';
+      position: absolute;
+      left: -30px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2rem;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      box-shadow: 
+        0 4px 20px rgba(99, 102, 241, 0.4),
+        0 0 40px rgba(139, 92, 246, 0.2);
+    }
+
+    .message.user::after {
+      content: '👤';
+      position: absolute;
+      right: -30px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2rem;
+    }
+
+    .message.treatment {
+      align-self: flex-start;
+      max-width: 90%;
+      background: var(--card-bg);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 24px;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 60px rgba(16, 185, 129, 0.1);
+    }
+
+    .treatment-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--success), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .treatment-section {
+      margin: 18px 0;
+      padding: 16px;
+      background: rgba(16, 185, 129, 0.05);
+      border-radius: 12px;
+      border-left: 3px solid var(--success);
+    }
+
+    .treatment-section h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .treatment-section ul {
+      margin-left: 20px;
+      color: var(--text-secondary);
+    }
+
+    .treatment-section li {
+      margin: 10px 0;
+      line-height: 1.6;
+      position: relative;
+      padding-left: 8px;
+    }
+
+    .treatment-section li::before {
+      content: '▸';
+      position: absolute;
+      left: -16px;
+      color: var(--success);
+      font-weight: bold;
+    }
+
+    .medicine-item {
+      background: rgba(6, 182, 212, 0.1);
+      padding: 12px 18px;
+      border-radius: 12px;
+      margin: 10px 0;
+      border-left: 4px solid var(--accent);
+      transition: all 0.3s ease;
+    }
+
+    .medicine-item:hover {
+      transform: translateX(4px);
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.2);
+    }
+
+    .medicine-item strong {
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1.05rem;
+    }
+
+    .warning-note {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-top: 18px;
+      color: #ef4444;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 16px rgba(239, 68, 68, 0.1);
+    }
+
+    /* Input Area */
+    .input-area {
+      padding: 20px 25px;
+      border-top: 1px solid var(--card-border);
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .input-area::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+    }
+
+    .input-container {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    #userInput {
+      flex: 1;
+      padding: 16px 24px;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(15, 23, 42, 0.5);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) inset;
+    }
+
+    #userInput::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+
+    #userInput:focus {
+      border-color: var(--secondary);
+      box-shadow: 
+        0 0 0 3px rgba(139, 92, 246, 0.2),
+        0 4px 16px rgba(0, 0, 0, 0.2) inset,
+        0 0 40px rgba(139, 92, 246, 0.1);
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .upload-btn, .send-btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .upload-btn::before, .send-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .upload-btn:hover::before, .send-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .upload-btn {
+      background: var(--card-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 8px 24px rgba(0, 0, 0, 0.3),
+        0 0 40px rgba(6, 182, 212, 0.3);
+      border-color: var(--accent);
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      box-shadow: 
+        0 4px 20px rgba(99, 102, 241, 0.4),
+        0 0 40px rgba(139, 92, 246, 0.2);
+      position: relative;
+    }
+
+    .send-btn::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+      border-radius: 16px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .send-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 
+        0 12px 32px rgba(99, 102, 241, 0.6),
+        0 0 60px rgba(139, 92, 246, 0.4);
+    }
+
+    .send-btn:hover::after {
+      opacity: 1;
+      animation: borderGlow 2s linear infinite;
+    }
+
+    @keyframes borderGlow {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    .send-btn:active {
+      transform: translateY(-1px) scale(0.98);
+    }
+
+    #sendBtn {
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+    }
+
+    #sendBtn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(65, 105, 225, 0.4);
+    }
+
+    #sendBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .typing-indicator {
+      display: none;
+      align-self: flex-start;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.1), rgba(139, 92, 246, 0.1));
+      border: 2px solid rgba(65, 105, 225, 0.2);
+      border-radius: 18px;
+      gap: 6px;
+    }
+
+    .typing-indicator.active {
+      display: flex;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: typing 1.4s ease-in-out infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-10px); }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      .header {
+        padding: 15px 20px;
+      }
+
+      .status-indicator {
+        display: none;
+      }
+
+      .message {
+        max-width: 85%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="goBack()">
+    ← Back
+  </button>
+
+  <div class="container">
+    <header class="header">
+      <div class="ai-avatar">🤖</div>
+      <div class="header-text">
+        <h1>AI Doctor Consultation</h1>
+        <p>Intelligent medical guidance powered by advanced AI</p>
+      </div>
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span>Online</span>
+      </div>
+    </header>
+
+    <div class="chat-container">
+      <div class="messages" id="messages">
+        <div class="message ai">
+          �‍⚕️ Good day! I'm Dr. Sarah Mitchell, your AI Medical Consultant. I have over 15 years of experience in general medicine and I'm here to help you today.
+          <br><br>
+          I'll be conducting a thorough consultation to understand your health concerns and provide you with appropriate medical guidance. Let me start by gathering some important information.
+          <br><br>
+          <strong>Can you please tell me what brings you here today? What symptoms or health concerns are you experiencing?</strong>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-container">
+          <input 
+            type="text" 
+            id="userInput" 
+            placeholder="Describe your symptoms (e.g., fever, headache, cough)..." 
+            autocomplete="off"
+          />
+          <button id="sendBtn">Send 💬</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const messagesContainer = document.getElementById('messages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    let conversationHistory = [];
+    let currentStep = 'symptoms'; // symptoms, duration, severity, additional, diagnosis
+
+    function goBack() {
+      window.location.href = 'doctor-options.html';
+    }
+
+    // Format AI text with proper bold formatting
+    function formatAIText(text) {
+      // Remove excessive asterisks and symbols
+      let formatted = text;
+      
+      // Convert **text** to <strong>text</strong>
+      formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      
+      // Convert single * for lists
+      formatted = formatted.replace(/^\* /gm, '• ');
+      
+      // Make "Important:", "Warning:", "URGENT:" bold and colored
+      formatted = formatted.replace(/(Important:|Warning:|URGENT:|Note:)/gi, '<strong style="color: #dc2626;">$1</strong>');
+      
+      // Make "Signs of" or warning phrases bold
+      formatted = formatted.replace(/(Signs of [^.]+\.)/gi, '<strong style="color: #f59e0b;">$1</strong>');
+      
+      // Convert line breaks properly
+      formatted = formatted.replace(/\n/g, '<br>');
+      
+      // Make numbered lists more readable
+      formatted = formatted.replace(/(\d+\.) /g, '<br><strong>$1</strong> ');
+      
+      return formatted;
+    }
+
+    // Add message to chat
+    function addMessage(text, isUser = false, isHtml = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+      
+      if (isHtml) {
+        messageDiv.innerHTML = text;
+      } else if (!isUser) {
+        // Format AI messages with proper styling
+        messageDiv.innerHTML = formatAIText(text);
+      } else {
+        messageDiv.textContent = text;
+      }
+      
+      messagesContainer.appendChild(messageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Show typing indicator
+    function showTyping() {
+      const typing = document.createElement('div');
+      typing.className = 'typing-indicator active';
+      typing.id = 'typing';
+      typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+      messagesContainer.appendChild(typing);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function hideTyping() {
+      const typing = document.getElementById('typing');
+      if (typing) typing.remove();
+    }
+
+    // Send message
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      // Add user message
+      addMessage(message, true);
+      conversationHistory.push({ role: 'user', content: message });
+      
+      userInput.value = '';
+      sendBtn.disabled = true;
+
+      showTyping();
+
+      try {
+        const response = await fetch('http://localhost:5000/api/ai-doctor/consult', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: message,
+            conversationHistory: conversationHistory,
+            currentStep: currentStep
+          })
+        });
+
+        const data = await response.json();
+        hideTyping();
+
+        if (data.ok) {
+          // Add AI response
+          if (data.isTreatment) {
+            addTreatmentPlan(data.response, data.treatment);
+          } else {
+            addMessage(data.response, false);
+          }
+          
+          conversationHistory.push({ role: 'assistant', content: data.response });
+          currentStep = data.nextStep || currentStep;
+        } else {
+          addMessage('❌ Sorry, I encountered an error. Please try again.', false);
+        }
+      } catch (error) {
+        hideTyping();
+        console.error('Error:', error);
+        addMessage('❌ Connection error. Please check if the server is running.', false);
+      } finally {
+        sendBtn.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    // Add treatment plan with proper formatting
+    function addTreatmentPlan(summary, treatment) {
+      const treatmentDiv = document.createElement('div');
+      treatmentDiv.className = 'message treatment';
+      
+      // Clean and format summary text
+      let cleanSummary = formatAIText(summary);
+      
+      let html = `
+        <div class="treatment-title">
+          🩺 Medical Treatment Plan
+        </div>
+        <p style="margin-bottom: 20px; line-height: 1.6;">${cleanSummary}</p>
+      `;
+
+      if (treatment.diagnosis) {
+        let cleanDiagnosis = formatAIText(treatment.diagnosis);
+        html += `
+          <div class="treatment-section">
+            <h3>🔍 Diagnosis</h3>
+            <p style="font-size: 1.05rem; font-weight: 600; color: #1f2937;">${cleanDiagnosis}</p>
+          </div>
+        `;
+      }
+
+      if (treatment.medicines && treatment.medicines.length > 0) {
+        html += `
+          <div class="treatment-section">
+            <h3>💊 Prescribed Medicines</h3>
+        `;
+        treatment.medicines.forEach((med, index) => {
+          let cleanName = formatAIText(med.name || '');
+          let cleanDosage = formatAIText(med.dosage || '');
+          let cleanInstructions = formatAIText(med.instructions || '');
+          
+          html += `
+            <div class="medicine-item" style="margin-bottom: 12px; padding: 12px; border-left: 4px solid #4f46e5;">
+              <div style="font-size: 1.05rem; font-weight: 700; color: #1f2937; margin-bottom: 6px;">
+                ${index + 1}. ${cleanName}
+              </div>
+              <div style="font-size: 0.95rem; color: #059669; font-weight: 600; margin-bottom: 4px;">
+                <strong>Dosage:</strong> ${cleanDosage}
+              </div>
+              <div style="font-size: 0.92rem; color: #6b7280; line-height: 1.5;">
+                ${cleanInstructions}
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+
+      if (treatment.vaccines && treatment.vaccines.length > 0) {
+        html += `
+          <div class="treatment-section">
+            <h3>💉 Recommended Vaccines</h3>
+        `;
+        treatment.vaccines.forEach((vac, index) => {
+          let cleanName = formatAIText(vac.name || '');
+          let cleanReason = formatAIText(vac.reason || '');
+          let cleanSchedule = formatAIText(vac.schedule || '');
+          
+          html += `
+            <div class="medicine-item" style="border-left: 3px solid #10b981; margin-bottom: 12px; padding: 12px;">
+              <div style="font-size: 1.05rem; font-weight: 700; color: #1f2937; margin-bottom: 6px;">
+                ${index + 1}. ${cleanName}
+              </div>
+              <div style="margin-top: 6px; color: #059669; font-weight: 600; font-size: 0.93rem;">
+                <strong>Why:</strong> ${cleanReason}
+              </div>
+              <div style="font-size: 0.92rem; color: #6b7280; margin-top: 4px;">
+                <strong>Schedule:</strong> ${cleanSchedule}
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+
+      if (treatment.precautions && treatment.precautions.length > 0) {
+        html += `
+          <div class="treatment-section">
+            <h3>⚠️ Precautions</h3>
+            <ul>
+              ${treatment.precautions.map(p => `<li>${formatAIText(p)}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      if (treatment.homeRemedies && treatment.homeRemedies.length > 0) {
+        html += `
+          <div class="treatment-section">
+            <h3>🏠 Home Remedies</h3>
+            <ul>
+              ${treatment.homeRemedies.map(r => `<li>${formatAIText(r)}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      if (treatment.dietAdvice && treatment.dietAdvice.length > 0) {
+        html += `
+          <div class="treatment-section">
+            <h3>🥗 Diet Advice</h3>
+            <ul>
+              ${treatment.dietAdvice.map(d => `<li>${formatAIText(d)}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      if (treatment.followUp) {
+        let cleanFollowUp = formatAIText(treatment.followUp);
+        html += `
+          <div class="treatment-section" style="background: #fef3c7; border-left: 3px solid #f59e0b; padding: 15px; border-radius: 8px;">
+            <h3 style="color: #92400e;">📅 Follow-up Instructions</h3>
+            <p style="color: #92400e; margin: 0; line-height: 1.6;">${cleanFollowUp}</p>
+          </div>
+        `;
+      }
+
+      html += `
+        <div class="warning-note">
+          ⚠️ <strong>Important:</strong> This is AI-generated advice. Please consult a licensed medical professional for serious conditions.
+        </div>
+      `;
+
+      treatmentDiv.innerHTML = html;
+      messagesContainer.appendChild(treatmentDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Event listeners
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Auto-focus input
+    userInput.focus();
+  </script>
+</body>
+</html>

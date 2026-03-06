@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cough Disease Prediction Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #000000 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+        }
+        .bg-3d {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.18;
+            filter: blur(2px) brightness(1.2);
+            animation: float3d 16s ease-in-out infinite;
+        }
+        .shape1 { width: 320px; height: 320px; background: linear-gradient(135deg, #4ecdc4 0%, #45b7d1 100%); left: 8vw; top: 10vh; animation-delay: 0s; }
+        .shape2 { width: 180px; height: 180px; background: linear-gradient(135deg, #ff6b6b 0%, #f7b42c 100%); right: 10vw; top: 18vh; animation-delay: 3s; }
+        .shape3 { width: 220px; height: 220px; background: linear-gradient(135deg, #96ceb4 0%, #4ecdc4 100%); left: 18vw; bottom: 8vh; animation-delay: 6s; }
+        .shape4 { width: 140px; height: 140px; background: linear-gradient(135deg, #45b7d1 0%, #16213e 100%); right: 18vw; bottom: 12vh; animation-delay: 9s; }
+        .shape5 { width: 90px; height: 90px; background: linear-gradient(135deg, #fff 0%, #4ecdc4 100%); left: 50vw; top: 60vh; animation-delay: 12s; }
+        @keyframes float3d {
+            0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+            25% { transform: translateY(-40px) scale(1.08) rotate(8deg); }
+            50% { transform: translateY(30px) scale(0.96) rotate(-6deg); }
+            75% { transform: translateY(-20px) scale(1.04) rotate(4deg); }
+        }
+        .chat-container {
+            max-width: 700px;
+            min-width: 380px;
+            margin: 60px auto;
+            background: rgba(255,255,255,0.13);
+            border-radius: 2.2rem;
+            box-shadow: 0 16px 48px 0 rgba(31,38,135,0.25), 0 1.5px 0.5px 0 rgba(255,255,255,0.10) inset;
+            backdrop-filter: blur(18px) saturate(160%);
+            border: 1.5px solid rgba(255,255,255,0.22);
+            overflow: hidden;
+            perspective: 1200px;
+            transform-style: preserve-3d;
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+        .chat-container:hover {
+            box-shadow: 0 32px 80px 0 rgba(31,38,135,0.35), 0 2.5px 1px 0 rgba(255,255,255,0.13) inset;
+            transform: translateY(-8px) rotateY(4deg) scale(1.03);
+        }
+        .chat-header {
+            background: linear-gradient(90deg, #4ecdc4 0%, #45b7d1 60%, #96ceb4 100%);
+            color: #fff;
+            padding: 2rem 2.5rem 1.5rem 2.5rem;
+            font-size: 2.1rem;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 16px 0 rgba(76,205,196,0.10);
+        }
+        .chat-messages {
+            height: 480px;
+            overflow-y: auto;
+            padding: 2rem 2.2rem 1.5rem 2.2rem;
+            background: rgba(255,255,255,0.09);
+        }
+        .chat-message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-end;
+        }
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+        .chat-bubble {
+            padding: 1.1rem 1.7rem;
+            border-radius: 1.5rem;
+            max-width: 75%;
+            font-size: 1.15rem;
+            box-shadow: 0 2px 12px 0 rgba(76,205,196,0.08);
+        }
+        .chat-message.user .chat-bubble {
+            background: linear-gradient(90deg, #4ecdc4 0%, #45b7d1 100%);
+            color: #fff;
+            border-bottom-right-radius: 0.3rem;
+        }
+        .chat-message.bot .chat-bubble {
+            background: rgba(255,255,255,0.98);
+            color: #222;
+            border-bottom-left-radius: 0.3rem;
+            border: 1.5px solid rgba(76,205,196,0.10);
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 0.8rem;
+            padding: 1.3rem 2rem 1.3rem 2rem;
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 -2px 16px 0 rgba(76,205,196,0.07);
+        }
+        .chat-input {
+            flex: 1;
+            padding: 1rem 1.3rem;
+            border-radius: 1.2rem;
+            border: none;
+            outline: none;
+            font-size: 1.15rem;
+            background: rgba(255,255,255,0.93);
+            box-shadow: 0 1px 4px 0 rgba(76,205,196,0.07);
+        }
+        .chat-btn, .chat-upload, .chat-record {
+            background: linear-gradient(90deg, #ff6b6b 0%, #4ecdc4 100%);
+            color: #fff;
+            border: none;
+            border-radius: 1.1rem;
+            padding: 1rem 1.3rem;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+            box-shadow: 0 2px 8px 0 rgba(76,205,196,0.10);
+        }
+        .chat-btn:hover, .chat-upload:hover, .chat-record:hover {
+            background: linear-gradient(90deg, #45b7d1 0%, #ff6b6b 100%);
+            box-shadow: 0 4px 16px 0 rgba(76,205,196,0.18);
+            transform: translateY(-2px) scale(1.07) rotateX(6deg);
+        }
+        .chat-upload, .chat-record {
+            padding: 1rem 1.1rem;
+            font-size: 1.35rem;
+        }
+        .hidden-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-3d">
+        <div class="shape shape1"></div>
+        <div class="shape shape2"></div>
+        <div class="shape shape3"></div>
+        <div class="shape shape4"></div>
+        <div class="shape shape5"></div>
+    </div>
+    <div class="chat-container">
+    <div class="chat-header">
+            🤖 Cough Disease Prediction
+        </div>
+    <div class="chat-messages" id="chatMessages">
+            <div class="chat-message bot">
+                <div class="chat-bubble">Hello! I am your cough disease prediction assistant. You can type your symptoms, record your cough, or upload a cough audio file for analysis.</div>
+            </div>
+        </div>
+    <div class="chat-input-area">
+                <!-- Simple Cough Analyzer Controls -->
+                <div style="margin:2rem 0; text-align:center;">
+                    <input id="audio" type="file" accept="audio/*">
+                    <button onclick="analyzeCough()" style="margin-left:0.5rem;">Analyze Cough</button>
+                    <button onclick="recordAndAnalyze()" style="margin-left:0.5rem;">Record 4s</button>
+                    <pre id="result" style="margin-top:1.5rem; background:#222; color:#fff; padding:1rem; border-radius:1rem; text-align:left;"></pre>
+                </div>
+            <input type="text" id="chatInput" class="chat-input" placeholder="Type your message...">
+            <button class="chat-btn" id="sendBtn">Send</button>
+            <button class="chat-record" id="recordBtn" title="Record Cough">🎤</button>
+            <label for="uploadInput" class="chat-upload" title="Upload Cough Audio">⬆️</label>
+            <input type="file" id="uploadInput" class="hidden-input" accept="audio/*">
+        </div>
+    </div>
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const recordBtn = document.getElementById('recordBtn');
+        const uploadInput = document.getElementById('uploadInput');
+
+        function appendMessage(sender, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message ' + sender;
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            bubble.textContent = text;
+            msgDiv.appendChild(bubble);
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        sendBtn.onclick = function() {
+            const text = chatInput.value.trim();
+            if (text) {
+                appendMessage('user', text);
+                chatInput.value = '';
+                setTimeout(() => appendMessage('bot', 'Cough prediction result or response will appear here.'), 1000);
+            }
+        };
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') sendBtn.onclick();
+        });
+
+        // Audio recording logic
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+
+        recordBtn.onclick = async function() {
+            if (!isRecording) {
+                // Start recording
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    appendMessage('bot', 'Audio recording is not supported in this browser.');
+                    return;
+                }
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new window.MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = e => {
+                        if (e.data.size > 0) audioChunks.push(e.data);
+                    };
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        appendMessage('user', '[Cough recording sent]');
+                        // Add playback for user
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = 'chat-message user';
+                        const audioElem = document.createElement('audio');
+                        audioElem.controls = true;
+                        audioElem.src = audioUrl;
+                        audioElem.style.margin = '0.5rem 0 0 0';
+                        msgDiv.appendChild(audioElem);
+                        chatMessages.appendChild(msgDiv);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                        setTimeout(() => appendMessage('bot', 'Audio received. Analyzing cough...'), 1000);
+                    };
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordBtn.textContent = '⏹️';
+                    recordBtn.title = 'Stop Recording';
+                    appendMessage('bot', 'Recording... Click the mic button again to stop.');
+                } catch (err) {
+                    appendMessage('bot', 'Microphone access denied or unavailable.');
+                }
+            } else {
+                // Stop recording
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
+                isRecording = false;
+                recordBtn.textContent = '🎤';
+                recordBtn.title = 'Record Cough';
+            }
+        };
+
+        // Upload button
+        uploadInput.onchange = function() {
+            if (uploadInput.files.length > 0) {
+                appendMessage('user', '[Cough audio uploaded: ' + uploadInput.files[0].name + ']');
+                setTimeout(() => appendMessage('bot', 'Audio file received. Analyzing cough...'), 1000);
+            }
+        };
+        </script>
+
+        <!-- Cough Disease Prediction Backend Integration Script -->
+        <!-- Simple Cough Analyzer JS -->
+        <script>
+        async function analyzeCough() {
+            const f = document.getElementById("audio").files[0];
+            if (!f) {
+                alert("Please upload a cough audio file");
+                return;
+            }
+            const form = new FormData();
+            form.append("audio", f);
+            const res = await fetch("http://localhost:5000/api/predict/audio", {
+                method: "POST",
+                body: form
+            });
+            const data = await res.json();
+            console.log("Response from backend:", data);
+            document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function recordAndAnalyze() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const rec = new MediaRecorder(stream);
+            let chunks = [];
+            rec.ondataavailable = e => chunks.push(e.data);
+            rec.onstop = async () => {
+                const blob = new Blob(chunks, { type: "audio/webm" });
+                const form = new FormData();
+                form.append("audio", blob, "recording.webm");
+                const res = await fetch("http://localhost:5000/api/predict/audio", {
+                    method: "POST",
+                    body: form
+                });
+                const data = await res.json();
+                document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+            };
+            rec.start();
+            setTimeout(() => rec.stop(), 4000); // record for 4s
+        }
+        </script>
+        <script>
+            const CH_API = 'http://localhost:5000';   // change if backend runs elsewhere
+            let rec = null, chunks = [];
+
+            function busy(btn, on){
+                if(!btn) return; if(!btn._label) btn._label = btn.textContent;
+                btn.disabled = !!on; btn.textContent = on ? 'Working…' : btn._label;
+            }
+            function showJSON(obj){
+                const pre = document.getElementById('ch-json');
+                if(pre) {
+                    pre.textContent = JSON.stringify(obj, null, 2);
+                    pre.hidden = false;
+                }
+            }
+            function render(res){
+                const box = document.getElementById('ch-result');
+                const freqEl = document.getElementById('ch-freq');
+                const labelEl= document.getElementById('ch-label');
+                const riskEl = document.getElementById('ch-risk');
+                const healthEl=document.getElementById('ch-health');
+                const msgEl  = document.getElementById('ch-msg');
+                const bar    = document.getElementById('ch-bar');
+
+                if(!box || !freqEl || !labelEl || !riskEl || !healthEl || !msgEl || !bar) return;
+
+                if(!res.ok){
+                    box.hidden = false;
+                    freqEl.textContent = '—'; labelEl.textContent = 'Error';
+                    riskEl.textContent = '—'; healthEl.textContent = '—';
+                    bar.style.width = '0%'; bar.style.background = '#ef4444';
+                    msgEl.textContent = res.error || 'Failed to analyze.';
+                    showJSON(res);
+                    return;
+                }
+
+                const estFreq = res.f0 ?? res.freq ?? null;
+                const pct = Number(res.healthPct || 0);
+                const risk = res.risk || '—';
+                const label= res.disease || res.label || '—';
+
+                freqEl.textContent = estFreq ? `${(estFreq.toFixed ? estFreq.toFixed(1) : estFreq)} Hz` : '—';
+                labelEl.textContent= label;
+                riskEl.textContent = risk;
+                healthEl.textContent= `${pct}%`;
+                bar.style.width = `${pct}%`;
+                bar.style.background = (risk==='High') ? '#ef4444' : (risk==='Moderate' ? '#f59e0b' : '#22c55e');
+                msgEl.textContent = res.message || '';
+                box.hidden = false;
+                showJSON(res);
+            }
+
+            // Single button: if file chosen → upload; else record ~4s then upload
+            async function chAnalyze(){
+                const btn = document.getElementById('ch-analyze'); busy(btn, true);
+                try{
+                    const f = document.getElementById('ch-file')?.files[0];
+                    if(f){
+                        const form = new FormData(); form.append('audio', f);
+                        const r = await fetch(`${CH_API}/api/predict/audio`, { method:'POST', body: form });
+                        render(await r.json());
+                        return;
+                    }
+                    await recordAndUpload(4000);  // 4 seconds
+                }catch(e){
+                    render({ ok:false, error:String(e) });
+                }finally{
+                    busy(btn, false);
+                }
+            }
+
+            async function recordAndUpload(ms){
+                const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+                rec = new MediaRecorder(stream); chunks = [];
+                const preview = document.getElementById('ch-preview'); if(preview){ preview.style.display='none'; preview.src=''; }
+
+                return new Promise((resolve)=>{
+                    rec.ondataavailable = e => chunks.push(e.data);
+                    rec.onstop = async () => {
+                        const blob = new Blob(chunks, { type:'audio/webm' });
+                        if(preview){ preview.src = URL.createObjectURL(blob); preview.style.display = 'block'; }
+                        const form = new FormData(); form.append('audio', blob, 'recording.webm');
+                        const r = await fetch(`${CH_API}/api/predict/audio`, { method:'POST', body: form });
+                        render(await r.json()); resolve();
+                    };
+                    rec.start(); setTimeout(()=> rec.state==='recording' && rec.stop(), ms);
+                });
+            }
+
+            function chAsk(){
+                const q = document.getElementById('ch-chat')?.value.trim();
+                if(!q) return;
+                // Placeholder — wire to /api/ask later if you add LLM
+                render({ ok:true, label:'Chat', risk:'Info', healthPct:100, disease:'N/A', message:`You asked: ${q}` });
+            }
+        </script>
+        <script>
+        const MATLAB = `"C:\\Program Files\\MATLAB\\R2025b\\bin\\matlab.exe"`;
+        </script>
+</body>
+</html>

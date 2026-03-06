@@ -1,0 +1,2920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pranava Health AI Chat</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+    
+    :root {
+      --primary: #4169E1;
+      --primary-dark: #1E90FF;
+      --bg-main: #FFE4E6;
+      --bg-secondary: #FFCCD5;
+      --bg-chat: #FFF0F5;
+      --text-primary: #FFFFFF;
+      --text-secondary: #F8F9FA;
+      --card-bg: rgba(255, 255, 255, 0.2);
+      --border: rgba(65, 105, 225, 0.3);
+    }
+
+    /* Updated body styles are in the 3D Background section below */
+
+    /* Particle Animation Background */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      background: rgba(65, 105, 225, 0.6);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .particle:nth-child(odd) {
+      background: rgba(100, 149, 237, 0.5);
+      animation-duration: 8s;
+      animation-delay: -2s;
+    }
+
+    .particle:nth-child(3n) {
+      background: rgba(70, 130, 180, 0.6);
+      animation-duration: 10s;
+      animation-delay: -4s;
+    }
+
+    .particle:nth-child(4n) {
+      background: rgba(135, 206, 235, 0.4);
+      animation-duration: 12s;
+      animation-delay: -1s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.7;
+      }
+      50% {
+        transform: translateY(-100px) rotate(180deg);
+        opacity: 1;
+      }
+    }
+
+    /* Enhanced background with subtle pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(100, 149, 237, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(65, 105, 225, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 75% 25%, rgba(70, 130, 180, 0.10) 0%, transparent 50%),
+        radial-gradient(circle at 25% 75%, rgba(30, 144, 255, 0.08) 0%, transparent 50%);
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-size: 18px;
+    }
+
+    /* Image logo styles */
+    .logo.app-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;      /* use 9999px for a circle */
+      object-fit: cover;        /* crop nicely */
+      display: block;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      background: transparent;  /* kill any old gradient */
+    }
+
+    .title {
+      flex: 1;
+    }
+
+    .title h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .title p {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .version {
+      background: rgba(139, 92, 246, 0.2);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      height: auto;
+      min-height: 0;
+      position: relative;
+    }
+
+    .chat-panel {
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      flex: 1;
+      min-height: 0;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .messages {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: calc(100vh - 300px);
+      min-height: 200px;
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      line-height: 1.5;
+      animation: messageSlideUp 0.3s ease-out;
+      opacity: 0;
+      transform: translateY(20px);
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes messageSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.bot {
+      background: rgba(255, 255, 255, 0.12);
+      align-self: flex-start;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1);
+    }
+
+    .message.user {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      align-self: flex-end;
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+    }
+
+    /* Prediction Results Styles */
+    .prediction-results {
+      margin: 10px 0;
+    }
+
+    .condition-result {
+      padding: 6px 12px;
+      margin: 4px 0;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      border-radius: 8px;
+      font-family: 'SF Mono', Consolas, monospace;
+    }
+
+    .next-question {
+      margin: 8px 0;
+      padding: 8px 12px;
+      background: rgba(167, 139, 250, 0.1);
+      border-left: 3px solid var(--secondary);
+      border-radius: 4px;
+    }
+
+    .advice {
+      margin: 10px 0 12px;
+      padding: 8px 12px;
+      background: rgba(52, 211, 153, 0.1);
+      border-left: 3px solid #34d399;
+      border-radius: 4px;
+    }
+
+    .advice-title {
+      font-weight: 800;
+      margin: 2px 0 6px;
+      font-size: 1.02rem;
+    }
+
+    .advice ul {
+      margin: 0 0 8px 1.15rem;
+      padding: 0;
+    }
+
+    .advice li {
+      margin: 4px 0;
+      line-height: 1.45;
+    }
+
+    .vax-note {
+      opacity: .85;
+      font-size: .95em;
+      margin-top: 6px;
+    }
+
+    .input-area {
+      padding: 20px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-top: none;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      backdrop-filter: blur(20px);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .input-container {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .message-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .message-input:focus {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .message-input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .sidebar {
+      display: none; /* No longer used */
+    }
+
+    .upload-section {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 16px 20px;
+      backdrop-filter: blur(20px);
+      border-bottom: none;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.05);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .upload-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .file-status {
+      color: var(--text-secondary);
+      font-size: 12px;
+      margin-left: 12px;
+    }
+
+    .file-status.has-file {
+      color: var(--primary);
+    }
+
+    .upload-btn, .analyze-btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .analyze-btn {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .upload-btn:hover, .analyze-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .analyze-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .preview-area {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      color: var(--text-secondary);
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-area img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+    }
+
+    .backend-info {
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Inline Chips Styles */
+    .chip-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 8px 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .chip.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    /* Dermatology Symptoms Panel Styles */
+    .derma-symptoms-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 20px;
+    }
+
+    .derma-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .derma-panel-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .symptom-chips-container {
+      margin-bottom: 20px;
+    }
+
+    .symptom-chips-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .symptom-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .symptom-chip {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .symptom-chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .symptom-chip.selected {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .derma-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .derma-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .derma-input-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .derma-select {
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .derma-select option {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .get-plan-btn {
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .get-plan-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    }
+
+    .get-plan-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Vaccination Modal Styles */
+    .vax-modal{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.55);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .vax-card{
+      width: min(880px, 92vw);
+      max-height: 92vh; overflow: auto;
+      background: #12151d; color: #fff;
+      border: 1px solid var(--border, #3a3f4b);
+      border-radius: 14px; padding: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.4);
+    }
+    .vax-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .vax-title{font-weight:700;font-size:1.1rem}
+    .vax-badge{font-weight:500;opacity:.7;margin-left:.5rem}
+    .icon-btn{border:1px solid var(--border,#3a3f4b);background:#1d2230;color:#fff;border-radius:8px;padding:.3rem .55rem}
+    .vax-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 12px}
+    .vax-row{display:flex;flex-direction:column;gap:6px}
+    .vax-row input{padding:.6rem .7rem;border:1px solid var(--border,#3a3f4b);border-radius:8px;background:transparent;color:#fff}
+    .vax-actions{grid-column:1/-1;display:flex;gap:8px}
+    .btn.ghost{background:transparent}
+    .vax-section{margin:.6rem 0;padding:.7rem;border:1px solid var(--border,#3a3f4b);border-radius:10px}
+    .vax-section .title{font-weight:600;margin-bottom:.4rem}
+    .vax-chip{display:inline-block;padding:.2rem .5rem;border:1px dashed var(--border,#3a3f4b);border-radius:999px;margin:.15rem .25rem;opacity:.85}
+    .vax-due{border-left:3px solid #f59f00;padding-left:.6rem}
+    .vax-overdue{border-left:3px solid #e03131;padding-left:.6rem}
+    .vax-upcoming{border-left:3px solid #2b8a3e;padding-left:.6rem}
+
+    /* ---------- Readability upgrades for advice/vax sections ---------- */
+    :root{
+      --advice-line: 1.68;      /* line-height */
+      --advice-letter: 0.2px;   /* letter-spacing */
+      --advice-word: 0.4px;     /* word-spacing */
+      --advice-li-gap: .50rem;  /* space between bullet items */
+      --advice-p-gap:  .55rem;  /* space between paragraphs */
+      --advice-measure: 74ch;   /* comfortable line length */
+    }
+
+    /* Cards */
+    .advice, .vax-section{
+      text-align: left;                 /* consistent alignment */
+      line-height: var(--advice-line);
+      letter-spacing: var(--advice-letter);
+      word-spacing: var(--advice-word);
+      max-width: var(--advice-measure);
+    }
+
+    /* Headings inside cards */
+    .advice-title, .section-title{
+      margin-bottom: .55rem;
+      line-height: 1.25;
+      letter-spacing: .25px;
+    }
+
+    /* Lists */
+    .advice ul, .vax-section ul{
+      list-style: disc;
+      list-style-position: outside;
+      margin: .35rem 0 .1rem 1.2rem;    /* indent & vertical rhythm */
+      padding: 0;
+    }
+    .advice li, .vax-section li{
+      margin-bottom: var(--advice-li-gap);
+    }
+
+    /* Paragraphs */
+    .advice p, .vax-section p{
+      margin: 0 0 var(--advice-p-gap) 0;
+    }
+
+    /* Softer style for the "Simple: …" parenthetical (we'll wrap it via JS below) */
+    .explain-note{
+      color: #b6c0cf;
+      font-style: italic;
+      letter-spacing: .2px;
+      word-spacing: .35px;
+    }
+
+    /* Optional: subtle left guide so bullets align nicely on dense lists */
+    .advice.with-guide ul{
+      border-left: 2px solid rgba(255,255,255,.06);
+      padding-left: .9rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 12px;
+      }
+      
+      .header {
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      
+      .upload-buttons {
+        flex-wrap: wrap;
+      }
+      
+      .upload-btn, .analyze-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+      
+      .file-status {
+        font-size: 10px;
+      }
+    }
+    /* 3D Background Styles */
+    #bg3d {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+    
+    /* Update body background for better 3D effect */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: radial-gradient(1200px 800px at 10% -10%, #FFE4E6 0%, #FFCCD5 40%, #FFB3C1 100%);
+      color: #FFFFFF;
+      height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Ensure chat container has proper stacking */
+    .chat-container {
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Flower-shaped Cracker Effects */
+    .flower-sparkle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 999;
+      border-radius: 50%;
+      animation: flowerBloom 2s ease-out forwards;
+    }
+    
+    .flower-sparkle.large {
+      animation: flowerLargeBloom 2.5s ease-out forwards;
+    }
+    
+    .flower-sparkle.trail {
+      animation: flowerTrailBloom 1s ease-out forwards;
+    }
+    
+    @keyframes flowerBloom {
+      0% {
+        opacity: 1;
+        transform: scale(0) rotate(0deg);
+        filter: brightness(3) saturate(2);
+      }
+      25% {
+        opacity: 1;
+        transform: scale(1.5) rotate(90deg);
+        filter: brightness(2) saturate(1.8);
+      }
+      50% {
+        opacity: 0.9;
+        transform: scale(1.2) rotate(180deg);
+        filter: brightness(1.5) saturate(1.5);
+      }
+      75% {
+        opacity: 0.7;
+        transform: scale(1) rotate(270deg);
+        filter: brightness(1.2) saturate(1.2);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.3) rotate(360deg);
+        filter: brightness(0.8) saturate(0.8);
+      }
+    }
+    
+    @keyframes flowerLargeBloom {
+      0% {
+        opacity: 1;
+        transform: scale(0) rotate(0deg);
+        filter: brightness(4) saturate(2.5);
+      }
+      20% {
+        opacity: 1;
+        transform: scale(2.2) rotate(72deg);
+        filter: brightness(3) saturate(2.2);
+      }
+      40% {
+        opacity: 0.95;
+        transform: scale(1.8) rotate(144deg);
+        filter: brightness(2.2) saturate(1.8);
+      }
+      60% {
+        opacity: 0.8;
+        transform: scale(1.4) rotate(216deg);
+        filter: brightness(1.8) saturate(1.5);
+      }
+      80% {
+        opacity: 0.6;
+        transform: scale(1.1) rotate(288deg);
+        filter: brightness(1.3) saturate(1.2);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.2) rotate(360deg);
+        filter: brightness(0.9) saturate(0.9);
+      }
+    }
+    
+    @keyframes flowerTrailBloom {
+      0% {
+        opacity: 1;
+        transform: scale(0.5) rotate(0deg);
+        filter: brightness(2) saturate(1.8);
+      }
+      40% {
+        opacity: 1;
+        transform: scale(1.3) rotate(144deg);
+        filter: brightness(1.6) saturate(1.5);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.1) rotate(360deg);
+        filter: brightness(0.7) saturate(0.7);
+      }
+    }
+    
+    /* Flower petal particles */
+    .flower-petal {
+      position: fixed;
+      pointer-events: none;
+      z-index: 998;
+      border-radius: 50% 10% 50% 10%;
+      background: radial-gradient(ellipse 60% 40% at center, rgba(255, 255, 255, 0.9) 0%, transparent 100%);
+    }
+    
+    /* Curved flower connection lines */
+    .flower-connection {
+      position: fixed;
+      pointer-events: none;
+      z-index: 997;
+      height: 3px;
+      border-radius: 50%;
+      transform-origin: left center;
+      animation: flowerConnectionFlow 1.5s ease-out forwards;
+      background: linear-gradient(90deg, 
+        rgba(255, 192, 203, 0.8) 0%, 
+        rgba(255, 255, 0, 1) 25%, 
+        rgba(255, 105, 180, 1) 50%, 
+        rgba(255, 255, 0, 1) 75%, 
+        rgba(255, 192, 203, 0.8) 100%);
+    }
+    
+    @keyframes flowerConnectionFlow {
+      0% {
+        opacity: 0;
+        width: 0;
+        filter: blur(0px) saturate(1);
+        transform: scaleY(0.3) rotate(0deg);
+        border-radius: 0%;
+      }
+      30% {
+        opacity: 1;
+        filter: blur(1px) saturate(2);
+        transform: scaleY(1.5) rotate(15deg);
+        border-radius: 25%;
+      }
+      60% {
+        opacity: 0.9;
+        filter: blur(0.5px) saturate(1.8);
+        transform: scaleY(1.2) rotate(-10deg);
+        border-radius: 40%;
+      }
+      100% {
+        opacity: 0;
+        width: 100%;
+        filter: blur(2px) saturate(1);
+        transform: scaleY(0.8) rotate(5deg);
+        border-radius: 50%;
+      }
+    }
+    
+    /* Message box exclusion zone styles */
+    .chat-container {
+      position: relative;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    
+    .messages {
+      position: relative;
+      z-index: 11;
+      pointer-events: auto;
+    }
+    
+    /* Spark effects */
+    .spark {
+      position: fixed;
+      pointer-events: none;
+      z-index: 999;
+      border-radius: 50%;
+      animation: sparkAnimation 0.8s ease-out forwards;
+    }
+    
+    @keyframes sparkAnimation {
+      0% {
+        opacity: 1;
+        transform: scale(0) rotate(0deg);
+      }
+      50% {
+        opacity: 0.8;
+        transform: scale(1.2) rotate(180deg);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.3) rotate(360deg);
+      }
+    }
+    
+    /* Connectivity lines that appear between sparks */
+    .connection-line {
+      position: fixed;
+      pointer-events: none;
+      z-index: 998;
+      height: 1px;
+      background: linear-gradient(90deg, 
+        rgba(134, 93, 255, 0.8) 0%, 
+        rgba(93, 224, 230, 0.6) 50%, 
+        rgba(134, 93, 255, 0.8) 100%);
+      transform-origin: left center;
+      animation: connectionAnimation 1s ease-out forwards;
+    }
+    
+    @keyframes connectionAnimation {
+      0% {
+        opacity: 0;
+        width: 0;
+        filter: blur(0px);
+      }
+      30% {
+        opacity: 1;
+        filter: blur(0.5px);
+      }
+      100% {
+        opacity: 0;
+        width: 100%;
+        filter: blur(2px);
+      }
+    }
+    
+  </style>
+</head>
+<body>
+  <!-- 3D Background (sits behind everything) -->
+  <div id="bg3d"></div>
+  
+  <!-- Particle Animation Background -->
+  <div class="particles" id="particles"></div>
+  
+  <div class="container">
+    <header class="header">
+      <img
+        src="http://localhost:5000/img/app-avatar.jpg"
+        alt="Pranava Health AI"
+        class="logo app-logo"
+        onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HA'}));"
+      />
+      <div class="title">
+        <h1>Pranava Health AI Chat</h1>
+        <p>Skin photo triage + symptom chat • Not medical advice</p>
+      </div>
+      <button id="btn-vax" type="button" class="btn">💉 Vaccination</button>
+      <div class="version">v1</div>
+    </header>
+
+    <div class="chat-container">
+      <div class="chat-panel">
+        <div class="messages" id="messages">
+          <div class="message bot">
+            Hi! I can look at a skin photo, discuss symptoms, and suggest next steps. How can I help today?
+          </div>
+        </div>
+        
+        <div class="upload-section">
+          <div class="upload-buttons">
+            <label for="imageUpload" class="upload-btn">📷 Upload</label>
+            <button class="analyze-btn" id="analyzeBtn">🔬 Analyze image</button>
+            <span class="file-status" id="fileStatus">No image selected</span>
+          </div>
+          <input type="file" id="imageUpload" accept="image/*" class="hidden" />
+        </div>
+        
+        <div class="input-area">
+          <div class="input-container">
+            <input 
+              type="text" 
+              class="message-input" 
+              id="messageInput" 
+              placeholder="Describe your symptoms (e.g., sore throat, fever)..."
+            />
+            <button class="send-btn" id="sendBtn">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dermatology Treatment Plan Panel -->
+    <div id="derma-panel" class="derma-symptoms-panel" style="display: none;">
+      <div class="derma-panel-header">
+        <div class="logo">🩺</div>
+        <h3 class="derma-panel-title">Dermatology Treatment Plan</h3>
+      </div>
+      
+      <div class="symptom-chips-container">
+        <label class="symptom-chips-label">Select additional symptoms (optional):</label>
+        <div class="symptom-chips">
+          <div class="symptom-chip" data-symptom="itching">Itching</div>
+          <div class="symptom-chip" data-symptom="burning">Burning sensation</div>
+          <div class="symptom-chip" data-symptom="pain">Pain</div>
+          <div class="symptom-chip" data-symptom="swelling">Swelling</div>
+          <div class="symptom-chip" data-symptom="redness">Increased redness</div>
+          <div class="symptom-chip" data-symptom="warmth">Warm to touch</div>
+          <div class="symptom-chip" data-symptom="discharge">Discharge/pus</div>
+          <div class="symptom-chip" data-symptom="scaling">Scaling/flaking</div>
+          <div class="symptom-chip" data-symptom="crusting">Crusting</div>
+          <div class="symptom-chip" data-symptom="spreading">Spreading/growing</div>
+          <div class="symptom-chip" data-symptom="numbness">Numbness</div>
+          <div class="symptom-chip" data-symptom="bleeding">Bleeding</div>
+        </div>
+      </div>
+
+      <div class="derma-inputs">
+        <div class="derma-input-group">
+          <label class="derma-input-label">How long have you had this?</label>
+          <select class="derma-select" id="symptomDuration">
+            <option value="">Select duration</option>
+            <option value="less-than-1-day">Less than 1 day</option>
+            <option value="1-3-days">1-3 days</option>
+            <option value="4-7-days">4-7 days</option>
+            <option value="1-2-weeks">1-2 weeks</option>
+            <option value="2-4-weeks">2-4 weeks</option>
+            <option value="1-3-months">1-3 months</option>
+            <option value="3-6-months">3-6 months</option>
+            <option value="more-than-6-months">More than 6 months</option>
+          </select>
+        </div>
+
+        <div class="derma-input-group">
+          <label class="derma-input-label">Severity level</label>
+          <select class="derma-select" id="symptomSeverity">
+            <option value="">Select severity</option>
+            <option value="mild">Mild (barely noticeable)</option>
+            <option value="moderate">Moderate (noticeable, some discomfort)</option>
+            <option value="severe">Severe (significantly bothersome)</option>
+            <option value="very-severe">Very severe (affecting daily activities)</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="get-plan-btn" id="getPlanBtn" disabled>Get Treatment Plan</button>
+    </div>
+    
+    <!-- Dermatology Wizard Container -->
+    <div id="derma-wizard" class="card" style="display:none"></div>
+  </div>
+
+  <script>
+    const messagesContainer = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const imageUpload = document.getElementById('imageUpload');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const fileStatus = document.getElementById('fileStatus');
+
+    // Dermatology panel elements
+    const dermaPanel = document.getElementById('dermaPanel');
+    const symptomChips = document.querySelectorAll('.symptom-chip');
+    const getPlanBtn = document.getElementById('getPlanBtn');
+    const symptomDuration = document.getElementById('symptomDuration');
+    const symptomSeverity = document.getElementById('symptomSeverity');
+
+    let currentImage = null;
+    let sessionId = null; // <-- keep session so triage flows properly
+    let lastDerma = { top: null, list: [] }; // Track last dermatology analysis
+    let selectedSymptoms = []; // Track selected symptoms
+    let hasImageAnalysis = false; // Track if we have analyzed an image
+
+    // Particle Animation System
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 50;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Random size between 2px and 6px
+        const size = Math.random() * 4 + 2;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        
+        // Random position
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        
+        // Random animation delay
+        particle.style.animationDelay = Math.random() * 6 + 's';
+        particle.style.animationDuration = (Math.random() * 6 + 6) + 's';
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+    
+    // Initialize particles when page loads
+    document.addEventListener('DOMContentLoaded', createParticles);
+
+    // Symptom chips functionality
+    symptomChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const symptom = chip.dataset.symptom;
+        
+        if (chip.classList.contains('selected')) {
+          // Deselect
+          chip.classList.remove('selected');
+          selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+        } else {
+          // Select
+          chip.classList.add('selected');
+          selectedSymptoms.push(symptom);
+        }
+        
+        updateGetPlanButton();
+      });
+    });
+
+    // Duration and severity change handlers
+    symptomDuration.addEventListener('change', updateGetPlanButton);
+    symptomSeverity.addEventListener('change', updateGetPlanButton);
+
+    // Update get plan button state
+    function updateGetPlanButton() {
+      const hasRequiredInfo = hasImageAnalysis; // Main requirement is image analysis
+      getPlanBtn.disabled = !hasRequiredInfo;
+    }
+
+    // Get dermatology plan
+    getPlanBtn.addEventListener('click', async () => {
+      if (!hasImageAnalysis || !sessionId) {
+        addMessage('Please analyze a skin photo first before requesting a treatment plan.', false);
+        return;
+      }
+
+      getPlanBtn.disabled = true;
+      getPlanBtn.textContent = 'Generating Plan...';
+
+      try {
+        const response = await fetch('/api/derma/plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: sessionId,
+            symptoms: selectedSymptoms,
+            duration: symptomDuration.value,
+            severity: symptomSeverity.value
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.ok) {
+          addMessage('**🩺 Dermatology Treatment Plan:**\n\n' + result.plan, false);
+          // Hide the derma panel after successful plan generation
+          dermaPanel.style.display = 'none';
+        } else {
+          addMessage('Error generating treatment plan: ' + (result.error || 'Unknown error'), false);
+        }
+      } catch (error) {
+        console.error('Derma plan error:', error);
+        addMessage('Failed to get treatment plan. Please try again.', false);
+      } finally {
+        getPlanBtn.disabled = !hasImageAnalysis;
+        getPlanBtn.textContent = 'Get Treatment Plan';
+      }
+    });
+
+    function nl2br(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\\n/g,'<br>'); }
+
+    // A) Helper functions for JSON rendering
+    function escapeHtml(x = "") {
+      return String(x)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function parseJsonBlock(s = "") {
+      if (!s) return null;
+      const t = s.trim().replace(/^```json/i, "").replace(/```$/,"").trim();
+      try { return JSON.parse(t); } catch { return null; }
+    }
+
+    function sectionsToHtml(sections = [], safety = "") {
+      const out = [];
+      for (const sec of sections) {
+        if (!sec?.items?.length) continue;
+        out.push(`
+          <div class="advice">
+            <div class="advice-title">${escapeHtml(sec.title || "")}</div>
+            <ul>${sec.items.map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>
+          </div>
+        `);
+      }
+      if (safety) out.push(`<div class="vax-note">${escapeHtml(safety)}</div>`);
+      return out.join("");
+    }
+
+    // Convert plain text like "Heading * item * item **Safety Note:** text"
+    // into nice HTML. Works when the model doesn't send JSON.
+    function plainBulletsToHtml(s = "") {
+      if (!s) return "";
+
+      // Pull out Safety Note if present: **Safety Note:** blah...
+      let safety = "";
+      const sn = s.split(/\*\*\s*Safety\s*Note\s*:\s*\**/i);
+      if (sn.length > 1) {
+        safety = sn.pop().trim();
+        s = sn.join(" ").trim(); // everything before the safety note
+      }
+
+      // Remove stray double-asterisks
+      s = s.replace(/\*\*/g, "").trim();
+
+      // Split on " * " style bullets
+      const parts = s.split(/\s*\*\s+/).map(t => t.trim()).filter(Boolean);
+
+      // If we have at least one bullet, treat the first segment as a heading
+      if (parts.length > 1) {
+        const title = parts[0].replace(/\.$/, "").trim();         // Heading
+        const items = parts.slice(1).map(x => x.replace(/\.$/, "")); // Bullets
+
+        const lis = items.map(it => `<li>${escapeHtml(it)}</li>`).join("");
+        return `
+          <div class="advice">
+            ${title ? `<div class="advice-title">${escapeHtml(title)}</div>` : ""}
+            <ul>${lis}</ul>
+          </div>
+          ${safety ? `<div class="vax-note">${escapeHtml(safety)}</div>` : ""}
+        `;
+      }
+
+      // Fallback: no bullets found → just a paragraph + optional safety note
+      return `
+        <div class="advice">
+          <div>${escapeHtml(s)}</div>
+        </div>
+        ${safety ? `<div class="vax-note">${escapeHtml(safety)}</div>` : ""}
+      `;
+    }
+
+    function renderQaAnswer(raw) {
+      // JSON path (preferred)
+      const j = typeof raw === "string" ? parseJsonBlock(raw)
+              : (raw && raw.sections ? raw : null);
+      if (j?.sections) return sectionsToHtml(j.sections, j.safety || "");
+
+      // Check if it's already HTML content
+      const rawString = String(raw || "");
+      const looksLikeHtml = /<\/?[a-z][\s\S]*>/i.test(rawString);
+      
+      if (looksLikeHtml) {
+        // Return the HTML as-is
+        return rawString.trim();
+      }
+
+      // Plain text path - convert to HTML
+      return plainBulletsToHtml(rawString);
+    }
+
+    // Add message to chat - improved version that handles HTML for assistant replies
+    const chatPane = document.getElementById('messages'); // your scrollable pane
+    const chatEl   = document.getElementById('messages');
+
+    function addMessage(content, role = "assistant", { html = false } = {}) {
+      const side = /^(assistant|bot|ai)$/i.test(role) ? "assistant" : "user";
+      const isUser = side === "user";
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+
+      if (html && side === "assistant") {
+        messageDiv.innerHTML = content;     // ⬅️ render HTML for assistant
+      } else {
+        messageDiv.textContent = String(content); // safe text for user or non-HTML
+      }
+
+      chatEl.appendChild(messageDiv);
+      
+      // Scroll to bottom smoothly
+      setTimeout(() => {
+        chatEl.scrollTop = chatEl.scrollHeight;
+      }, 100);
+    }
+
+    // -------- robust JSON extractor for model output ----------
+    function extractLeadingJSONFromRaw(raw = "") {
+      if (!raw) return null;
+
+      // Try fenced ```json ... ```
+      const fence = raw.match(/```json\\s*([\\s\\S]*?)```/i);
+      if (fence) {
+        try { return JSON.parse(fence[1]); } catch {}
+      }
+
+      // Try first balanced braces (fallback)
+      let depth = 0, start = -1, end = -1;
+      for (let i = 0; i < raw.length; i++) {
+        const c = raw[i];
+        if (c === '{') { if (depth === 0) start = i; depth++; }
+        else if (c === '}') { depth--; if (depth === 0) { end = i + 1; break; } }
+      }
+      if (start !== -1 && end !== -1) {
+        try { return JSON.parse(raw.slice(start, end)); } catch {}
+      }
+      return null;
+    }
+
+    // -------- chart helpers (supports 0..1 or 0..100) ----------
+    let predChartInstance = null;
+
+    function normalizePredictionsForChart(list){
+      return (list || []).map(p => {
+        const label = p.label || p.name || "Unknown";
+        const pct = typeof p.confidence_pct === "number"
+          ? Math.max(0, Math.min(100, Math.round(p.confidence_pct)))
+          : Math.max(0, Math.min(100, Math.round((p.probability || 0) * 100)));
+        return { label, pct };
+      });
+    }
+
+    function renderPredChart(list){
+      const rows = normalizePredictionsForChart(list);
+      const labels = rows.map(r => r.label);
+      const values = rows.map(r => r.pct);
+
+      const ctx = document.getElementById('predChart');
+      if (!ctx) return;
+
+      if (predChartInstance) predChartInstance.destroy();
+
+      predChartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: { 
+          labels, 
+          datasets: [{
+            label: 'Confidence (%)',
+            data: values,
+            backgroundColor: 'rgba(59, 130, 246, 0.8)', // flat blue
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 1
+          }] 
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { 
+              min: 0, 
+              max: 100,
+              ticks: { callback: v => v + '%', color: '#94A3B8' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            },
+            y: { 
+              ticks: { autoSkip: false, color: '#94A3B8' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            title: { 
+              display: true,
+              text: 'Skin condition likelihood',
+              color: '#FFFFFF'
+            },
+            tooltip: { 
+              callbacks: { label: ctx => `${ctx.raw}%` }
+            }
+          }
+        }
+      });
+    }
+
+    // Render skin condition predictions (simplified text-based)
+    function renderPred(conditions) {
+      if (!conditions || !conditions.length) return "";
+      const rows = conditions.map(c => {
+        const pct = Math.round((c.probability || 0) * 100);
+        const name = c.label || c.name || "Unknown";
+        return `<div class="condition-result"><b>${name}</b> — ${pct}%</div>`;
+      }).join("");
+      return `<div class="prediction-results">${rows}</div>`;
+    }
+
+    // Inline symptom chips UI renderer - now launches wizard
+    function renderInlineSymptomUI(){
+      return `<div class="chip-card">
+        <div style="font-weight:600;margin-bottom:12px;">🩺 Ready for personalized treatment recommendations?</div>
+        <div style="color:#94A3B8;margin-bottom:16px;">I'll guide you through a few quick questions to provide the best care plan for your skin condition.</div>
+        <div style="display:flex;gap:10px;">
+          <button class="analyze-btn chip-wizard-start">Start Treatment Wizard</button>
+          <button class="upload-btn chip-skip">Skip for now</button>
+        </div>
+      </div>`;
+    }
+
+    // Render follow-up Q&A responses
+    function renderFollowupQA(data) {
+      const b = (title, arr) => (arr && arr.length)
+        ? `<div class="advice"><div class="advice-title">${title}</div><ul>${arr.map(x=>`<li>${x}</li>`).join("")}</ul></div>`
+        : "";
+      let html = "";
+      if (data.qa_answer?.length) html += b("Answer", data.qa_answer);
+      if (data.risk_assessment)   html += b("Risk", [data.risk_assessment]);
+      if (data.action_now?.length)html += b("What to do now", data.action_now);
+      if (data.if_uncertain)      html += b("One quick question", [data.if_uncertain]);
+      return html || "<div class='advice'>No new details.</div>";
+    }
+
+    // Build compact doctor summary block when done=true
+    function renderDoctorSummary(data){
+      const block = (title, items, { collapsible = true } = {}) => {
+        const list = (items && items.length) ? items.map(i => `<li>${i}</li>`).join("") : "";
+        if (!list) return "";
+        if (!collapsible) {
+          return `<div class="advice"><div class="advice-title">${title}</div><ul>${list}</ul></div>`;
+        }
+        return `
+          <div class="advice">
+            <details>
+              <summary class="advice-title">${title} <span style="opacity:.7;font-weight:400">(tap to expand)</span></summary>
+              <ul>${list}</ul>
+            </details>
+          </div>`;
+      };
+
+      function foodTable(rows){
+        if (!Array.isArray(rows) || !rows.length) return "";
+        const tr = rows.map(r => `
+          <tr>
+            <td>${r.name||""}</td>
+            <td>${r.portion||""}</td>
+            <td>${r.protein_pct||""}</td>
+            <td>${Array.isArray(r.key_vitamins)?r.key_vitamins.join(", "):""}</td>
+            <td>${r.why||""}</td>
+            <td>${Array.isArray(r.alternatives)?r.alternatives.join(", "):""}</td>
+          </tr>`).join("");
+        return `
+          <div class="advice">
+            <details>
+              <summary class="advice-title">Food plan (with macros & vitamins) <span style="opacity:.7;font-weight:400">(tap to expand)</span></summary>
+              <div style="overflow:auto">
+                <table style="width:100%; border-collapse:collapse">
+                  <thead>
+                    <tr>
+                      <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Food</th>
+                      <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Portion</th>
+                      <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Protein %</th>
+                      <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Key vitamins/minerals</th>
+                      <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Why now</th>
+                      <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Alternatives</th>
+                    </tr>
+                  </thead>
+                  <tbody>${tr}</tbody>
+                </table>
+              </div>
+            </details>
+          </div>`;
+      }
+
+      const faq = (rows) => {
+        if (!Array.isArray(rows) || !rows.length) return "";
+        const items = rows.map(r => `<li><b>${r.q}:</b> ${r.a}</li>`);
+        return block('FAQs (quick answers)', items, { collapsible: true });
+      };
+
+      let html = '';
+      
+      html += block('Summary', [data.summary || ''], { collapsible: false });
+      html += block('Cause type', [data.virus_vs_bacteria || ''], { collapsible: false });
+      html += block('Why this can happen', [data.why_causes || '']);
+
+      // Enhanced formatting for ELI5 support
+      html += block('Likely causes', (data.likely_causes||[]).map(x => `${x.name} — ${x.why}`));
+      html += block('What to do now', (data.what_to_do_now||[]).map(x => {
+        const base = `${x.step} — ${x.why}`;
+        return x.eli5 ? `${base} <em>(Simple: ${x.eli5})</em>` : base;
+      }));
+      html += block('Home remedies', (data.home_remedies||[]).map(x => `${x.remedy} — ${x.how} — ${x.caveat}`));
+
+      if (data.hydration) {
+        const hyd = [];
+        if (data.hydration.ors_recipe) hyd.push(`ORS recipe — ${data.hydration.ors_recipe}`);
+        if (data.hydration.how_much) hyd.push(`How much — ${data.hydration.how_much}`);
+        if (data.hydration.when) hyd.push(`When — ${data.hydration.when}`);
+        html += block('Hydration / ORS', hyd);
+      }
+
+      html += foodTable(data.food_plan || []);
+      html += block('Foods to eat (quick list)', data.foods_to_eat || []);
+      html += block('Foods to avoid', data.foods_to_avoid || []);
+
+      html += block('Creams / Topicals', data.creams_topicals || []);
+      html += block('How to use (topicals)', data.how_to_use_topicals || []);
+      html += block('Tablets to discuss (orals)', data.tablets_oral_to_discuss || []);
+      html += block('How to use (orals)', data.how_to_use_orals || []);
+
+      html += block('Prevention (quick list)', data.prevention || []);
+      html += block('Prevention — details', (data.prevention_detailed||[]).map(x => `${x.topic}: ${x.tip}`));
+
+      html += block('Expected course', [data.expected_course || '']);
+      html += block('Timeline', (data.expected_course_timeline||[]).map(x => `${x.day}: ${x.note}`));
+
+      html += block('Common mistakes to avoid', data.common_mistakes || []);
+      html += faq(data.faqs || []);
+
+      html += block('Red flags — seek care if any', data.red_flags || []);
+      html += block('Thresholds (exact)', data.red_flags_thresholds || []);
+
+      // Add YouTube video suggestion
+      if (data.youtube?.url) {
+        const channelInfo = data.youtube.channelName ? 
+          `<p style="margin-top: 2px; font-size: 11px; color: #888;">📋 From: ${data.youtube.channelName}</p>` : '';
+        
+        const youtubeHtml = `
+          <div class="advice">
+            <div class="advice-title">📺 Trusted Medical Content</div>
+            <div style="margin-top: 8px;">
+              <a href="${data.youtube.url}" target="_blank" 
+                 style="color: #FF0000; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 500;">
+                <span style="font-size: 16px;">▶️</span>
+                ${data.youtube.title || 'Watch a helpful video about this condition'}
+              </a>
+              ${channelInfo}
+              ${data.youtube.description ? `<p style="margin-top: 4px; font-size: 12px; color: #666; line-height: 1.3;">${data.youtube.description}</p>` : ''}
+            </div>
+          </div>`;
+        html += youtubeHtml;
+      }
+
+      return `<div>${html}</div>`;
+    }
+
+    // Client-side safety net for JSON responses
+    function renderLLMAnswer(s){
+      try{
+        const m = s.match(/```json\s*([\s\S]*?)```/i) || s.match(/^\s*\{[\s\S]*\}\s*$/);
+        if (m){
+          const j = JSON.parse(m[1] || m[0]);
+          if (Array.isArray(j.answer)){
+            const lis = j.answer.map(x=>`<li>${x}</li>`).join("");
+            const safety  = j.safety ? `<div class="vax-note">${j.safety}</div>` : "";
+            const clarify = j.clarify? `<div class="vax-note"><b>One quick question:</b> ${j.clarify}</div>` : "";
+            return `<ul>${lis}</ul>${safety}${clarify}`;
+          }
+        }
+      }catch{}
+      return s;
+    }
+
+    // Send text message (now talks to /api/triage/next using userText + sessionId)
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      addMessage(text, "user");  // will use textContent internally
+      messageInput.value = '';
+
+      try {
+        // lazily create a session
+        if (!sessionId) {
+          const sres = await fetch('http://localhost:5000/api/session/start', { method: 'POST' });
+          const sj = await sres.json();
+          sessionId = sj.sessionId || sj.id || null;
+        }
+
+        const response = await fetch('http://localhost:5000/api/triage/next', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, userText: text })
+        });
+
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+        const data = await response.json();
+
+        // If model returns a doctor message, show it
+        if (data.doctor_message) {
+          // Check if the response contains HTML tags (like <div class="advice">)
+          const looksLikeHtml = /<\/?[a-z][\s\S]*>/i.test(data.doctor_message);
+          
+          if (looksLikeHtml) {
+            // Clean up the HTML content and render it directly
+            const cleanHtml = data.doctor_message.trim();
+            addMessage(cleanHtml, "assistant", { html: true });
+          } else {
+            // It's plain text - use the formatter to convert bullets to HTML
+            const formattedHtml = plainBulletsToHtml(data.doctor_message);
+            addMessage(formattedHtml, "assistant", { html: true });
+          }
+        }
+
+        // Check for dermatology redirect
+        if (data.redirect_to_derma) {
+          // inline chips UI used; panel kept hidden
+          return;
+        }
+
+        // Handle follow-up Q&A responses
+        if (data.path === "followup") {
+          addMessage(renderFollowupQA(data), "assistant", { html: true });
+          return;
+        }
+
+        // Handle Q&A responses with proper JSON rendering
+        if (data.path === "qa") {
+          const raw = (data.answer_html ?? data.text ?? data.answer ?? "");
+          const html = renderQaAnswer(raw);          // this returns proper <div><ul><li>...</li></ul></div>
+          addMessage(html, "assistant", { html: true }); // ⬅️ insert as HTML
+          return;                                    // don't render "Next:"
+        }
+
+        // Handle new hybrid Q&A responses (legacy)
+        if (data.answer_html) {
+          addMessage(`<div class="advice">${renderLLMAnswer(data.answer_html)}</div>`, "assistant", { html: true });
+          // optionally offer chips - if showQuickReplies exists, use it
+          if (window.showQuickReplies) {
+            showQuickReplies("Anything else?", [
+              "Symptoms?", "Causes?", "How to prevent?", "Vaccine info?", "What tests?"
+            ]);
+          }
+          return;
+        }
+
+        // Ask next focused question if not done
+        if (!data.done && data.next_question) {
+          addMessage(`<div class="next-question"><b>Next:</b> ${nl2br(data.next_question)}</div>`, "assistant", { html: true });
+          return;
+        }
+
+        // If done, show compact plan
+        if (data.done) {
+          addMessage(renderDoctorSummary(data), "assistant", { html: true });
+          return;
+        }
+
+        // Fallback
+        addMessage('No response received', "assistant");
+      } catch (error) {
+        addMessage(`❌ Error: ${error.message}`, "assistant");
+      }
+    }
+
+    // Quick analysis function using the new /api/analyze endpoint
+    async function quickAnalyze(symptoms) {
+      try {
+        const response = await fetch('http://localhost:5000/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ symptoms })
+        });
+
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+        const data = await response.json();
+
+        // Display the comprehensive analysis result with medications
+        let resultHtml = `
+          <div class="advice">
+            <div class="advice-title">🏥 Diagnosis</div>
+            <p><strong>Condition:</strong> ${data.disease}</p>
+            ${data.explanation ? `<p><strong>Explanation:</strong> ${data.explanation}</p>` : ''}
+          </div>`;
+
+        addMessage(resultHtml, "assistant", { html: true });
+
+        // Display medication recommendations
+        if (data.medicines) {
+          let medicineHtml = '<div class="advice"><div class="advice-title">💊 Recommended Medications</div>';
+          
+          // Tablets
+          if (data.medicines.tablets && data.medicines.tablets.length > 0) {
+            medicineHtml += '<div style="margin-top: 12px;"><strong>📋 Tablets/Oral Medicines:</strong><ul style="margin-top: 6px; margin-left: 20px;">';
+            data.medicines.tablets.forEach(tablet => {
+              medicineHtml += `<li style="margin-bottom: 8px;">`;
+              medicineHtml += `<strong style="color: #5b6bfb;">${tablet.name}</strong>`;
+              if (tablet.dosage) medicineHtml += ` - ${tablet.dosage}`;
+              if (tablet.frequency) medicineHtml += `, ${tablet.frequency}`;
+              if (tablet.duration) medicineHtml += ` for ${tablet.duration}`;
+              
+              // Show FDA info if available
+              if (tablet.fdaInfo && tablet.fdaInfo.hasFullInfo) {
+                if (tablet.fdaInfo.brandNames && tablet.fdaInfo.brandNames.length > 0) {
+                  medicineHtml += `<br><span style="font-size: 12px; color: #666;">Brand names: ${tablet.fdaInfo.brandNames.join(', ')}</span>`;
+                }
+                if (tablet.fdaInfo.warnings) {
+                  medicineHtml += `<br><span style="font-size: 11px; color: #e67e22;">⚠️ ${tablet.fdaInfo.warnings}</span>`;
+                }
+              }
+              medicineHtml += `</li>`;
+            });
+            medicineHtml += '</ul></div>';
+          }
+          
+          // Creams/Topicals
+          if (data.medicines.creams && data.medicines.creams.length > 0) {
+            medicineHtml += '<div style="margin-top: 12px;"><strong>🧴 Creams/Ointments:</strong><ul style="margin-top: 6px; margin-left: 20px;">';
+            data.medicines.creams.forEach(cream => {
+              medicineHtml += `<li style="margin-bottom: 6px;">`;
+              medicineHtml += `<strong style="color: #e74c3c;">${cream.name}</strong>`;
+              if (cream.application) medicineHtml += ` - ${cream.application}`;
+              medicineHtml += `</li>`;
+            });
+            medicineHtml += '</ul></div>';
+          }
+          
+          // Vaccines
+          if (data.medicines.vaccines && data.medicines.vaccines.length > 0) {
+            medicineHtml += '<div style="margin-top: 12px;"><strong>💉 Recommended Vaccines:</strong><ul style="margin-top: 6px; margin-left: 20px;">';
+            data.medicines.vaccines.forEach(vaccine => {
+              medicineHtml += `<li style="margin-bottom: 6px;">`;
+              medicineHtml += `<strong style="color: #27ae60;">${vaccine.name}</strong>`;
+              if (vaccine.reason) medicineHtml += ` - ${vaccine.reason}`;
+              medicineHtml += `</li>`;
+            });
+            medicineHtml += '</ul></div>';
+          }
+          
+          medicineHtml += '<p style="margin-top: 15px; font-size: 12px; color: #e67e22; background: #fff3cd; padding: 8px; border-radius: 6px;">⚠️ <strong>Important:</strong> These are suggestions based on common treatments. Always consult with a healthcare professional before taking any medication.</p>';
+          
+          if (data.medicationLookupUrl) {
+            medicineHtml += `<p style="margin-top: 10px;"><a href="${data.medicationLookupUrl}" target="_blank" style="color: #5b6bfb; text-decoration: none;">🔍 Search detailed medication information →</a></p>`;
+          }
+          
+          medicineHtml += '</div>';
+          addMessage(medicineHtml, "assistant", { html: true });
+        }
+
+        // Display home remedies
+        if (data.homeRemedies && data.homeRemedies.length > 0) {
+          let remediesHtml = '<div class="advice"><div class="advice-title">🏡 Home Remedies</div><ul style="margin-top: 8px; margin-left: 20px;">';
+          data.homeRemedies.forEach(remedy => {
+            remediesHtml += `<li style="margin-bottom: 6px;">${remedy}</li>`;
+          });
+          remediesHtml += '</ul></div>';
+          addMessage(remediesHtml, "assistant", { html: true });
+        }
+
+        // Display when to see doctor
+        if (data.whenToSeeDoctor) {
+          let doctorHtml = `
+            <div class="advice" style="border-left: 3px solid #e74c3c;">
+              <div class="advice-title" style="color: #e74c3c;">🚨 When to See a Doctor</div>
+              <p>${data.whenToSeeDoctor}</p>
+            </div>`;
+          addMessage(doctorHtml, "assistant", { html: true });
+        }
+
+        // Add general advice
+        if (data.advice) {
+          let adviceHtml = `
+            <div class="advice">
+              <div class="advice-title">💡 General Advice</div>
+              <p>${data.advice}</p>
+            </div>`;
+          addMessage(adviceHtml, "assistant", { html: true });
+        }
+
+        // Add YouTube video link if available
+        if (data.youtube?.url) {
+          const channelInfo = data.youtube.channelName ? 
+            `<p style="margin-top: 2px; font-size: 11px; color: #888;">📋 From: ${data.youtube.channelName}</p>` : '';
+          
+          const youtubeHtml = `
+            <div class="advice">
+              <div class="advice-title">📺 Trusted Medical Content</div>
+              <div style="margin-top: 8px;">
+                <a href="${data.youtube.url}" target="_blank" 
+                   style="color: #FF0000; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 500;">
+                  <span style="font-size: 16px;">▶️</span>
+                  ${data.youtube.title || 'Watch a helpful video about this condition'}
+                </a>
+                ${channelInfo}
+                ${data.youtube.description ? `<p style="margin-top: 4px; font-size: 12px; color: #666; line-height: 1.3;">${data.youtube.description}</p>` : ''}
+              </div>
+            </div>`;
+          addMessage(youtubeHtml, "assistant", { html: true });
+        }
+
+      } catch (error) {
+        addMessage(`❌ Quick analysis failed: ${error.message}`, "assistant");
+      }
+    }
+
+    // Handle image upload
+    imageUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      currentImage = file;
+      fileStatus.textContent = `📄 ${file.name}`;
+      fileStatus.classList.add('has-file');
+    });
+
+    // Analyze image
+    async function analyzeImage() {
+      if (!currentImage) {
+        addMessage('❌ Please upload an image first');
+        return;
+      }
+
+      addMessage(`Analyzing image: ${currentImage.name}...`);
+
+      try {
+        const formData = new FormData();
+        formData.append('image', currentImage);
+
+        const response = await fetch('http://localhost:5000/api/generate', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // 1) prefer normalized predictions from the backend
+        let predictions = data?.conditions;
+
+        // 2) else parse from raw (```json … ```)
+        if (!predictions || !predictions.length) {
+          const j = extractLeadingJSONFromRaw(data?.raw || "");
+          predictions = j?.predictions || j?.conditions || [];
+        }
+
+        if (predictions && predictions.length > 0) {
+          // Convert backend format to display format
+          const displayPredictions = predictions.map(c => ({
+            label: c.label,
+            probability: c.confidence_pct ? c.confidence_pct / 100 : (c.probability || 0)
+          }));
+          
+          // Set lastDerma for chips functionality
+          lastDerma.top = displayPredictions[0]?.label || null;
+          lastDerma.list = displayPredictions.map(p => p.label);
+          
+          // Render predictions with percentages
+          let message = renderPred(displayPredictions);
+          
+          // Add next question if available
+          if (data.next_question) {
+            message += `<div class="next-question"><b>Next:</b> ${nl2br(data.next_question)}</div>`;
+          }
+          
+          // Add advice if available
+          if (data.advice) {
+            message += `<div class="advice"><b>Advice:</b> ${nl2br(data.advice)}</div>`;
+          }
+          
+          addMessage(message || 'Analysis complete', "assistant", { html: true });
+          
+          // Add inline symptom chips UI
+          addMessage(renderInlineSymptomUI(), "assistant", { html: true });
+
+          // Set session ID for future requests
+          if (data.sessionId) {
+            sessionId = data.sessionId;
+          }
+
+          // Mark that we have image analysis and enable treatment plan
+          hasImageAnalysis = true;
+          updateGetPlanButton();
+
+          // Chart rendering removed - using simple text display instead
+          // setTimeout(() => {
+          //   renderPredChart(predictions);
+          // }, 100);
+        } else {
+          addMessage(data.html || data.raw || "I couldn't read predictions from the response.", "assistant");
+        }
+      } catch (error) {
+        addMessage(`❌ Error: ${error.message}`, "assistant");
+      }
+    }
+
+    // Event listeners
+    sendBtn.addEventListener('click', sendMessage);
+    analyzeBtn.addEventListener('click', analyzeImage);
+    
+    // Event delegation for inline chips UI
+    messagesContainer.addEventListener('click', async (e) => {
+      const card = e.target.closest('.chip-card');
+      if (!card) return;
+
+      if (e.target.classList.contains('chip')) {
+        e.target.classList.toggle('active');
+        return;
+      }
+
+      if (e.target.classList.contains('chip-skip')) {
+        card.remove();
+        return;
+      }
+
+      if (e.target.classList.contains('chip-wizard-start')) {
+        // Start the wizard
+        card.remove();
+        document.getElementById('derma-panel').style.display = 'none';
+        startWizard();
+        return;
+      }
+
+      if (e.target.classList.contains('chip-submit')) {
+        if (!lastDerma || !lastDerma.top) { addMessage('Please analyze an image first.'); return; }
+        const symptoms = Array.from(card.querySelectorAll('.chip.active')).map(b => b.textContent.trim());
+        const duration = (card.querySelector('.chip-duration')?.value || '').trim();
+        const severity = (card.querySelector('.chip-severity')?.value || '').trim();
+        const location = (card.querySelector('.chip-location')?.value || '').trim();
+        try {
+          const res = await fetch('http://localhost:5000/api/derma/plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId, condition: lastDerma.top, symptoms, duration, severity, location })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data?.error || 'Failed to get plan');
+
+          addMessage(renderDoctorSummary({
+            summary: data.summary,
+            virus_vs_bacteria: data.virus_vs_bacteria,
+            why_causes: data.why_causes,
+            likely_causes: data.likely_causes,
+            what_to_do_now: data.what_to_do_now,
+            diet_and_home: data.diet_and_home,
+            foods_to_eat: data.foods_to_eat,
+            foods_to_avoid: data.foods_to_avoid,
+            meds_to_discuss: data.tablets_oral_to_discuss,
+            prevention: data.prevention,
+            red_flags: data.red_flags,
+            side_effects_or_complications: data.side_effects_or_complications || []
+          }));
+          if (data.creams_topicals?.length) {
+            addMessage(`<div class="advice"><b>Creams/Topicals:</b> ${data.creams_topicals.join('; ')}</div>`, "assistant", { html: true });
+          }
+          card.remove();
+        } catch (err) {
+          addMessage(`❌ ${err.message}`, "assistant");
+        }
+      }
+    });
+
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  </script>
+
+  <!-- Dermatology Wizard Script -->
+  <script>
+  (function () {
+    // Turn on the step-by-step wizard and hide the old panel
+    const WIZARD_MODE = true;
+
+    // Steps: one question at a time
+    const STEPS = [
+      {
+        id: "symptoms",
+        type: "chips",
+        multiple: true,
+        question: "Any of these apply? (tap to select, then Next)",
+        options: [
+          "Itching","Pain","Burning sensation","Swelling","Increased redness",
+          "Warm to touch","Discharge/pus","Scaling/flaking","Crusting",
+          "Spreading/growing","Numbness","Bleeding"
+        ],
+        required: false
+      },
+      {
+        id: "duration",
+        type: "text",
+        question: "How long? (e.g., 3 days, 1 week)",
+        placeholder: "e.g., 5 days",
+        required: true,
+        validate: v => /(\d+)\s*(day|week|month|d|w|m)/i.test(v) || /today|yesterday/i.test(v)
+      },
+      {
+        id: "severity",
+        type: "select",
+        question: "How severe is it?",
+        options: ["Mild", "Moderate", "Severe"],
+        required: true
+      },
+      {
+        id: "location",
+        type: "text",
+        question: "Where on the body? (e.g., elbows, face, groin)",
+        placeholder: "e.g., elbows, face",
+        required: false
+      }
+    ];
+
+    const answers = { symptoms: [] };
+    let stepIdx = 0;
+
+    const oldPanel = document.getElementById("derma-panel");
+    const wiz = document.getElementById("derma-wizard");
+    if (!wiz) return;
+
+    if (WIZARD_MODE) {
+      if (oldPanel) oldPanel.style.display = "none";
+      wiz.style.display = "block";
+    }
+
+    function btn(html, id, disabled=false) {
+      return `<button class="btn" id="${id}" ${disabled?'disabled':''}>${html}</button>`;
+    }
+
+    function renderStep() {
+      const s = STEPS[stepIdx];
+      const header = `
+        <div class="section-title">Dermatology Treatment Plan</div>
+        <div class="advice-title" style="margin-bottom:.5rem">${s.question}</div>
+      `;
+
+      let inputHTML = "";
+      if (s.type === "chips") {
+        const picked = new Set(answers[s.id] || []);
+        inputHTML = `
+          <div id="chipbox" class="chipbox">
+            ${s.options.map(o => {
+              const on = picked.has(o) ? "chip chip-on" : "chip";
+              return `<span class="${on}" data-val="${o}">${o}</span>`;
+            }).join("")}
+          </div>
+        `;
+      } else if (s.type === "select") {
+        inputHTML = `
+          <select id="field" class="input">
+            <option value="">Select…</option>
+            ${s.options.map(o => `<option>${o}</option>`).join("")}
+          </select>`;
+      } else {
+        inputHTML = `<input id="field" class="input" placeholder="${s.placeholder||''}" value="${answers[s.id]||''}" />`;
+      }
+
+      const nav = `
+        <div class="row" style="gap:.5rem;margin-top:1rem">
+          ${btn("Back","back", stepIdx===0)}
+          ${btn("Skip","skip", !s.required && s.type!=="chips" ? false : (s.required ? false : false))}
+          ${btn(stepIdx === STEPS.length-1 ? "Finish" : "Next","next", true)}
+        </div>
+      `;
+
+      wiz.innerHTML = `<div class="advice">${header}${inputHTML}${nav}</div>`;
+
+      // wire up interactions
+      const nextBtn = document.getElementById("next");
+      const backBtn = document.getElementById("back");
+      const skipBtn = document.getElementById("skip");
+
+      if (s.type === "chips") {
+        const box = document.getElementById("chipbox");
+        box.addEventListener("click", e => {
+          const el = e.target.closest("span[data-val]");
+          if (!el) return;
+          const val = el.getAttribute("data-val");
+          const arr = new Set(answers[s.id] || []);
+          if (arr.has(val)) { arr.delete(val); el.classList.remove("chip-on"); }
+          else { arr.add(val); el.classList.add("chip-on"); }
+          answers[s.id] = Array.from(arr);
+          // chips question can always advance
+          nextBtn.disabled = false;
+        });
+        nextBtn.disabled = false; // allow moving on even with zero chips
+      } else {
+        const field = document.getElementById("field");
+        const validate = () => {
+          const v = (field.value || "").trim();
+          if (!s.required && !v) return true;
+          if (s.validate) return !!s.validate(v);
+          return !!v;
+        };
+        const updateNext = () => nextBtn.disabled = !validate();
+        field.addEventListener("input", updateNext);
+        field.addEventListener("change", updateNext);
+        field.addEventListener("keyup", e => { if(e.key==="Enter" && !nextBtn.disabled) nextBtn.click(); });
+        updateNext();
+      }
+
+      backBtn.onclick = () => { if (stepIdx>0) { stepIdx--; renderStep(); } };
+
+      skipBtn.onclick = () => {
+        if (s.required && s.type !== "chips") return;
+        if (s.type === "chips") { /* keep whatever is selected */ }
+        else { answers[s.id] = ""; }
+        advance();
+      };
+
+      nextBtn.onclick = () => {
+        if (s.type === "chips") {
+          // already collected
+        } else {
+          const field = document.getElementById("field");
+          const v = (field.value || "").trim();
+          if (s.required && !v) return;
+          if (s.validate && !s.validate(v)) return;
+          answers[s.id] = v;
+        }
+        advance();
+      };
+    }
+
+    function advance() {
+      if (stepIdx < STEPS.length - 1) {
+        stepIdx++;
+        renderStep();
+      } else {
+        // auto-submit: call backend and render the plan
+        submitDermaWizard();
+      }
+    }
+
+    async function submitDermaWizard() {
+      try {
+        // Map answers to your existing /api/derma/plan payload
+        const payload = {
+          sessionId: sessionId || "",   // use the global sessionId
+          symptoms: answers.symptoms || [],
+          duration: answers.duration || "",
+          severity: answers.severity || "",
+          location: answers.location || ""
+        };
+        const res = await fetch("http://localhost:5000/api/derma/plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!data || !data.ok) throw new Error("Failed to get plan");
+        // Reuse your existing renderer
+        if (window.renderDoctorSummary) {
+          addMessage(renderDoctorSummary(data));
+        } else {
+          // Fallback simple render
+          addMessage("<div class='advice'><div class='advice-title'>Treatment Plan</div><pre>"+JSON.stringify(data,null,2)+"</pre></div>");
+        }
+        // Hide the wizard after submit
+        wiz.style.display = "none";
+      } catch (e) {
+        addMessage(`<div class="advice error">Failed to get treatment plan. ${e.message||e}</div>`);
+      }
+    }
+
+    // small styles for chips if you don't have them
+    const style = document.createElement("style");
+    style.textContent = `
+      .chipbox { display:flex; flex-wrap:wrap; gap:.5rem; }
+      .chip { padding:.4rem .7rem; border:1px solid var(--border, #3a3f4b); border-radius:999px; cursor:pointer; opacity:.9; }
+      .chip-on { background:#5b6bfb22; border-color:#5b6bfb; }
+      .input { width:100%; padding:.65rem .8rem; border:1px solid var(--border, #3a3f4b); border-radius:.6rem; background:transparent; color:inherit; }
+      .btn { padding:.55rem .9rem; border-radius:.6rem; border:1px solid var(--border, #3a3f4b); background:#2a2f3a; color:#fff; cursor:pointer; }
+      .btn[disabled]{ opacity:.5; cursor:not-allowed; }
+      .row { display:flex; align-items:center; justify-content:space-between; }
+      .section-title { font-size:1.1rem; font-weight:600; margin-bottom:0.5rem; }
+    `;
+    document.head.appendChild(style);
+
+    // Only start the wizard when we have skin analysis results
+    window.startDermaWizard = function() {
+      if (!lastDerma || !lastDerma.top) {
+        addMessage('Please analyze a skin image first before getting treatment recommendations.');
+        return;
+      }
+      if (oldPanel) oldPanel.style.display = "none";
+      wiz.style.display = "block";
+      renderStep();
+    };
+
+    // Don't auto-start the wizard, let it be triggered by the inline chips
+  })();
+  </script>
+
+  <!-- Vaccination Panel -->
+  <div id="vax-panel" class="vax-modal" style="display:none">
+    <div class="vax-card">
+      <div class="vax-head">
+        <div class="vax-title">Vaccination Assistant <span class="vax-badge">Not medical advice</span></div>
+        <button id="vax-close" type="button" class="icon-btn">✕</button>
+      </div>
+
+      <!-- Keep your form/content here; minimal stub is fine -->
+      <form id="vax-form" class="vax-form">
+        <div class="vax-row">
+          <label>Name</label>
+          <input id="vax-name" type="text" placeholder="Your name" required>
+        </div>
+        <div class="vax-row">
+          <label>Date of birth</label>
+          <input id="vax-dob" type="date" required>
+        </div>
+        <div class="vax-actions">
+          <button type="submit" class="btn">Generate schedule</button>
+          <button id="vax-clear" type="button" class="btn ghost">Clear</button>
+        </div>
+      </form>
+
+      <div id="vax-schedule"></div>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const panel   = document.getElementById('vax-panel');
+    const openBtn = document.getElementById('btn-vax');
+    const closeBtn= document.getElementById('vax-close');
+    const form = document.getElementById('vax-form');
+    const nm = document.getElementById('vax-name');
+    const dob = document.getElementById('vax-dob');
+    const clearBtn = document.getElementById('vax-clear');
+    const schedEl = document.getElementById('vax-schedule');
+
+    if (!panel || !openBtn) {
+      console.warn('Vaccination elements not found: #btn-vax or #vax-panel');
+      return;
+    }
+
+    // Accepts 2006-03-16, 16-03-2006, 16/03/2006
+    function parseDOB(str) {
+      if (!str) return null;
+      const s = String(str).trim();
+      let m;
+      if ((m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/))) {          // ISO
+        return new Date(`${m[1]}-${m[2]}-${m[3]}T00:00:00`);
+      }
+      if ((m = s.match(/^(\d{2})[-/](\d{2})[-/](\d{4})$/))) {    // DD-MM-YYYY or DD/MM/YYYY
+        return new Date(`${m[3]}-${m[2]}-${m[1]}T00:00:00`);
+      }
+      const d = new Date(s);
+      return isNaN(d) ? null : d;
+    }
+
+    function fmt(d) {
+      try { return new Date(d).toLocaleDateString(); } catch { return String(d); }
+    }
+
+    // Simplified, generic schedule (WHO/CDC-like; no doses given; regional variance noted)
+    const VAX = [
+      { name:"HepB (birth)", atM:0, note:"Birth dose where recommended" },
+      { name:"BCG (where recommended)", atM:0, optional:true },
+      { name:"DTP/DTaP + Hib + IPV/OPV (1st series)", atM:2, note:"Typically 6–10–14 weeks schedule" },
+      { name:"PCV (pneumococcal) series", atM:2 },
+      { name:"Rotavirus series (max age applies)", atM:2, note:"Age-limited start; ask clinician" },
+      { name:"MMR / Measles", atM:9 },
+      { name:"Varicella", atM:12, optional:true },
+      { name:"HepA (where recommended)", atM:12, optional:true },
+      { name:"DTaP/IPV booster", atM:48 },
+      { name:"Tdap (preteen/teen booster)", atM:120 },
+      { name:"HPV (2-dose if started 9–14y)", atM:132, note:"Best before sexual debut" },
+      { name:"Meningococcal (per programme)", atM:132, optional:true },
+      { name:"Influenza (annual)", atM:156, repeatY:1, floating:true, note:"Annual, before flu season" },
+      { name:"COVID-19 (per current programme)", atM:156, floating:true },
+      { name:"Td/Tdap booster (every 10y)", atM:240, repeatY:10, floating:true }
+    ];
+
+    // Build schedule from Date object
+    function buildScheduleFromDate(dobDate){
+      const now = new Date();
+      const addMonths = (d, m) => { const x = new Date(d); x.setMonth(x.getMonth()+m); return x; };
+      const diffDays = (a,b) => Math.round((a-b)/(24*3600*1000));
+
+      const rows = [];
+      for (const v of VAX){
+        const firstDue = addMonths(dobDate, v.atM);
+        if (!v.repeatY) {
+          rows.push({ name:v.name, due:firstDue, note:v.note||"", optional:!!v.optional, floating:!!v.floating });
+        } else {
+          let k=0, next=new Date(firstDue);
+          while (next < addMonths(now, 120)) {
+            rows.push({ name:v.name, due:new Date(next), note:v.note||"", optional:!!v.optional, floating:!!v.floating });
+            k++; next = addMonths(firstDue, k*12*v.repeatY);
+          }
+        }
+      }
+
+      return rows.map(r=>{
+        const delta = diffDays(now, r.due);
+        let status="upcoming", badge="vax-upcoming", when=`in ${Math.max(0, -delta)} days`;
+        if (delta >= 0 && delta <= 60) { status="due"; badge="vax-due"; when=`due now (window ~60d)`; }
+        if (delta > 60) { status="overdue"; badge="vax-overdue"; when=`overdue by ${delta-60} days`; }
+        return { ...r, status, badge, when };
+      }).sort((a,b)=> a.due - b.due);
+    }
+
+    function renderSchedule(name, dobDate, sexVal){
+      const rows = buildScheduleFromDate(dobDate);
+      const dobISO = dobDate.toISOString().slice(0,10);
+
+      const head = `
+        <div class="vax-section">
+          <div class="title">Schedule for ${name}
+            <span class="vax-chip">${fmt(dobDate)} (DOB)</span>
+            ${sexVal ? `<span class="vax-chip">${sexVal}</span>` : ""}
+          </div>
+          <div class="vax-note">Generic guidance only. Follow your local programme / clinician.</div>
+        </div>`;
+
+      const groups = { overdue:[], due:[], upcoming:[] };
+      rows.forEach(r=> groups[r.status].push(r));
+
+      function list(title, key){
+        const items = groups[key].slice(0,50).map(r => `
+          <div class="vax-section ${r.badge}">
+            <div class="title">${r.name} — <span class="vax-chip">${fmt(r.due)}</span> <span class="vax-chip">${r.when}</span> ${r.optional?`<span class="vax-chip">programme-dependent</span>`:""}</div>
+            ${r.note?`<div class="vax-note">${r.note}</div>`:""}
+          </div>`).join("");
+        return `<div>${items || `<div class="vax-note">None</div>`}</div>`;
+      }
+
+      schedEl.innerHTML = head
+        + `<div class="title" style="margin-top:.4rem">Overdue</div>${list("Overdue","overdue")}`
+        + `<div class="title" style="margin-top:.6rem">Due now</div>${list("Due","due")}`
+        + `<div class="title" style="margin-top:.6rem">Upcoming</div>${list("Upcoming","upcoming")}`;
+    }
+
+    // open
+    openBtn.addEventListener('click', function(e){
+      e.preventDefault();                   // don't submit any surrounding form
+      panel.style.display = 'flex';
+      // Restore saved data
+      try{
+        const s = JSON.parse(localStorage.getItem('vax_user')||'{}');
+        if(s.name) nm.value = s.name;
+        if(s.dob) dob.value = s.dob;
+        if(s.name && s.dob) {
+          const dobDate = parseDOB(s.dob);
+          if(dobDate) renderSchedule(s.name, dobDate, s.sex||"");
+        }
+      }catch{}
+    });
+
+    // close
+    if (closeBtn) closeBtn.addEventListener('click', ()=> panel.style.display = 'none');
+
+    // click outside card to close
+    panel.addEventListener('click', (e)=>{
+      if (e.target === panel) panel.style.display = 'none';
+    });
+
+    // Enhanced form submit handler
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = nm.value.trim() || "you";
+      const dobDate = parseDOB(dob.value);
+
+      if (!dobDate) {
+        schedEl.innerHTML = `
+          <div class="vax-section vax-overdue">
+            Please enter a valid date of birth (YYYY-MM-DD or DD-MM-YYYY).
+          </div>`;
+        return;
+      }
+
+      // persist & render
+      localStorage.setItem('vax_user', JSON.stringify({
+        name, dob: dobDate.toISOString().slice(0,10), sex: ""
+      }));
+      renderSchedule(name, dobDate, "");
+    });
+
+    // Clear functionality
+    clearBtn?.addEventListener('click', ()=>{
+      nm.value="";
+      dob.value="";
+      schedEl.innerHTML="";
+      localStorage.removeItem('vax_user');
+    });
+
+    // expose for other code (optional)
+    window.openVaccination = () => panel.style.display = 'flex';
+    window.closeVaccination = () => panel.style.display = 'none';
+  });
+  </script>
+
+  <script>
+  (() => {
+    function enhance(root=document){
+      const nodes = root.querySelectorAll('.advice li, .advice p, .vax-section li, .vax-section p');
+      nodes.forEach(el => {
+        if (el.dataset.explainEnhanced) return;
+        // Wrap "(Simple: ...)" → <span class="explain-note">...</span>
+        el.innerHTML = el.innerHTML.replace(/\s*\(Simple:\s*([^)]*?)\)/gi, 
+          ' <span class="explain-note">($1)</span>');
+        el.dataset.explainEnhanced = "1";
+        // optional: add left guide class for nicer vertical alignment
+        const card = el.closest('.advice');
+        if (card) card.classList.add('with-guide');
+      });
+    }
+    // run now + watch future assistant messages
+    enhance();
+    new MutationObserver(m => m.forEach(()=>enhance())).observe(document.body, {childList:true, subtree:true});
+  })();
+  </script>
+
+  <!-- Three.js CDN -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+
+  <!-- 3D Background Animation -->
+  <script>
+  (function(){
+    // Check if Three.js loaded
+    if (typeof THREE === 'undefined') {
+      console.warn('Three.js failed to load, 3D background disabled');
+      return;
+    }
+
+    const root = document.getElementById('bg3d');
+    if (!root) {
+      console.warn('bg3d element not found');
+      return;
+    }
+
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 110);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    root.appendChild(renderer.domElement);
+
+    // blob mesh
+    const geo = new THREE.IcosahedronGeometry(55, 5); // (radius, detail)
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0x865dff, metalness: 0.35, roughness: 0.2, transparent: true, opacity: 0.9
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    scene.add(mesh);
+
+    // wireframe glow overlay
+    const wire = new THREE.MeshBasicMaterial({ color: 0x5de0e6, wireframe: true, transparent: true, opacity: 0.25 });
+    const wireMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(56, 5), wire);
+    scene.add(wireMesh);
+
+    // lights
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const key = new THREE.DirectionalLight(0x5de0e6, 1.0); key.position.set(5, 6, 7); scene.add(key);
+    const rim = new THREE.DirectionalLight(0x865dff, 0.8); rim.position.set(-6, -4, -3); scene.add(rim);
+
+    // gentle "breathing" deformations
+    const posAttr = mesh.geometry.attributes.position;
+    const base = posAttr.array.slice();
+    function wobble(t){
+      const time = t * 0.0007;
+      for (let i = 0; i < posAttr.count; i++){
+        const ix = i*3, x = base[ix], y = base[ix+1], z = base[ix+2];
+        const r = Math.hypot(x, y, z);
+        const k = 1 + 0.06 * Math.sin(time*2 + r*0.18);
+        posAttr.array[ix]   = x * k;
+        posAttr.array[ix+1] = y * k;
+        posAttr.array[ix+2] = z * k;
+      }
+      posAttr.needsUpdate = true;
+    }
+
+    // parallax camera
+    let target = {x:0,y:0}, current = {x:0,y:0};
+    addEventListener('mousemove', e=>{
+      target.x = ((e.clientX / innerWidth)  * 2 - 1) * 14;
+      target.y = ((e.clientY / innerHeight) * 2 - 1) * -10;
+    });
+
+    function tick(t){
+      wobble(t);
+      mesh.rotation.y += 0.002;
+      wireMesh.rotation.y += 0.0025;
+      mesh.rotation.x = Math.sin(t*0.0006) * 0.15;
+      wireMesh.rotation.x = Math.sin(t*0.0006 + 0.5) * 0.15;
+
+      // smooth camera easing
+      current.x += (target.x - current.x) * 0.05;
+      current.y += (target.y - current.y) * 0.05;
+      camera.position.x = current.x;
+      camera.position.y = current.y;
+      camera.lookAt(0,0,0);
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    addEventListener('resize', ()=>{
+      camera.aspect = innerWidth/innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    });
+  })();
+  </script>
+
+  <!-- Flower-shaped Burst Sparkle System -->
+  <script>
+  (function(){
+    let flowerNodes = [];
+    let flowerConnections = [];
+    const maxNodes = 15;
+    const flowerRadius = 120;
+    const nodeLifetime = 3000; // 3 seconds
+    
+    // Get message box boundaries to avoid
+    function getMessageBoxBounds() {
+      const chatContainer = document.querySelector('.chat-container');
+      const messages = document.querySelector('.messages');
+      
+      if (!chatContainer || !messages) {
+        return { top: 0, left: 0, right: 0, bottom: 0 };
+      }
+      
+      const chatRect = chatContainer.getBoundingClientRect();
+      const msgRect = messages.getBoundingClientRect();
+      
+      return {
+        top: Math.min(chatRect.top, msgRect.top) - 50,
+        left: Math.min(chatRect.left, msgRect.left) - 50,
+        right: Math.max(chatRect.right, msgRect.right) + 50,
+        bottom: Math.max(chatRect.bottom, msgRect.bottom) + 50
+      };
+    }
+    
+    // Check if point is outside message box area
+    function isOutsideMessageBox(x, y) {
+      const bounds = getMessageBoxBounds();
+      return x < bounds.left || x > bounds.right || y < bounds.top || y > bounds.bottom;
+    }
+    
+    // Create flower-shaped sparkle burst
+    function createFlowerBurst(centerX, centerY, isLarge = false, isTrail = false) {
+      if (!isOutsideMessageBox(centerX, centerY)) return null;
+      
+      // Create center sparkle
+      const centerSparkle = document.createElement('div');
+      centerSparkle.className = `flower-sparkle ${isLarge ? 'large' : ''} ${isTrail ? 'trail' : ''}`;
+      
+      const centerSize = isLarge ? 12 + Math.random() * 8 : (isTrail ? 6 + Math.random() * 3 : 8 + Math.random() * 4);
+      
+      // Flower colors - beautiful blue flower colors
+      const flowerColors = [
+        '#4169E1', // Royal Blue
+        '#6495ED', // Cornflower Blue  
+        '#1E90FF', // Dodger Blue
+        '#4682B4', // Steel Blue
+        '#5F9EA0', // Cadet Blue
+        '#87CEEB', // Sky Blue
+        '#B0E0E6', // Powder Blue
+        '#ADD8E6'  // Light Blue
+      ];
+      
+      const centerColor = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+      
+      centerSparkle.style.cssText = `
+        left: ${centerX - centerSize/2}px;
+        top: ${centerY - centerSize/2}px;
+        width: ${centerSize}px;
+        height: ${centerSize}px;
+        background: radial-gradient(circle, 
+          ${centerColor} 0%, 
+          ${centerColor}E0 40%, 
+          ${centerColor}A0 70%, 
+          ${centerColor}40 90%, 
+          transparent 100%);
+        box-shadow: 
+          0 0 ${centerSize*2}px ${centerColor}FF,
+          0 0 ${centerSize*4}px ${centerColor}AA,
+          0 0 ${centerSize*6}px ${centerColor}55;
+      `;
+      
+      document.body.appendChild(centerSparkle);
+      
+      // Create flower petals in a blooming pattern
+      const petalCount = isLarge ? 12 : (isTrail ? 6 : 8);
+      const radius = isLarge ? flowerRadius * 1.5 : (isTrail ? flowerRadius * 0.7 : flowerRadius);
+      
+      setTimeout(() => {
+        createFlowerPetals(centerX, centerY, petalCount, radius, centerColor, isLarge);
+      }, 100);
+      
+      // Create curved connections between petals
+      setTimeout(() => {
+        createCurvedFlowerConnections(centerX, centerY, petalCount, radius, isLarge);
+      }, 300);
+      
+      const nodeData = {
+        element: centerSparkle,
+        x: centerX,
+        y: centerY,
+        size: centerSize,
+        color: centerColor,
+        type: isLarge ? 'large' : (isTrail ? 'trail' : 'normal'),
+        createdAt: Date.now(),
+        id: Math.random().toString(36).substr(2, 9)
+      };
+      
+      flowerNodes.push(nodeData);
+      
+      // Remove sparkle after animation
+      setTimeout(() => {
+        removeFlowerNode(nodeData.id);
+      }, nodeLifetime);
+      
+      // Clean up old nodes
+      if (flowerNodes.length > maxNodes) {
+        const oldestNode = flowerNodes.reduce((oldest, current) => 
+          current.createdAt < oldest.createdAt ? current : oldest
+        );
+        removeFlowerNode(oldestNode.id);
+      }
+      
+      return nodeData;
+    }
+    
+    // Create flower petals radiating outward in curved patterns
+    function createFlowerPetals(centerX, centerY, petalCount, radius, centerColor, isLarge) {
+      for (let i = 0; i < petalCount; i++) {
+        const angle = (Math.PI * 2 * i) / petalCount;
+        const petalAngleOffset = (Math.random() - 0.5) * 0.3; // Add some randomness
+        const finalAngle = angle + petalAngleOffset;
+        
+        // Create multiple petals per direction for fuller flower effect
+        const petalsPerDirection = isLarge ? 3 : 2;
+        
+        for (let j = 0; j < petalsPerDirection; j++) {
+          setTimeout(() => {
+            createSingleFlowerPetal(centerX, centerY, finalAngle, radius, centerColor, j, petalsPerDirection);
+          }, j * 150 + i * 50);
+        }
+      }
+    }
+    
+    // Create individual flower petal with curved motion
+    function createSingleFlowerPetal(centerX, centerY, angle, radius, color, layer, maxLayers) {
+      const petal = document.createElement('div');
+      petal.className = 'flower-petal';
+      
+      const petalSize = (8 + Math.random() * 6) * (1 - layer * 0.3); // Smaller petals in outer layers
+      const layerRadius = radius * (0.4 + layer * 0.3); // Different distances for layers
+      
+      // Calculate curved path for petal
+      const startX = centerX;
+      const startY = centerY;
+      const midX = centerX + Math.cos(angle) * (layerRadius * 0.5);
+      const midY = centerY + Math.sin(angle) * (layerRadius * 0.5);
+      const endX = centerX + Math.cos(angle) * layerRadius;
+      const endY = centerY + Math.sin(angle) * layerRadius;
+      
+      // Only create petal if end position is outside message box
+      if (!isOutsideMessageBox(endX, endY)) return;
+      
+      petal.style.cssText = `
+        left: ${startX}px;
+        top: ${startY}px;
+        width: ${petalSize}px;
+        height: ${petalSize}px;
+        background: radial-gradient(ellipse 70% 40% at center, 
+          ${color}E0 0%, 
+          ${color}A0 30%, 
+          ${color}60 60%, 
+          transparent 100%);
+        box-shadow: 
+          0 0 ${petalSize}px ${color}AA,
+          0 0 ${petalSize*2}px ${color}44;
+        transform: rotate(${angle * (180/Math.PI)}deg);
+      `;
+      
+      document.body.appendChild(petal);
+      
+      // Animate petal along curved path
+      const keyframes = [
+        { 
+          transform: `translate(0, 0) scale(0.3) rotate(${angle * (180/Math.PI)}deg)`, 
+          opacity: 0,
+          filter: 'brightness(2) saturate(2)'
+        },
+        { 
+          transform: `translate(${midX - startX}px, ${midY - startY}px) scale(1) rotate(${(angle * (180/Math.PI)) + 180}deg)`, 
+          opacity: 1,
+          filter: 'brightness(1.5) saturate(1.5)'
+        },
+        { 
+          transform: `translate(${endX - startX}px, ${endY - startY}px) scale(0.6) rotate(${(angle * (180/Math.PI)) + 360}deg)`, 
+          opacity: 0.7,
+          filter: 'brightness(1.2) saturate(1.2)'
+        },
+        { 
+          transform: `translate(${endX - startX + Math.cos(angle + Math.PI/4) * 20}px, ${endY - startY + Math.sin(angle + Math.PI/4) * 20}px) scale(0.2) rotate(${(angle * (180/Math.PI)) + 540}deg)`, 
+          opacity: 0,
+          filter: 'brightness(0.8) saturate(0.8)'
+        }
+      ];
+      
+      petal.animate(keyframes, {
+        duration: 2000 + Math.random() * 1000,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      }).onfinish = () => {
+        petal.remove();
+      };
+    }
+    
+    // Create curved connections between flower petals
+    function createCurvedFlowerConnections(centerX, centerY, petalCount, radius, isLarge) {
+      const connectionCount = Math.min(petalCount, isLarge ? 8 : 5);
+      
+      for (let i = 0; i < connectionCount; i++) {
+        const startAngle = (Math.PI * 2 * i) / petalCount;
+        const endAngle = (Math.PI * 2 * (i + 2)) / petalCount; // Connect to petal 2 positions away
+        
+        setTimeout(() => {
+          createCurvedConnection(centerX, centerY, startAngle, endAngle, radius * 0.8);
+        }, i * 100);
+      }
+    }
+    
+    // Create individual curved connection
+    function createCurvedConnection(centerX, centerY, startAngle, endAngle, radius) {
+      const startX = centerX + Math.cos(startAngle) * radius;
+      const startY = centerY + Math.sin(startAngle) * radius;
+      const endX = centerX + Math.cos(endAngle) * radius;
+      const endY = centerY + Math.sin(endAngle) * radius;
+      
+      // Check if connection would pass through message box
+      const midX = (startX + endX) / 2;
+      const midY = (startY + endY) / 2;
+      if (!isOutsideMessageBox(midX, midY)) return;
+      
+      // Create curved SVG path
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      
+      // Calculate control points for curved line
+      const controlX = centerX + Math.cos((startAngle + endAngle) / 2) * radius * 0.5;
+      const controlY = centerY + Math.sin((startAngle + endAngle) / 2) * radius * 0.5;
+      
+      const pathData = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
+      
+      svg.style.cssText = `
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 997;
+      `;
+      
+      path.setAttribute('d', pathData);
+      path.setAttribute('stroke', 'url(#flowerGradient)');
+      path.setAttribute('stroke-width', '3');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('opacity', '0');
+      
+      // Create gradient
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+      gradient.id = 'flowerGradient' + Math.random().toString(36).substr(2, 5);
+      
+      const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      stop1.setAttribute('offset', '0%');
+      stop1.setAttribute('stop-color', '#87CEEB');
+      stop1.setAttribute('stop-opacity', '0.8');
+      
+      const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      stop2.setAttribute('offset', '50%');
+      stop2.setAttribute('stop-color', '#4169E1');
+      stop2.setAttribute('stop-opacity', '1');
+      
+      const stop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      stop3.setAttribute('offset', '100%');
+      stop3.setAttribute('stop-color', '#6495ED');
+      stop3.setAttribute('stop-opacity', '0.8');
+      
+      gradient.appendChild(stop1);
+      gradient.appendChild(stop2);
+      gradient.appendChild(stop3);
+      defs.appendChild(gradient);
+      svg.appendChild(defs);
+      svg.appendChild(path);
+      
+      path.setAttribute('stroke', `url(#${gradient.id})`);
+      
+      document.body.appendChild(svg);
+      
+      // Animate the curved line
+      path.animate([
+        { opacity: 0, strokeDasharray: '0 1000' },
+        { opacity: 1, strokeDasharray: '200 1000' },
+        { opacity: 0.7, strokeDasharray: '400 1000' },
+        { opacity: 0, strokeDasharray: '1000 1000' }
+      ], {
+        duration: 1500,
+        easing: 'ease-out'
+      }).onfinish = () => {
+        svg.remove();
+      };
+    }
+    
+    // Remove flower node
+    function removeFlowerNode(nodeId) {
+      const nodeIndex = flowerNodes.findIndex(n => n.id === nodeId);
+      if (nodeIndex !== -1) {
+        const node = flowerNodes[nodeIndex];
+        if (node.element && node.element.parentNode) {
+          node.element.remove();
+        }
+        flowerNodes.splice(nodeIndex, 1);
+      }
+    }
+    
+    // Create ambient flower bursts
+    function createAmbientFlower() {
+      if (flowerNodes.length < maxNodes - 3) {
+        let attempts = 0;
+        let x, y;
+        
+        do {
+          x = Math.random() * window.innerWidth;
+          y = Math.random() * window.innerHeight;
+          attempts++;
+        } while (!isOutsideMessageBox(x, y) && attempts < 10);
+        
+        if (attempts < 10) {
+          const isLarge = Math.random() < 0.3;
+          createFlowerBurst(x, y, isLarge);
+        }
+      }
+    }
+    
+    // Auto-generate ambient flowers
+    setInterval(createAmbientFlower, 2000);
+    
+    // Create initial flowers
+    for (let i = 0; i < 4; i++) {
+      setTimeout(() => {
+        createAmbientFlower();
+      }, i * 500);
+    }
+    
+    // User interactions
+    document.addEventListener('click', (e) => {
+      if (isOutsideMessageBox(e.clientX, e.clientY)) {
+        const isLarge = Math.random() < 0.6; // 60% chance for large flower
+        createFlowerBurst(e.clientX, e.clientY, isLarge);
+      }
+    });
+    
+    document.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      Array.from(e.touches).forEach(touch => {
+        if (isOutsideMessageBox(touch.clientX, touch.clientY)) {
+          const isLarge = Math.random() < 0.6;
+          createFlowerBurst(touch.clientX, touch.clientY, isLarge);
+        }
+      });
+    }, { passive: false });
+    
+    // Enhanced drag functionality
+    let isMouseDown = false;
+    let lastMouseTime = 0;
+    
+    document.addEventListener('mousedown', (e) => { 
+      isMouseDown = true;
+      if (isOutsideMessageBox(e.clientX, e.clientY)) {
+        createFlowerBurst(e.clientX, e.clientY, true); // Large flower on mouse down
+      }
+    });
+    
+    document.addEventListener('mouseup', () => { 
+      isMouseDown = false; 
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+      if (isMouseDown && Date.now() - lastMouseTime > 300) {
+        if (isOutsideMessageBox(e.clientX, e.clientY)) {
+          createFlowerBurst(e.clientX, e.clientY, false, true); // Trail flowers
+        }
+        lastMouseTime = Date.now();
+      }
+    });
+    
+    document.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (Date.now() - lastMouseTime > 300) {
+        Array.from(e.touches).forEach(touch => {
+          if (isOutsideMessageBox(touch.clientX, touch.clientY)) {
+            createFlowerBurst(touch.clientX, touch.clientY, false, true);
+          }
+        });
+        lastMouseTime = Date.now();
+      }
+    }, { passive: false });
+    
+  })();
+  </script>
+</body>
+</html>

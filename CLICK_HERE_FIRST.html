@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🚨 Important - Use New Pages!</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .alert {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 2rem;
+    }
+
+    .problem {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+
+    .problem h2 {
+      color: #856404;
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .problem p {
+      color: #856404;
+      line-height: 1.6;
+    }
+
+    .solution {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+
+    .solution h2 {
+      color: #065f46;
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .solution p {
+      color: #065f46;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+      margin: 10px;
+      text-align: center;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .btn.success {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 30px 0;
+    }
+
+    .features {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .features ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .features li {
+      padding: 10px 0;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 1.1rem;
+    }
+
+    .features li:last-child {
+      border-bottom: none;
+    }
+
+    .countdown {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #666;
+      margin-top: 20px;
+    }
+
+    .countdown strong {
+      color: #f5576c;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="alert">
+      🚨 STOP! You're using the WRONG PAGE! 🚨
+    </div>
+
+    <h1>❌ The Problem</h1>
+    <div class="problem">
+      <h2>You're on the OLD Chatbot Interface</h2>
+      <p><strong>Current Page:</strong> Probably <code>index.html</code> or an old chatbot page</p>
+      <p><strong>Issue:</strong> This page is outdated and uses old API endpoints that cause errors</p>
+      <p><strong>Error:</strong> "Server error: 500" - because it's calling endpoints that don't work properly</p>
+    </div>
+
+    <h1>✅ The Solution</h1>
+    <div class="solution">
+      <h2>Use the NEW Doctor Consultation System!</h2>
+      <p>I created a brand new, modern doctor consultation system with:</p>
+      
+      <div class="features">
+        <ul>
+          <li>🤖 <strong>AI Doctor Chat</strong> - Intelligent conversation with treatment plans</li>
+          <li>💊 <strong>Medicine Recommendations</strong> - Proper dosage and instructions</li>
+          <li>📍 <strong>Find Nearby Doctors</strong> - Location-based search</li>
+          <li>⚕️ <strong>8+ Specializations</strong> - Cardiologist, Dermatologist, and more</li>
+          <li>🏥 <strong>Book Appointments</strong> - Direct contact with doctors</li>
+          <li>✨ <strong>Beautiful Modern UI</strong> - Professional design</li>
+        </ul>
+      </div>
+
+      <p><strong>Click any button below to access the NEW system:</strong></p>
+    </div>
+
+    <div class="buttons">
+      <a href="FRONTEND/welcome.html" class="btn primary">
+        🏠 Main Welcome Page<br>
+        <small>(Start Here - Best Option)</small>
+      </a>
+      <a href="FRONTEND/ai-doctor.html" class="btn success">
+        🤖 AI Doctor Chat<br>
+        <small>(Direct Access)</small>
+      </a>
+      <a href="FRONTEND/offline-doctor.html" class="btn">
+        📍 Find Doctors<br>
+        <small>(Location Search)</small>
+      </a>
+    </div>
+
+    <div class="countdown">
+      <p>Auto-redirecting to Welcome Page in <strong id="timer">10</strong> seconds...</p>
+      <p style="font-size: 0.9rem; margin-top: 10px;">
+        <a href="#" onclick="clearInterval(window.countdownTimer); return false;" style="color: #666;">Cancel Auto-Redirect</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    let countdown = 10;
+    const timerEl = document.getElementById('timer');
+    
+    window.countdownTimer = setInterval(() => {
+      countdown--;
+      timerEl.textContent = countdown;
+      
+      if (countdown <= 0) {
+        clearInterval(window.countdownTimer);
+        window.location.href = 'FRONTEND/welcome.html';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

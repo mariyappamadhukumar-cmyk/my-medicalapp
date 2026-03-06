@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pranava Health AI - Medication Lookup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-box button {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .search-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .quick-search {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .quick-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .results-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .medication-card {
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .med-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .med-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .med-badge {
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box p, .info-box ul {
+            color: #666;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .info-box ul {
+            padding-left: 20px;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .warning-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            border-radius: 8px;
+            color: #721c24;
+        }
+
+        .brand-names {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .brand-tag {
+            background: #e0e7ff;
+            color: #667eea;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .dosage-highlight {
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .dosage-highlight strong {
+            color: #155724;
+        }
+
+        .icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💊 Pranava Health AI - Medication Lookup</h1>
+            <p>Search for accurate medication information from FDA database</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="medicationInput" 
+                    placeholder="Enter medication name (e.g., Paracetamol, Aspirin, Metformin)..."
+                    onkeypress="if(event.key==='Enter') searchMedication()"
+                >
+                <button onclick="searchMedication()">🔍 Search</button>
+            </div>
+            
+            <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                <strong>Quick Search:</strong> Try these common medications
+            </p>
+            
+            <div class="quick-search">
+                <span class="quick-btn" onclick="quickSearch('paracetamol')">Paracetamol</span>
+                <span class="quick-btn" onclick="quickSearch('aspirin')">Aspirin</span>
+                <span class="quick-btn" onclick="quickSearch('ibuprofen')">Ibuprofen</span>
+                <span class="quick-btn" onclick="quickSearch('metformin')">Metformin</span>
+                <span class="quick-btn" onclick="quickSearch('omeprazole')">Omeprazole</span>
+                <span class="quick-btn" onclick="quickSearch('amoxicillin')">Amoxicillin</span>
+                <span class="quick-btn" onclick="quickSearch('atorvastatin')">Atorvastatin</span>
+                <span class="quick-btn" onclick="quickSearch('lisinopril')">Lisinopril</span>
+            </div>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <!-- Results will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Read query params to auto-search or open order action
+        const urlParams = new URLSearchParams(window.location.search);
+        const prefillDrug = urlParams.get('drug');
+        const action = urlParams.get('action');
+        if (prefillDrug) {
+            document.getElementById('medicationInput').value = decodeURIComponent(prefillDrug);
+            // If action=order, perform search then open order modal
+            (async () => {
+                await searchMedication();
+                if (action === 'order') {
+                    // small delay to ensure results rendered
+                    setTimeout(() => {
+                        openOrderForPrefill();
+                    }, 600);
+                }
+            })();
+        }
+        function quickSearch(medication) {
+            document.getElementById('medicationInput').value = medication;
+            searchMedication();
+        }
+
+        async function searchMedication() {
+            const medicationName = document.getElementById('medicationInput').value.trim();
+            const resultsSection = document.getElementById('resultsSection');
+            
+            if (!medicationName) {
+                alert('Please enter a medication name');
+                return;
+            }
+
+            // Show loading
+            resultsSection.classList.add('show');
+            resultsSection.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Searching FDA database for "${medicationName}"...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/drug/info', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ drugName: medicationName })
+                });
+
+                const data = await response.json();
+
+                if (data.ok && data.drug) {
+                    displayMedicationInfo(data.drug);
+                } else {
+                    displayError(data.error || 'Medication not found', data.suggestion);
+                }
+            } catch (error) {
+                displayError('Failed to fetch medication information. Please check if the server is running.');
+            }
+        }
+
+        function displayMedicationInfo(drug) {
+            const resultsSection = document.getElementById('resultsSection');
+            
+            // Extract dosage information
+            const dosageText = drug.dosageAndAdministration || 'Dosage information not available';
+            
+            // Check for 1mg mentions
+            const has1mg = /\b1\s?mg\b/i.test(dosageText);
+            
+            resultsSection.innerHTML = `
+                <div class="medication-card">
+                    <div class="med-header">
+                        <div class="med-name">${drug.genericName || 'Unknown'}</div>
+                        <div class="med-badge">FDA Verified</div>
+                    </div>
+
+                    ${drug.brandNames && drug.brandNames.length > 0 ? `
+                        <div>
+                            <strong>Brand Names:</strong>
+                            <div class="brand-names">
+                                ${drug.brandNames.slice(0, 10).map(name => 
+                                    `<span class="brand-tag">${name}</span>`
+                                ).join('')}
+                                ${drug.brandNames.length > 10 ? `<span class="brand-tag">+${drug.brandNames.length - 10} more</span>` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${drug.manufacturerName ? `
+                        <p style="margin-top: 15px; color: #666;">
+                            <strong>Manufacturer:</strong> ${drug.manufacturerName}
+                        </p>
+                    ` : ''}
+                </div>
+
+                <div class="info-grid">
+                    ${drug.dosageAndAdministration ? `
+                        <div class="info-box">
+                            <h3><span class="icon">💊</span> Dosage & Administration</h3>
+                            ${has1mg ? `
+                                <div class="dosage-highlight">
+                                    <strong>⚡ 1mg Dosage Information Available</strong>
+                                </div>
+                            ` : ''}
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                ${formatText(drug.dosageAndAdministration)}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${drug.indications ? `
+                        <div class="info-box">
+                            <h3><span class="icon">🎯</span> Indications & Usage</h3>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                ${formatText(drug.indications)}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${drug.warnings ? `
+                        <div class="info-box">
+                            <h3><span class="icon">⚠️</span> Warnings</h3>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                ${formatText(drug.warnings)}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${drug.adverseReactions ? `
+                        <div class="info-box">
+                            <h3><span class="icon">🔴</span> Adverse Reactions</h3>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                ${formatText(drug.adverseReactions)}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${drug.drugInteractions ? `
+                        <div class="info-box">
+                            <h3><span class="icon">🔄</span> Drug Interactions</h3>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                ${formatText(drug.drugInteractions)}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚕️ Medical Disclaimer</h4>
+                    <p>
+                        This information is sourced from the FDA database and is for educational purposes only. 
+                        <strong>Always consult a qualified healthcare professional</strong> before starting, stopping, 
+                        or changing any medication. Do not use this information for self-diagnosis or self-treatment.
+                    </p>
+                </div>
+            `;
+        }
+
+        function formatText(text) {
+            if (!text) return '<p>No information available</p>';
+            
+            // Highlight 1mg mentions
+            text = text.replace(/\b1\s?mg\b/gi, '<span style="background: #d4edda; padding: 2px 4px; border-radius: 3px; font-weight: 600;">$&</span>');
+            
+            // Format paragraphs
+            const paragraphs = text.split('\n\n');
+            return paragraphs.map(p => {
+                p = p.trim();
+                if (!p) return '';
+                
+                // Check if it's a list item
+                if (p.match(/^[\d•\-]/)) {
+                    return `<p style="margin-bottom: 10px; padding-left: 20px;">• ${p.replace(/^[\d•\-]\s*/, '')}</p>`;
+                }
+                
+                return `<p style="margin-bottom: 15px;">${p}</p>`;
+            }).join('');
+        }
+
+        function displayError(message, suggestion) {
+            const resultsSection = document.getElementById('resultsSection');
+            
+            resultsSection.innerHTML = `
+                <div class="error-box">
+                    <h3 style="margin-bottom: 10px;">❌ ${message}</h3>
+                    ${suggestion ? `<p><strong>Suggestion:</strong> ${suggestion}</p>` : ''}
+                    <p style="margin-top: 15px;">
+                        <strong>Tips:</strong>
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Try using the generic name (e.g., "paracetamol" instead of "Tylenol")</li>
+                            <li>Check spelling of the medication name</li>
+                            <li>Use common pharmaceutical names</li>
+                            <li>Try the quick search buttons above</li>
+                        </ul>
+                    </p>
+                </div>
+            `;
+        }
+
+        // Auto-focus on input
+        document.getElementById('medicationInput').focus();
+
+        // Order UI helpers
+        function openOrderForPrefill() {
+            // Find first med name in results and show a quick order form
+            const medNameElem = document.querySelector('.med-name');
+            if (!medNameElem) return alert('Medication not found to order');
+            const medName = medNameElem.textContent.trim();
+
+            const qty = prompt(`Order ${medName}\nEnter quantity to order (e.g., 1):`, '1');
+            if (!qty) return;
+
+            // Send order to backend
+            fetch('/api/order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ medication: medName, quantity: qty })
+            }).then(r => r.json()).then(resp => {
+                if (resp.ok) {
+                    alert(`Order placed successfully. Order ID: ${resp.orderId}`);
+                } else {
+                    alert('Order failed: ' + (resp.error || 'unknown'));
+                }
+            }).catch(e => {
+                alert('Failed to place order: ' + e.message);
+            });
+        }
+    </script>
+</body>
+</html>

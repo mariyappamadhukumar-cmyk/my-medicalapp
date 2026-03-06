@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Health Dashboard - MediCare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4169E1;
+            --primary-dark: #1E90FF;
+            --secondary: #8B5CF6;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --bg-gradient-1: #FFE4E6;
+            --bg-gradient-2: #FFCCD5;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --border: rgba(65, 105, 225, 0.2);
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Menu */
+        .menu-toggle {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 4px 15px rgba(65, 105, 225, 0.4);
+            transition: all 0.3s;
+        }
+
+        .menu-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(65, 105, 225, 0.5);
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 320px;
+            height: 100vh;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-logo-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-section-title {
+            padding: 15px 20px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(65, 105, 225, 0.1);
+            border-left-color: var(--primary);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(90deg, rgba(65, 105, 225, 0.15), rgba(65, 105, 225, 0.05));
+            border-left-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .menu-item-icon {
+            width: 24px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .menu-item-text {
+            flex: 1;
+        }
+
+        .menu-item-badge {
+            background: var(--primary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            margin-top: auto;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .time-filter button {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .time-filter button.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+        }
+
+        .time-filter button:hover:not(.active) {
+            background: rgba(65, 105, 225, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .back-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(65, 105, 225, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border-color: var(--primary);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.blue { background: linear-gradient(135deg, #4169E1, #1E90FF); }
+        .stat-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+        .stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .stat-icon.purple { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .stat-trend.up {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .stat-trend.down {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* Critical Findings Section */
+        .critical-findings-section {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            border-left: 4px solid #ef4444;
+        }
+
+        .critical-findings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .critical-finding-card {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+
+        .critical-finding-card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .critical-finding-card.high { border-left-color: #ef4444; }
+        .critical-finding-card.moderate { border-left-color: #f59e0b; }
+        .critical-finding-card.low { border-left-color: #10b981; }
+
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .finding-severity {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .finding-severity.high {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .finding-severity.moderate {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .finding-severity.low {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .finding-condition {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .finding-details {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .finding-frequency {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .finding-count {
+            background: rgba(65, 105, 225, 0.1);
+            color: #4169E1;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .finding-date {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .no-critical-findings {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .no-critical-findings-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .chart-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 300px;
+        }
+
+        /* Recent Activity */
+        .activity-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(5px);
+        }
+
+        .activity-item.cough { border-left-color: #4169E1; }
+        .activity-item.chat { border-left-color: #10b981; }
+        .activity-item.doctor { border-left-color: #f59e0b; }
+
+        .activity-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .activity-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .activity-time {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Health Score Circle */
+        .health-score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .health-score-circle {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+
+        .health-score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .health-score-number {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .health-score-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .health-score-status {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* Recommendations */
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .recommendation-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .recommendation-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .recommendation-icon {
+            font-size: 24px;
+        }
+
+        .recommendation-title {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .recommendation-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Loading State */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(65, 105, 225, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+
+        .empty-state-btn {
+            padding: 14px 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .empty-state-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(65, 105, 225, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .time-filter {
+                flex-wrap: wrap;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Toggle Button (Hamburger) -->
+    <div class="menu-toggle" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🏥</div>
+                <div>
+                    <div class="sidebar-title">MediCare</div>
+                    <div class="sidebar-subtitle">Health Dashboard</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-section-title">Main Menu</div>
+            
+            <a href="#dashboard" class="menu-item active" onclick="navigateTo('dashboard')">
+                <span class="menu-item-icon">📊</span>
+                <span class="menu-item-text">Dashboard</span>
+            </a>
+
+            <a href="hospital.html" class="menu-item">
+                <span class="menu-item-icon">🏥</span>
+                <span class="menu-item-text">Nearby Hospitals</span>
+            </a>
+
+            <!-- Coming Soon - More Options -->
+            <!--
+            <a href="cough-prediction.html" class="menu-item">
+                <span class="menu-item-icon">🎤</span>
+                <span class="menu-item-text">Cough Analysis</span>
+            </a>
+
+            <a href="ai-doctor.html" class="menu-item">
+                <span class="menu-item-icon">💬</span>
+                <span class="menu-item-text">AI Doctor Chat</span>
+            </a>
+
+            <a href="#medical-records" class="menu-item">
+                <span class="menu-item-icon">📋</span>
+                <span class="menu-item-text">Medical Records</span>
+            </a>
+
+            <div class="menu-section-title">Health Services</div>
+
+            <a href="doctor-options.html" class="menu-item">
+                <span class="menu-item-icon">👨‍⚕️</span>
+                <span class="menu-item-text">Find Doctors</span>
+            </a>
+
+            <a href="#appointments" class="menu-item">
+                <span class="menu-item-icon">📅</span>
+                <span class="menu-item-text">Appointments</span>
+                <span class="menu-item-badge">New</span>
+            </a>
+
+            <a href="#medications" class="menu-item">
+                <span class="menu-item-icon">💊</span>
+                <span class="menu-item-text">Medications</span>
+            </a>
+
+            <div class="menu-section-title">Settings</div>
+
+            <a href="#profile" class="menu-item">
+                <span class="menu-item-icon">👤</span>
+                <span class="menu-item-text">Profile</span>
+            </a>
+
+            <a href="#settings" class="menu-item">
+                <span class="menu-item-icon">⚙️</span>
+                <span class="menu-item-text">Settings</span>
+            </a>
+
+            <a href="#help" class="menu-item">
+                <span class="menu-item-icon">❓</span>
+                <span class="menu-item-text">Help & Support</span>
+            </a>
+            -->
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="menu-item" onclick="handleLogout()" style="color: var(--danger); cursor: pointer;">
+                <span class="menu-item-icon">🚪</span>
+                <span class="menu-item-text">Logout</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">📊</div>
+                <div>
+                    <h1>Health Dashboard</h1>
+                    <div class="header-subtitle">Track your health journey and progress</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-info" id="userInfo">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-name" id="userName">User</div>
+                </div>
+                <div class="time-filter">
+                    <button class="filter-btn" data-period="week">This Week</button>
+                    <button class="filter-btn active" data-period="month">This Month</button>
+                    <button class="filter-btn" data-period="year">This Year</button>
+                    <button class="filter-btn" data-period="all">All Time</button>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">
+                    🚪 Logout
+                </button>
+                <button class="back-btn" onclick="window.location.href='welcome.html'">
+                    <span>←</span> Back to Home
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Loading your health data...</div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" style="display: none;">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon blue">🫁</div>
+                        <div class="stat-trend up">
+                            <span>↑</span> 12%
+                        </div>
+                    </div>
+                    <div class="stat-label">Cough Analyses</div>
+                    <div class="stat-value" id="totalCoughAnalyses">0</div>
+                    <div class="stat-subtitle">Total health screenings</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon green">💬</div>
+                        <div class="stat-trend up">
+                            <span>↑</span> 24%
+                        </div>
+                    </div>
+                    <div class="stat-label">AI Consultations</div>
+                    <div class="stat-value" id="totalChats">0</div>
+                    <div class="stat-subtitle">Chat conversations</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon orange">📈</div>
+                        <div class="stat-trend up">
+                            <span>↑</span> 8%
+                        </div>
+                    </div>
+                    <div class="stat-label">Health Score</div>
+                    <div class="stat-value" id="healthScore">--</div>
+                    <div class="stat-subtitle">Based on recent activity</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon purple">⏱️</div>
+                        <div class="stat-trend down">
+                            <span>↓</span> 5%
+                        </div>
+                    </div>
+                    <div class="stat-label">Avg. Response Time</div>
+                    <div class="stat-value" id="avgResponseTime">--</div>
+                    <div class="stat-subtitle">AI analysis speed</div>
+                </div>
+            </div>
+
+            <!-- Critical Findings Section -->
+            <div class="critical-findings-section" id="criticalFindings">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">⚠️ Critical Findings</div>
+                        <div class="chart-subtitle">Most concerning conditions detected in this period</div>
+                    </div>
+                </div>
+                <div class="critical-findings-grid" id="criticalFindingsContent">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <!-- Health Trends Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Health Activity Trends</div>
+                            <div class="chart-subtitle">Your health checks over time</div>
+                        </div>
+                    </div>
+                    <canvas id="trendsChart" class="chart-canvas"></canvas>
+                </div>
+
+                <!-- Health Score Circle -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Overall Health Score</div>
+                            <div class="chart-subtitle">Calculated from your activities</div>
+                        </div>
+                    </div>
+                    <div class="health-score-container">
+                        <div class="health-score-circle">
+                            <svg width="200" height="200">
+                                <circle cx="100" cy="100" r="90" fill="none" stroke="#e5e7eb" stroke-width="12"/>
+                                <circle id="healthScoreCircle" cx="100" cy="100" r="90" fill="none" 
+                                    stroke="url(#gradient)" stroke-width="12" stroke-linecap="round"
+                                    stroke-dasharray="565" stroke-dashoffset="141"
+                                    transform="rotate(-90 100 100)"/>
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#4169E1;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="health-score-value">
+                                <div class="health-score-number" id="healthScoreDisplay">75</div>
+                                <div class="health-score-label">out of 100</div>
+                            </div>
+                        </div>
+                        <div class="health-score-status" id="healthScoreStatus">Good Health</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cough Analysis Frequency Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Cough Analysis Patterns</div>
+                        <div class="chart-subtitle">Frequency distribution of your analyses</div>
+                    </div>
+                </div>
+                <canvas id="frequencyChart" class="chart-canvas"></canvas>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-card">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Recent Activity</div>
+                        <div class="chart-subtitle">Your latest health interactions</div>
+                    </div>
+                </div>
+                <div id="recentActivity">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Health Recommendations -->
+            <div class="activity-card">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Personalized Recommendations</div>
+                        <div class="chart-subtitle">Based on your health data</div>
+                    </div>
+                </div>
+                <div class="recommendations-grid" id="recommendations">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;">
+            <div class="activity-card">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <div class="empty-state-text">
+                        No health data available yet.<br>
+                        Start using our health features to see your personalized dashboard!
+                    </div>
+                    <button class="empty-state-btn" onclick="window.location.href='cough-prediction.html'">
+                        Start Cough Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+    <script>
+        // API Configuration
+        const API_URL = window.location.protocol === 'file:' 
+            ? 'http://localhost:5000' 
+            : '';
+
+        let currentPeriod = 'month';
+        let healthData = {
+            coughAnalyses: [],
+            chatConversations: [],
+            totalStats: {}
+        };
+
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            displayUserInfo();
+            setupEventListeners();
+            await loadDashboardData();
+            setupSidebar();
+        });
+
+        // Setup Sidebar
+        function setupSidebar() {
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const menuToggle = document.querySelector('.menu-toggle');
+                const overlay = document.querySelector('.sidebar-overlay');
+                
+                if (sidebar.classList.contains('active') && 
+                    !sidebar.contains(e.target) && 
+                    !menuToggle.contains(e.target)) {
+                    toggleSidebar();
+                }
+            });
+
+            // Highlight active menu item
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const href = item.getAttribute('href');
+                if (href && currentPath.includes(href.replace('.html', ''))) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+        }
+
+        // Navigate to section
+        function navigateTo(section) {
+            console.log('Navigating to:', section);
+            
+            // Update active menu item
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.menu-item').classList.add('active');
+            
+            // Close sidebar on mobile
+            if (window.innerWidth < 768) {
+                toggleSidebar();
+            }
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        // Display User Information
+        function displayUserInfo() {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            if (userInfo.name) {
+                document.getElementById('userName').textContent = userInfo.name;
+                // Get first letter of name for avatar
+                const initial = userInfo.name.charAt(0).toUpperCase();
+                document.getElementById('userAvatar').textContent = initial;
+            }
+        }
+
+        // Handle Logout
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userInfo');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentPeriod = e.target.dataset.period;
+                    await loadDashboardData();
+                });
+            });
+        }
+
+        // Load Dashboard Data
+        async function loadDashboardData() {
+            const loading = document.getElementById('loading');
+            const mainContent = document.getElementById('mainContent');
+            const emptyState = document.getElementById('emptyState');
+
+            loading.style.display = 'block';
+            mainContent.style.display = 'none';
+            emptyState.style.display = 'none';
+
+            try {
+                // Check authentication
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    alert('Please login to view your health dashboard');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Fetch data from backend with authentication
+                const headers = {
+                    'Authorization': `Bearer ${token}`
+                };
+
+                const [coughResponse, chatResponse] = await Promise.all([
+                    fetch(`${API_URL}/api/cough-analyses`, { headers }).catch(() => ({ ok: false })),
+                    fetch(`${API_URL}/api/chat-conversations`, { headers }).catch(() => ({ ok: false }))
+                ]);
+
+                // Handle unauthorized responses
+                if (coughResponse.status === 401 || chatResponse.status === 401) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userInfo');
+                    alert('Session expired. Please login again.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (coughResponse.ok) {
+                    const coughData = await coughResponse.json();
+                    healthData.coughAnalyses = coughData.data || [];
+                }
+
+                if (chatResponse.ok) {
+                    healthData.chatConversations = await chatResponse.json();
+                }
+
+                // Filter data by period
+                const filteredData = filterDataByPeriod(healthData, currentPeriod);
+
+                // Check if we have any data
+                if (filteredData.coughAnalyses.length === 0 && filteredData.chatConversations.length === 0) {
+                    emptyState.style.display = 'block';
+                } else {
+                    mainContent.style.display = 'block';
+                    renderDashboard(filteredData);
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                emptyState.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Filter Data by Period
+        function filterDataByPeriod(data, period) {
+            const now = new Date();
+            let startDate;
+
+            switch(period) {
+                case 'week':
+                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'year':
+                    startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                    break;
+                default:
+                    return data;
+            }
+
+            return {
+                coughAnalyses: data.coughAnalyses.filter(item => 
+                    new Date(item.createdAt) >= startDate
+                ),
+                chatConversations: data.chatConversations.filter(item => 
+                    new Date(item.createdAt) >= startDate
+                )
+            };
+        }
+
+        // Render Dashboard
+        function renderDashboard(data) {
+            updateStatCards(data);
+            renderCriticalFindings(data);
+            renderTrendsChart(data);
+            renderFrequencyChart(data);
+            renderRecentActivity(data);
+            renderRecommendations(data);
+            updateHealthScore(data);
+        }
+
+        // Render Critical Findings
+        function renderCriticalFindings(data) {
+            const container = document.getElementById('criticalFindingsContent');
+            
+            if (!data.coughAnalyses || data.coughAnalyses.length === 0) {
+                container.innerHTML = `
+                    <div class="no-critical-findings">
+                        <div class="no-critical-findings-icon">✅</div>
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #10b981; margin-bottom: 10px;">
+                            No Critical Findings
+                        </div>
+                        <div>All clear for this period! Keep monitoring your health regularly.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Collect all conditions from all analyses
+            const conditionsMap = new Map();
+            
+            data.coughAnalyses.forEach(analysis => {
+                if (analysis.analysis && analysis.analysis.possibleConditions) {
+                    const conditions = analysis.analysis.possibleConditions;
+                    const healthStatus = analysis.analysis.healthStatus || 'Unknown';
+                    const frequency = analysis.analysis.dominantFrequency || 0;
+                    const pattern = analysis.analysis.pattern || 'Unknown pattern';
+                    const date = new Date(analysis.createdAt);
+                    
+                    conditions.forEach(condition => {
+                        if (!conditionsMap.has(condition)) {
+                            conditionsMap.set(condition, {
+                                name: condition,
+                                count: 0,
+                                severity: healthStatus,
+                                frequency: frequency,
+                                pattern: pattern,
+                                latestDate: date,
+                                analyses: []
+                            });
+                        }
+                        
+                        const existingCondition = conditionsMap.get(condition);
+                        existingCondition.count++;
+                        existingCondition.analyses.push(analysis);
+                        
+                        // Update to most recent date
+                        if (date > existingCondition.latestDate) {
+                            existingCondition.latestDate = date;
+                            existingCondition.severity = healthStatus;
+                            existingCondition.frequency = frequency;
+                            existingCondition.pattern = pattern;
+                        }
+                    });
+                }
+            });
+
+            // Convert to array and sort by severity and count
+            const conditions = Array.from(conditionsMap.values()).sort((a, b) => {
+                // Priority: Critical > Moderate > Normal
+                const severityOrder = {
+                    'Critical': 3,
+                    'Needs Attention': 2,
+                    'Moderate concern': 2,
+                    'Fair': 1,
+                    'Good': 0,
+                    'Unknown': 0
+                };
+                
+                const severityDiff = (severityOrder[b.severity] || 0) - (severityOrder[a.severity] || 0);
+                if (severityDiff !== 0) return severityDiff;
+                
+                // Then sort by count
+                return b.count - a.count;
+            });
+
+            if (conditions.length === 0) {
+                container.innerHTML = `
+                    <div class="no-critical-findings">
+                        <div class="no-critical-findings-icon">✅</div>
+                        <div style="font-size: 1.2rem; font-weight: 600; color: #10b981; margin-bottom: 10px;">
+                            No Conditions Detected
+                        </div>
+                        <div>Great! No specific conditions identified in your analyses.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Display top conditions
+            const html = conditions.map(condition => {
+                // Determine severity class
+                let severityClass = 'low';
+                let severityLabel = condition.severity;
+                
+                if (condition.severity.includes('Critical') || condition.severity.includes('Needs Attention')) {
+                    severityClass = 'high';
+                } else if (condition.severity.includes('Moderate') || condition.severity.includes('concern')) {
+                    severityClass = 'moderate';
+                }
+
+                return `
+                    <div class="critical-finding-card ${severityClass}">
+                        <div class="finding-header">
+                            <div class="finding-severity ${severityClass}">${severityLabel}</div>
+                        </div>
+                        <div class="finding-condition">${condition.name}</div>
+                        <div class="finding-details">
+                            📊 Pattern: ${condition.pattern}<br>
+                            🎵 Frequency: ${condition.frequency.toFixed(2)} Hz
+                        </div>
+                        <div class="finding-frequency">
+                            <span>Detected</span>
+                            <span class="finding-count">${condition.count}x</span>
+                            <span>in this period</span>
+                        </div>
+                        <div class="finding-date">
+                            Last detected: ${formatDate(condition.latestDate)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        // Helper function to format date
+        function formatDate(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+
+        // Update Stat Cards
+        function updateStatCards(data) {
+            document.getElementById('totalCoughAnalyses').textContent = data.coughAnalyses.length;
+            document.getElementById('totalChats').textContent = data.chatConversations.length;
+
+            // Calculate average response time (simulated)
+            const avgTime = data.coughAnalyses.length > 0 ? '15s' : '--';
+            document.getElementById('avgResponseTime').textContent = avgTime;
+        }
+
+        // Update Health Score
+        function updateHealthScore(data) {
+            const totalActivities = data.coughAnalyses.length + data.chatConversations.length;
+            
+            // Calculate health score based on activity and results
+            let score = 50; // Base score
+            
+            // Add points for activity
+            score += Math.min(totalActivities * 2, 30);
+            
+            // Add points for recent analyses with good results
+            const recentGoodAnalyses = data.coughAnalyses.filter(a => 
+                a.analysis && a.analysis.confidence > 70
+            ).length;
+            score += Math.min(recentGoodAnalyses * 3, 20);
+
+            score = Math.min(Math.round(score), 100);
+
+            // Update display
+            document.getElementById('healthScore').textContent = score;
+            document.getElementById('healthScoreDisplay').textContent = score;
+
+            // Update circle
+            const circle = document.getElementById('healthScoreCircle');
+            const circumference = 565;
+            const offset = circumference - (score / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+
+            // Update status
+            let status = 'Good Health';
+            if (score >= 85) status = 'Excellent Health';
+            else if (score >= 70) status = 'Good Health';
+            else if (score >= 50) status = 'Fair Health';
+            else status = 'Needs Attention';
+
+            const statusEl = document.getElementById('healthScoreStatus');
+            statusEl.textContent = status;
+
+            if (score >= 85) statusEl.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            else if (score >= 70) statusEl.style.background = 'linear-gradient(135deg, #4169E1, #1E90FF)';
+            else if (score >= 50) statusEl.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+            else statusEl.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        }
+
+        // Render Trends Chart
+        function renderTrendsChart(data) {
+            const ctx = document.getElementById('trendsChart').getContext('2d');
+
+            // Group data by date
+            const dateMap = new Map();
+            
+            data.coughAnalyses.forEach(item => {
+                const date = new Date(item.createdAt).toLocaleDateString();
+                dateMap.set(date, (dateMap.get(date) || 0) + 1);
+            });
+
+            const dates = Array.from(dateMap.keys()).sort();
+            const values = dates.map(date => dateMap.get(date));
+
+            if (window.trendsChart) window.trendsChart.destroy();
+
+            window.trendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.length > 0 ? dates : ['No data'],
+                    datasets: [{
+                        label: 'Cough Analyses',
+                        data: values.length > 0 ? values : [0],
+                        borderColor: '#4169E1',
+                        backgroundColor: 'rgba(65, 105, 225, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#4169E1',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render Frequency Chart
+        function renderFrequencyChart(data) {
+            const ctx = document.getElementById('frequencyChart').getContext('2d');
+
+            // Group by frequency ranges
+            const ranges = {
+                'Very Low (0-250 Hz)': 0,
+                'Low (250-400 Hz)': 0,
+                'Moderate (400-600 Hz)': 0,
+                'High (600-800 Hz)': 0,
+                'Very High (800+ Hz)': 0
+            };
+
+            data.coughAnalyses.forEach(item => {
+                if (item.analysis && item.analysis.dominantFrequency) {
+                    const freq = item.analysis.dominantFrequency;
+                    if (freq < 250) ranges['Very Low (0-250 Hz)']++;
+                    else if (freq < 400) ranges['Low (250-400 Hz)']++;
+                    else if (freq < 600) ranges['Moderate (400-600 Hz)']++;
+                    else if (freq < 800) ranges['High (600-800 Hz)']++;
+                    else ranges['Very High (800+ Hz)']++;
+                }
+            });
+
+            if (window.frequencyChart) window.frequencyChart.destroy();
+
+            window.frequencyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ranges),
+                    datasets: [{
+                        label: 'Number of Analyses',
+                        data: Object.values(ranges),
+                        backgroundColor: [
+                            'rgba(65, 105, 225, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render Recent Activity
+        function renderRecentActivity(data) {
+            const container = document.getElementById('recentActivity');
+            
+            // Combine and sort activities
+            const activities = [];
+
+            data.coughAnalyses.slice(0, 5).forEach(item => {
+                activities.push({
+                    type: 'cough',
+                    icon: '🫁',
+                    title: 'Cough Analysis Completed',
+                    desc: `Frequency: ${item.analysis?.dominantFrequency || 'N/A'} Hz, Confidence: ${item.analysis?.confidence || 'N/A'}%`,
+                    time: new Date(item.createdAt),
+                    color: '#4169E1'
+                });
+            });
+
+            data.chatConversations.slice(0, 5).forEach(item => {
+                activities.push({
+                    type: 'chat',
+                    icon: '💬',
+                    title: 'AI Consultation',
+                    desc: `${item.messages?.length || 0} messages exchanged`,
+                    time: new Date(item.createdAt),
+                    color: '#10b981'
+                });
+            });
+
+            // Sort by time (most recent first)
+            activities.sort((a, b) => b.time - a.time);
+
+            if (activities.length === 0) {
+                container.innerHTML = `
+                    <div class="activity-item">
+                        <div class="activity-content">
+                            <div class="activity-desc">No recent activity</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = activities.slice(0, 10).map(activity => `
+                <div class="activity-item ${activity.type}">
+                    <div class="activity-icon" style="background: ${activity.color}20;">
+                        ${activity.icon}
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${activity.title}</div>
+                        <div class="activity-desc">${activity.desc}</div>
+                        <div class="activity-time">
+                            <span>🕒</span>
+                            ${formatTimeAgo(activity.time)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Recommendations
+        function renderRecommendations(data) {
+            const container = document.getElementById('recommendations');
+            
+            const recommendations = [];
+
+            // Generate personalized recommendations
+            const recentCough = data.coughAnalyses[0];
+            if (recentCough && recentCough.analysis) {
+                const freq = recentCough.analysis.dominantFrequency;
+                
+                if (freq > 600) {
+                    recommendations.push({
+                        icon: '💧',
+                        title: 'Stay Hydrated',
+                        desc: 'Your recent analysis shows a dry cough pattern. Drink plenty of water and consider using a humidifier.'
+                    });
+                } else if (freq < 400) {
+                    recommendations.push({
+                        icon: '🏥',
+                        title: 'Monitor Symptoms',
+                        desc: 'Your cough pattern suggests mucus presence. Track your symptoms and consult a doctor if they persist.'
+                    });
+                }
+
+                if (recentCough.analysis.confidence < 70) {
+                    recommendations.push({
+                        icon: '🔄',
+                        title: 'Retake Analysis',
+                        desc: 'The confidence level was below 70%. Try recording in a quieter environment for better accuracy.'
+                    });
+                }
+            }
+
+            // Default recommendations
+            if (data.coughAnalyses.length > 0) {
+                recommendations.push({
+                    icon: '📊',
+                    title: 'Regular Monitoring',
+                    desc: 'Continue tracking your cough patterns weekly to identify trends and improvements.'
+                });
+            }
+
+            if (data.chatConversations.length < 3) {
+                recommendations.push({
+                    icon: '💬',
+                    title: 'Ask the AI',
+                    desc: 'Have health questions? Chat with our AI assistant for instant guidance and tips.'
+                });
+            }
+
+            recommendations.push({
+                icon: '🌟',
+                title: 'Preventive Care',
+                desc: 'Maintain a healthy lifestyle with regular exercise, balanced diet, and adequate sleep.'
+            });
+
+            container.innerHTML = recommendations.map(rec => `
+                <div class="recommendation-card">
+                    <div class="recommendation-header">
+                        <span class="recommendation-icon">${rec.icon}</span>
+                        <div class="recommendation-title">${rec.title}</div>
+                    </div>
+                    <div class="recommendation-desc">${rec.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        // Format Time Ago
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
+            
+            return date.toLocaleDateString();
+        }
+    </script>
+</body>
+</html>
+

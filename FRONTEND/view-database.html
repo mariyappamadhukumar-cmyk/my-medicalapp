@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗄️ Database Viewer - Pranava Health AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .controls button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .controls button:hover {
+            transform: scale(1.05);
+        }
+
+        .controls input {
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .loading h2 {
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .records {
+            display: grid;
+            gap: 20px;
+        }
+
+        .record {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .record:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .record-id {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .record-date {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .record-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-group h4 {
+            color: #667eea;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            color: #333;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .frequency {
+            color: #28a745;
+            font-size: 1.2em;
+        }
+
+        .confidence {
+            color: #007bff;
+            font-size: 1.2em;
+        }
+
+        .pattern {
+            color: #ff6b6b;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .no-data h2 {
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .success {
+            background: #28a745;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Database Viewer</h1>
+            <p>View all saved cough analysis records from MongoDB</p>
+        </div>
+
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-card">
+                <h3 id="totalRecords">0</h3>
+                <p>Total Records</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="avgFrequency">0 Hz</h3>
+                <p>Average Frequency</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="avgConfidence">0%</h3>
+                <p>Average Confidence</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="loadAllRecords()">🔄 Refresh All Records</button>
+            <input type="text" id="searchId" placeholder="Enter Analysis ID (e.g., 68e891b04f2a0d78eb2af7fa)">
+            <button onclick="searchById()">🔍 Search by ID</button>
+        </div>
+
+        <div id="message"></div>
+        <div id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <h2>Loading database records...</h2>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+
+        // Load all records on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAllRecords();
+        });
+
+        async function loadAllRecords() {
+            const content = document.getElementById('content');
+            const message = document.getElementById('message');
+            const stats = document.getElementById('stats');
+            
+            message.innerHTML = '';
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <h2>Loading database records...</h2>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_URL}/api/cough-analyses`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to fetch records');
+                }
+
+                if (data.count === 0) {
+                    content.innerHTML = `
+                        <div class="no-data">
+                            <h2>📭 No Records Found</h2>
+                            <p>No cough analyses have been saved yet.</p>
+                        </div>
+                    `;
+                    stats.style.display = 'none';
+                    return;
+                }
+
+                // Calculate statistics
+                const frequencies = data.data.map(r => r.analysis?.dominantFrequency || 0);
+                const confidences = data.data.map(r => r.analysis?.confidence || 0);
+                const avgFreq = (frequencies.reduce((a, b) => a + b, 0) / frequencies.length).toFixed(1);
+                const avgConf = (confidences.reduce((a, b) => a + b, 0) / confidences.length).toFixed(1);
+
+                // Update stats
+                document.getElementById('totalRecords').textContent = data.count;
+                document.getElementById('avgFrequency').textContent = `${avgFreq} Hz`;
+                document.getElementById('avgConfidence').textContent = `${avgConf}%`;
+                stats.style.display = 'grid';
+
+                // Display records
+                displayRecords(data.data);
+
+                message.innerHTML = `
+                    <div class="success">
+                        ✅ Loaded ${data.count} record${data.count > 1 ? 's' : ''} successfully!
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading records:', error);
+                content.innerHTML = '';
+                message.innerHTML = `
+                    <div class="error">
+                        ❌ Error: ${error.message}<br>
+                        Make sure the backend server is running on http://localhost:5000
+                    </div>
+                `;
+                stats.style.display = 'none';
+            }
+        }
+
+        async function searchById() {
+            const searchId = document.getElementById('searchId').value.trim();
+            const content = document.getElementById('content');
+            const message = document.getElementById('message');
+            const stats = document.getElementById('stats');
+
+            if (!searchId) {
+                message.innerHTML = `
+                    <div class="error">
+                        ⚠️ Please enter an Analysis ID
+                    </div>
+                `;
+                return;
+            }
+
+            message.innerHTML = '';
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <h2>Searching for ID: ${searchId}...</h2>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_URL}/api/cough-analyses/${searchId}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Record not found');
+                }
+
+                // Display single record
+                displayRecords([data.data]);
+                stats.style.display = 'none';
+
+                message.innerHTML = `
+                    <div class="success">
+                        ✅ Found record with ID: ${searchId}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error searching record:', error);
+                content.innerHTML = '';
+                message.innerHTML = `
+                    <div class="error">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+                stats.style.display = 'none';
+            }
+        }
+
+        function displayRecords(records) {
+            const content = document.getElementById('content');
+            
+            const recordsHTML = records.map(record => {
+                const date = new Date(record.createdAt).toLocaleString();
+                const analysis = record.analysis || {};
+                const audioFile = record.audioFile || {};
+
+                return `
+                    <div class="record">
+                        <div class="record-header">
+                            <div class="record-id">🆔 ${record._id}</div>
+                            <div class="record-date">📅 ${date}</div>
+                        </div>
+                        <div class="record-body">
+                            <div class="info-group">
+                                <h4>🎵 Analysis Results</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Frequency:</span>
+                                    <span class="info-value frequency">${analysis.dominantFrequency || 'N/A'} Hz</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Pattern:</span>
+                                    <span class="info-value pattern">${analysis.pattern || 'N/A'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Confidence:</span>
+                                    <span class="info-value confidence">${analysis.confidence || 'N/A'}%</span>
+                                </div>
+                            </div>
+                            <div class="info-group">
+                                <h4>🎙️ Audio File Info</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Filename:</span>
+                                    <span class="info-value">${audioFile.originalName || 'N/A'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Size:</span>
+                                    <span class="info-value">${formatBytes(audioFile.size)}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Hash:</span>
+                                    <span class="info-value">${audioFile.hash ? audioFile.hash.substring(0, 12) + '...' : 'N/A'}</span>
+                                </div>
+                            </div>
+                            <div class="info-group">
+                                <h4>🔬 Session Info</h4>
+                                <div class="info-item">
+                                    <span class="info-label">Session ID:</span>
+                                    <span class="info-value">${record.sessionId || 'N/A'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Created:</span>
+                                    <span class="info-value">${date}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            content.innerHTML = `<div class="records">${recordsHTML}</div>`;
+        }
+
+        function formatBytes(bytes) {
+            if (!bytes) return 'N/A';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / 1048576).toFixed(2) + ' MB';
+        }
+    </script>
+</body>
+</html>

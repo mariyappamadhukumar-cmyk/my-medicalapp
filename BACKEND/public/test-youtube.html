@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #4169E1;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1E90FF;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #4169E1;
+        }
+        .youtube-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #FF0000;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        .youtube-link:hover {
+            text-decoration: underline;
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🩺 Pranava Health AI - YouTube Integration Test</h1>
+        <p>Test the new YouTube integration feature by entering symptoms below.</p>
+        
+        <form onsubmit="analyzeSymptoms(event)">
+            <div class="input-group">
+                <label for="symptoms">Describe your symptoms:</label>
+                <textarea 
+                    id="symptoms" 
+                    rows="3" 
+                    placeholder="e.g., headache and fever, skin rash and itching, cough and sore throat"
+                    required
+                ></textarea>
+            </div>
+            <button type="submit">Analyze Symptoms</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function analyzeSymptoms(event) {
+            event.preventDefault();
+            
+            const symptoms = document.getElementById('symptoms').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!symptoms) {
+                resultDiv.innerHTML = '<div class="result error">Please enter your symptoms.</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="result">Analyzing symptoms...</div>';
+
+            try {
+                const response = await fetch('http://localhost:5000/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptoms })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                let resultHtml = `
+                    <div class="result">
+                        <h3>📋 Analysis Result</h3>
+                        <p><strong>Condition:</strong> ${data.disease}</p>
+                        <p><strong>Advice:</strong> ${data.advice}</p>
+                `;
+
+                if (data.youtube?.url) {
+                    const channelInfo = data.youtube.channelName ? 
+                        `<p style="margin-top: 4px; font-size: 12px; color: #888;">📋 From: <strong>${data.youtube.channelName}</strong></p>` : '';
+                    
+                    resultHtml += `
+                        <h4>📺 Trusted Medical Content</h4>
+                        <a href="${data.youtube.url}" target="_blank" class="youtube-link">
+                            <span style="font-size: 16px;">▶️</span>
+                            ${data.youtube.title || 'Watch a helpful video about this condition'}
+                        </a>
+                        ${channelInfo}
+                    `;
+                    
+                    if (data.youtube.description) {
+                        resultHtml += `<p style="margin-top: 8px; font-size: 14px; color: #666;">${data.youtube.description}</p>`;
+                    }
+                }
+
+                resultHtml += '</div>';
+                resultDiv.innerHTML = resultHtml;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

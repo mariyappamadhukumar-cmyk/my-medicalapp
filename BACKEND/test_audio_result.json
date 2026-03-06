@@ -1,0 +1,1 @@
+{"error":"Unrecognized field name \"aiModelLabel\".","dominantFrequency":0,"pattern":"Analysis failed","healthStatus":"Error in analysis","possibleConditions":"Unable to analyze - check audio file format","recommendation":"Please try again with a valid audio file or consult healthcare professional","confidence":0,"analysisMethod":"MATLAB Analysis (Error)","frequencySpectrum":[]}

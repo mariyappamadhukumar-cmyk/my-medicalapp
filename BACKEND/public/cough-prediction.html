@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🩺 Cough Disease Prediction - AI Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .messages-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message.bot {
+            text-align: left;
+        }
+
+        .message-content {
+            display: inline-block;
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #007bff;
+            color: white;
+        }
+
+        .message.bot .message-content {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .input-area {
+            border-top: 1px solid #dee2e6;
+            padding: 20px;
+            background: white;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .record-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .record-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .record-btn.recording {
+            background: #ff6b6b;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+            }
+        }
+
+        .upload-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .upload-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .analyze-btn {
+            background: #007bff;
+            color: white;
+        }
+
+        .analyze-btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .analyze-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .message-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .message-input:focus {
+            border-color: #007bff;
+        }
+
+        .send-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+
+        .audio-visualizer {
+            height: 60px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #dee2e6;
+        }
+
+        .audio-visualizer.active {
+            display: flex;
+            border-color: #dc3545;
+        }
+
+        .wave {
+            width: 3px;
+            height: 20px;
+            background: #dc3545;
+            margin: 0 2px;
+            border-radius: 3px;
+            animation: wave 1s ease-in-out infinite;
+        }
+
+        .wave:nth-child(2) { animation-delay: 0.1s; }
+        .wave:nth-child(3) { animation-delay: 0.2s; }
+        .wave:nth-child(4) { animation-delay: 0.3s; }
+        .wave:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes wave {
+            0%, 100% { height: 20px; }
+            50% { height: 40px; }
+        }
+
+        .frequency-display {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .frequency-display.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .frequency-chart {
+            width: 100%;
+            height: 300px;
+            background: white;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .chart-3d {
+            width: 100%;
+            height: 400px;
+            background: white;
+            border-radius: 8px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .results-scrollable {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .results-scrollable::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .results-scrollable::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .results-scrollable::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        .results-scrollable::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .chat-about-results {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 2px solid #dee2e6;
+        }
+
+        .chat-about-results h6 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .chat-messages-mini {
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .mini-message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        .mini-message.user {
+            background: #007bff;
+            color: white;
+            margin-left: 20%;
+            text-align: right;
+        }
+
+        .mini-message.bot {
+            background: #e9ecef;
+            color: #333;
+            margin-right: 20%;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="goBack()">←</button>
+    
+    <div class="main-container">
+        <div class="header">
+            <h1>🩺 Cough Analysis</h1>
+            <p>AI-powered respiratory health assessment</p>
+        </div>
+        
+        <div class="chat-container">
+            <div class="messages-area" id="messagesArea">
+                <div class="message bot">
+                    <div class="message-content">
+                        Welcome! I can analyze your cough to help assess your respiratory health. 
+                        You can either record your cough directly or upload an audio file. 
+                        I'll analyze the frequency patterns to provide insights about your condition.
+                        
+                        <br><br><strong>⚠️ ACCURACY STATUS:</strong> Currently in demonstration mode with simulated analysis. 
+                        Real MATLAB integration needed for clinical accuracy.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <div class="audio-controls">
+                    <button class="control-btn record-btn" id="recordBtn" onclick="toggleRecording()">
+                        🎤 <span id="recordText">Start Recording</span>
+                    </button>
+                    
+                    <button class="control-btn upload-btn" onclick="document.getElementById('audioFile').click()">
+                        📁 Upload Audio
+                    </button>
+                    
+                    <button class="control-btn analyze-btn" id="analyzeBtn" onclick="analyzeAudio()" disabled>
+                        🔬 Analyze Cough
+                    </button>
+                </div>
+                
+                <input type="file" id="audioFile" class="file-input" accept="audio/*" onchange="handleFileUpload(event)">
+                
+                <div class="audio-visualizer" id="audioVisualizer">
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                </div>
+                
+                <div class="frequency-display" id="frequencyDisplay">
+                    <h4>Frequency Analysis Results:</h4>
+                    <canvas class="frequency-chart" id="frequencyChart"></canvas>
+                    <div id="analysisResults"></div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing cough patterns...</p>
+                </div>
+                
+                <div class="message-input-container">
+                    <input type="text" class="message-input" id="messageInput" 
+                           placeholder="Ask me about your cough or respiratory health..." 
+                           onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" onclick="sendMessage()">→</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let audioData = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Cough prediction app initialized');
+            
+            // Show connection status
+            if (window.location.protocol === 'file:') {
+                addMessage('⚠️ Note: Running from file system. Make sure backend server is running on http://localhost:5000', 'bot');
+            } else {
+                addMessage('✅ Connected to server. You can now upload and analyze cough audio.', 'bot');
+            }
+        });
+
+        // Navigate back to welcome page
+        function goBack() {
+            window.location.href = 'welcome.html';
+        }
+
+        // Handle audio recording
+        async function toggleRecording() {
+            const recordBtn = document.getElementById('recordBtn');
+            const recordText = document.getElementById('recordText');
+            const visualizer = document.getElementById('audioVisualizer');
+
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        audioData = audioBlob;
+                        document.getElementById('analyzeBtn').disabled = false;
+                        addMessage('Audio recorded successfully! Click "Analyze Cough" to get your results.', 'bot');
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordBtn.classList.add('recording');
+                    recordText.textContent = 'Stop Recording';
+                    visualizer.classList.add('active');
+
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    addMessage('Unable to access microphone. Please check your permissions.', 'bot');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                recordBtn.classList.remove('recording');
+                recordText.textContent = 'Start Recording';
+                visualizer.classList.remove('active');
+                
+                // Stop all tracks
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                audioData = file;
+                document.getElementById('analyzeBtn').disabled = false;
+                addMessage(`Audio file "${file.name}" uploaded successfully! Click "Analyze Cough" to get your results.`, 'bot');
+            }
+        }
+
+        // Analyze the audio (this connects to backend and MATLAB)
+        async function analyzeAudio() {
+            if (!audioData) {
+                addMessage('Please record or upload an audio file first.', 'bot');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            loading.classList.add('show');
+            
+            try {
+                // Send audio to backend for MATLAB analysis
+                const formData = new FormData();
+                formData.append('audio', audioData);
+                
+                // Use relative URL when served from server, absolute when from file://
+                const apiUrl = window.location.protocol === 'file:' 
+                    ? 'http://localhost:5000/api/cough/analyze'
+                    : '/api/cough/analyze';
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.ok) {
+                    // Check if using simulation or real MATLAB
+                    if (result.analysisMethod === 'simulation') {
+                        addMessage('⚠️ Note: MATLAB not available. Using demonstration mode with simulated analysis. For real frequency analysis, ensure MATLAB is installed and configured.', 'bot');
+                    } else {
+                        addMessage('✅ Real MATLAB analysis completed successfully!', 'bot');
+                    }
+                    
+                    displayAnalysisResults(result.analysis, result.analysisMethod);
+                } else {
+                    throw new Error(result.error || 'Analysis failed');
+                }
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                addMessage(`Analysis failed: ${error.message}. Please ensure the backend server is running on http://localhost:5000`, 'bot');
+            } finally {
+                loading.classList.remove('show');
+            }
+        }
+
+        // Display the real analysis results from MATLAB
+        function displayAnalysisResults(analysis, method) {
+            const frequencyDisplay = document.getElementById('frequencyDisplay');
+            const analysisResults = document.getElementById('analysisResults');
+            
+            const isSimulation = method === 'simulation';
+            const methodBadge = isSimulation ? 
+                '<span style="background: #ffc107; color: #000; padding: 3px 8px; border-radius: 5px; font-size: 11px;">⚠️ SIMULATION</span>' :
+                '<span style="background: #28a745; color: #fff; padding: 3px 8px; border-radius: 5px; font-size: 11px;">✅ REAL MATLAB</span>';
+            
+            // Draw 2D frequency chart (canvas already exists in DOM)
+            drawFrequencyChart(analysis.frequencySpectrum || []);
+            
+            // Display the analysis results with scrollable content
+            analysisResults.innerHTML = `
+                <div style="margin-top: 15px;">
+                    <h5>🔬 Frequency Analysis Results ${methodBadge}</h5>
+                    
+                    <!-- 3D Frequency Visualization -->
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <h6 style="margin-bottom: 10px;">📊 3D Frequency Spectrum</h6>
+                        <canvas id="chart3D" class="chart-3d"></canvas>
+                    </div>
+                    
+                    <!-- Scrollable Results Section -->
+                    <div class="results-scrollable">
+                        <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                            <p><strong>Dominant Frequency:</strong> ${analysis.dominantFrequency} Hz</p>
+                            <p><strong>Cough Pattern:</strong> ${analysis.pattern}</p>
+                            <p><strong>Health Assessment:</strong> 
+                               <span style="color: ${getHealthStatusColor(analysis.healthStatus)};">
+                                   ${analysis.healthStatus}
+                               </span>
+                            </p>
+                            <p><strong>Possible Conditions:</strong> ${analysis.possibleConditions}</p>
+                            <p><strong>Recommendation:</strong> ${analysis.recommendation}</p>
+                            <p><strong>Confidence:</strong> ${analysis.confidence}%</p>
+                            <p><strong>Analysis Method:</strong> ${analysis.analysisMethod}</p>
+                            ${isSimulation ? `
+                            <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107;">
+                                <strong>⚠️ SIMULATION MODE:</strong><br>
+                                <small>MATLAB is not installed or not properly configured. Using demonstration mode with simulated data. 
+                                For real frequency analysis, please install MATLAB and ensure it's in your system PATH.</small>
+                            </div>
+                            ` : `
+                            <div style="margin-top: 15px; padding: 12px; background: #d4edda; border-radius: 5px; border-left: 4px solid #28a745;">
+                                <strong>✅ REAL MATLAB ANALYSIS:</strong><br>
+                                <small>Using actual frequency domain analysis with FFT. Results are based on real audio processing.</small>
+                            </div>
+                            `}
+                            <div style="margin-top: 10px; padding: 10px; background: #d1ecf1; border-radius: 5px; border-left: 4px solid #0c5460;">
+                                <small><strong>Medical Note:</strong> This analysis is for informational purposes only. Always consult healthcare professionals for medical advice.</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat About Results Section -->
+                    <div class="chat-about-results">
+                        <h6>💬 Have questions about your results?</h6>
+                        <div class="chat-messages-mini" id="miniChatMessages">
+                            <div class="mini-message bot">Ask me anything about your cough analysis results!</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="questionInput" placeholder="Ask about your results..." 
+                                   style="flex: 1; padding: 8px 12px; border: 1px solid #dee2e6; border-radius: 20px; font-size: 13px;"
+                                   onkeypress="if(event.key==='Enter') askQuestion()">
+                            <button onclick="askQuestion()" style="background: #007bff; color: white; border: none; 
+                                    padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px;">
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            frequencyDisplay.classList.add('show');
+            
+            // Store analysis data globally for chat context
+            window.currentAnalysis = analysis;
+            
+            // Draw 3D chart after DOM is updated
+            setTimeout(() => {
+                draw3DFrequencyChart(analysis.frequencySpectrum || [], analysis.dominantFrequency);
+            }, 100);
+            
+            // Add bot message with results
+            addMessage(`🔬 **MATLAB Analysis Complete!**
+
+📊 **Detailed Results:**
+- **Dominant Frequency:** ${analysis.dominantFrequency} Hz
+- **Pattern:** ${analysis.pattern}
+- **Health Status:** ${analysis.healthStatus}
+- **Possible Conditions:** ${analysis.possibleConditions}
+- **Confidence Level:** ${analysis.confidence}%
+
+💡 **Recommendation:** ${analysis.recommendation}
+
+⚠️ **Important:** This AI analysis is for informational purposes only. Please consult with a healthcare professional for proper medical diagnosis and treatment.`, 'bot');
+        }
+
+        // Get color for health status
+        function getHealthStatusColor(status) {
+            const statusLower = status.toLowerCase();
+            if (statusLower.includes('normal') || statusLower.includes('mild')) {
+                return 'green';
+            } else if (statusLower.includes('moderate')) {
+                return 'orange';
+            } else {
+                return 'red';
+            }
+        }
+
+        // Draw frequency chart with real data from MATLAB
+        function drawFrequencyChart(data) {
+            const canvas = document.getElementById('frequencyChart');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (!data || data.length === 0) {
+                // Show placeholder if no data
+                ctx.fillStyle = '#666';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No frequency data available', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(40, 20);
+            ctx.lineTo(40, canvas.height - 40);
+            ctx.lineTo(canvas.width - 20, canvas.height - 40);
+            ctx.stroke();
+            
+            // Find max amplitude for scaling
+            const maxAmplitude = Math.max(...data.map(point => point.amplitude));
+            
+            // Draw frequency curve
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            data.forEach((point, index) => {
+                const x = 40 + (index / data.length) * (canvas.width - 60);
+                const y = canvas.height - 40 - (point.amplitude / maxAmplitude) * (canvas.height - 60);
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+            
+            // Add labels
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Frequency (Hz)', canvas.width / 2 - 40, canvas.height - 10);
+            
+            ctx.save();
+            ctx.translate(15, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Amplitude', -30, 0);
+            ctx.restore();
+            
+            // Add frequency markers
+            const numMarkers = 5;
+            for (let i = 0; i <= numMarkers; i++) {
+                const x = 40 + (i / numMarkers) * (canvas.width - 60);
+                const freq = Math.round((i / numMarkers) * (data[data.length - 1]?.frequency || 5000));
+                
+                ctx.fillStyle = '#666';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(freq.toString(), x, canvas.height - 25);
+                
+                // Draw tick marks
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height - 40);
+                ctx.lineTo(x, canvas.height - 35);
+                ctx.stroke();
+            }
+        }
+
+        // Draw 3D Frequency Chart
+        function draw3DFrequencyChart(data, dominantFreq) {
+            const canvas = document.getElementById('chart3D');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 400;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (!data || data.length === 0) {
+                ctx.fillStyle = '#666';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No 3D frequency data available', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            // 3D projection parameters
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const scaleX = 2;
+            const scaleY = 1.5;
+            const scaleZ = 100;
+            const angle = Math.PI / 6; // 30 degrees rotation
+            
+            // Find max amplitude for scaling
+            const maxAmplitude = Math.max(...data.map(point => point.amplitude));
+            
+            // Function to project 3D to 2D
+            function project3D(x, y, z) {
+                // Rotation around Y axis
+                const x2 = x * Math.cos(angle) - z * Math.sin(angle);
+                const z2 = x * Math.sin(angle) + z * Math.cos(angle);
+                
+                // Isometric projection
+                const screenX = centerX + x2 * scaleX;
+                const screenY = centerY - y * scaleY - z2 * 0.5;
+                
+                return { x: screenX, y: screenY };
+            }
+            
+            // Draw 3D grid
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            
+            // Grid lines
+            for (let i = -5; i <= 5; i++) {
+                // X-Z plane grid
+                const p1 = project3D(i * 50, 0, -250);
+                const p2 = project3D(i * 50, 0, 250);
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.stroke();
+                
+                const p3 = project3D(-250, 0, i * 50);
+                const p4 = project3D(250, 0, i * 50);
+                ctx.beginPath();
+                ctx.moveTo(p3.x, p3.y);
+                ctx.lineTo(p4.x, p4.y);
+                ctx.stroke();
+            }
+            
+            // Draw 3D axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            
+            // X axis (Frequency)
+            const xStart = project3D(-250, 0, 0);
+            const xEnd = project3D(250, 0, 0);
+            ctx.beginPath();
+            ctx.moveTo(xStart.x, xStart.y);
+            ctx.lineTo(xEnd.x, xEnd.y);
+            ctx.stroke();
+            
+            // Y axis (Amplitude)
+            const yStart = project3D(0, 0, 0);
+            const yEnd = project3D(0, 200, 0);
+            ctx.beginPath();
+            ctx.moveTo(yStart.x, yStart.y);
+            ctx.lineTo(yEnd.x, yEnd.y);
+            ctx.stroke();
+            
+            // Z axis (Time)
+            const zStart = project3D(0, 0, -250);
+            const zEnd = project3D(0, 0, 250);
+            ctx.beginPath();
+            ctx.moveTo(zStart.x, zStart.y);
+            ctx.lineTo(zEnd.x, zEnd.y);
+            ctx.stroke();
+            
+            // Draw 3D frequency bars
+            data.forEach((point, index) => {
+                const x = -250 + (index / data.length) * 500;
+                const height = (point.amplitude / maxAmplitude) * 180;
+                const z = 0;
+                
+                // Create gradient for depth effect
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                const hue = 200 + (point.frequency / 5000) * 160;
+                gradient.addColorStop(0, `hsl(${hue}, 70%, 60%)`);
+                gradient.addColorStop(1, `hsl(${hue}, 70%, 40%)`);
+                
+                // Draw bar
+                ctx.fillStyle = gradient;
+                
+                // Front face
+                const p1 = project3D(x - 5, 0, z - 5);
+                const p2 = project3D(x + 5, 0, z - 5);
+                const p3 = project3D(x + 5, height, z - 5);
+                const p4 = project3D(x - 5, height, z - 5);
+                
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.lineTo(p3.x, p3.y);
+                ctx.lineTo(p4.x, p4.y);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+                
+                // Top face (lighter)
+                if (height > 0) {
+                    ctx.fillStyle = `hsl(${hue}, 70%, 70%)`;
+                    const t1 = project3D(x - 5, height, z - 5);
+                    const t2 = project3D(x + 5, height, z - 5);
+                    const t3 = project3D(x + 5, height, z + 5);
+                    const t4 = project3D(x - 5, height, z + 5);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(t1.x, t1.y);
+                    ctx.lineTo(t2.x, t2.y);
+                    ctx.lineTo(t3.x, t3.y);
+                    ctx.lineTo(t4.x, t4.y);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                }
+            });
+            
+            // Highlight dominant frequency
+            if (dominantFreq) {
+                const dominantIndex = data.findIndex(p => Math.abs(p.frequency - dominantFreq) < 10);
+                if (dominantIndex !== -1) {
+                    const x = -250 + (dominantIndex / data.length) * 500;
+                    const height = (data[dominantIndex].amplitude / maxAmplitude) * 180;
+                    const marker = project3D(x, height + 20, 0);
+                    
+                    ctx.fillStyle = '#ff0000';
+                    ctx.beginPath();
+                    ctx.arc(marker.x, marker.y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = '#000';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${dominantFreq} Hz`, marker.x, marker.y - 10);
+                }
+            }
+            
+            // Add axis labels
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            
+            const freqLabel = project3D(280, 0, 0);
+            ctx.fillText('Frequency (Hz)', freqLabel.x, freqLabel.y);
+            
+            const ampLabel = project3D(0, 220, 0);
+            ctx.fillText('Amplitude', ampLabel.x, ampLabel.y);
+            
+            const timeLabel = project3D(0, 0, 280);
+            ctx.fillText('Time', timeLabel.x, timeLabel.y);
+        }
+
+        // Handle questions about results
+        function askQuestion() {
+            const input = document.getElementById('questionInput');
+            const question = input.value.trim();
+            
+            if (!question) return;
+            
+            // Add user question
+            const chatArea = document.getElementById('miniChatMessages');
+            const userMsg = document.createElement('div');
+            userMsg.className = 'mini-message user';
+            userMsg.textContent = question;
+            chatArea.appendChild(userMsg);
+            
+            // Generate AI response based on current analysis
+            const analysis = window.currentAnalysis;
+            let response = '';
+            
+            const lowerQ = question.toLowerCase();
+            
+            if (lowerQ.includes('frequency') || lowerQ.includes('hz')) {
+                response = `Your dominant cough frequency is ${analysis.dominantFrequency} Hz. ${analysis.pattern}. This frequency analysis helps identify the type of cough you have.`;
+            } else if (lowerQ.includes('serious') || lowerQ.includes('bad') || lowerQ.includes('worry')) {
+                response = `Based on your ${analysis.healthStatus} assessment, ${analysis.recommendation}. However, if symptoms persist or worsen, please consult a healthcare professional.`;
+            } else if (lowerQ.includes('condition') || lowerQ.includes('disease')) {
+                response = `Possible conditions detected: ${analysis.possibleConditions}. This is based on frequency analysis with ${analysis.confidence}% confidence.`;
+            } else if (lowerQ.includes('what') && lowerQ.includes('do')) {
+                response = `Recommendation: ${analysis.recommendation}. Remember to stay hydrated and rest well.`;
+            } else if (lowerQ.includes('accurate') || lowerQ.includes('reliable')) {
+                response = `This analysis has a confidence level of ${analysis.confidence}%. ${analysis.analysisMethod === 'MATLAB FFT Analysis' ? 'Using real frequency analysis from MATLAB for accurate results.' : 'Currently in simulation mode. For more accurate results, please ensure MATLAB is installed.'}`;
+            } else if (lowerQ.includes('improve') || lowerQ.includes('better')) {
+                response = `To improve your condition: ${analysis.recommendation}. Also consider avoiding irritants, staying in humid environments, and getting adequate rest.`;
+            } else {
+                response = `Based on your analysis: ${analysis.healthStatus}. Your dominant frequency is ${analysis.dominantFrequency} Hz with ${analysis.pattern}. ${analysis.recommendation}`;
+            }
+            
+            // Add bot response
+            setTimeout(() => {
+                const botMsg = document.createElement('div');
+                botMsg.className = 'mini-message bot';
+                botMsg.textContent = response;
+                chatArea.appendChild(botMsg);
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }, 500);
+            
+            input.value = '';
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+            const messagesArea = document.getElementById('messagesArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            
+            messageDiv.appendChild(contentDiv);
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        // Send text message
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, 'user');
+                input.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    respondToMessage(message);
+                }, 1000);
+            }
+        }
+
+        // Handle enter key in message input
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Bot responses to text messages
+        function respondToMessage(message) {
+            const lowerMessage = message.toLowerCase();
+            let response = '';
+            
+            if (lowerMessage.includes('cough') || lowerMessage.includes('frequency')) {
+                response = 'To analyze your cough, please record an audio sample or upload an audio file using the buttons above. The AI will analyze the frequency patterns using MATLAB algorithms and provide insights about your respiratory health based on acoustic patterns.';
+            } else if (lowerMessage.includes('asthma')) {
+                response = 'Asthma-related coughs often have specific frequency patterns between 300-700 Hz with characteristic wheeze components. Our MATLAB analysis can identify these patterns, but please consult with a healthcare professional for proper diagnosis and treatment.';
+            } else if (lowerMessage.includes('covid') || lowerMessage.includes('coronavirus')) {
+                response = 'COVID-19 can cause distinctive dry cough patterns often in the higher frequency ranges (400-800 Hz). While our frequency analysis can provide insights, it\'s important to get properly tested and consult healthcare professionals for accurate diagnosis.';
+            } else if (lowerMessage.includes('matlab') || lowerMessage.includes('algorithm')) {
+                response = 'Our system uses MATLAB-based frequency domain analysis to process your cough audio. The algorithm analyzes:\n\n• Dominant frequency components\n• Spectral patterns\n• Amplitude variations\n• Cough periodicity\n\nThis provides insights into potential respiratory conditions based on acoustic signatures.';
+            } else if (lowerMessage.includes('bronchitis')) {
+                response = 'Bronchitis typically shows lower frequency cough patterns (200-400 Hz) with wet, productive characteristics. Our analysis can help identify these patterns in your cough audio.';
+            } else if (lowerMessage.includes('help') || lowerMessage.includes('how')) {
+                response = 'I can help analyze your cough patterns using advanced MATLAB algorithms! Here\'s how:\n\n1. 🎤 Click "Start Recording" to record your cough (3-5 seconds)\n2. 📁 Or upload an audio file (WAV, MP3 formats supported)\n3. 🔬 Click "Analyze Cough" to process with MATLAB\n4. 📊 Review frequency analysis and health insights\n5. � Ask me questions about the results\n\nThe system analyzes frequency patterns to detect respiratory conditions!';
+            } else if (lowerMessage.includes('accuracy') || lowerMessage.includes('reliable')) {
+                response = `📊 **Current Accuracy Status:**
+
+**⚠️ IMPORTANT:** This is currently a **demonstration system** using simulated data.
+
+**Real Accuracy Targets:**
+• **Phase 1:** 40-60% (Basic MATLAB integration)
+• **Phase 2:** 65-75% (Machine Learning features)
+• **Phase 3:** 75-85% (Deep Learning + Medical validation)
+
+**Medical Research Benchmarks:**
+• Cough type classification: 70-85%
+• COVID-19 detection: 70-90%
+• Asthma detection: 75-88%
+
+**For Clinical Use:** ≥80% accuracy required with medical professional validation.
+
+**Current Status:** Ready for MATLAB integration to begin real accuracy testing.`;
+            } else if (lowerMessage.includes('validation') || lowerMessage.includes('medical')) {
+                response = `🏥 **Medical Validation Process:**
+
+**Current Stage:** Pre-clinical development (demonstration only)
+
+**Required Validation Steps:**
+1. **Technical Validation:** MATLAB algorithm testing
+2. **Clinical Data Collection:** 1,000+ validated samples per condition
+3. **Cross-validation Testing:** K-fold validation with medical datasets
+4. **Blind Clinical Testing:** AI results vs. medical professional diagnosis
+5. **Regulatory Review:** Medical device compliance assessment
+
+**Medical Professional Involvement:**
+• Algorithm development consultation
+• Training data validation
+• Clinical testing supervision
+• Results interpretation guidelines
+
+**Note:** This system requires extensive medical validation before any clinical use.`;
+            } else if (lowerMessage.includes('confidence') || lowerMessage.includes('percentage')) {
+                response = `🎯 **Confidence Score Explanation:**
+
+**Current Confidence Levels:** 70-95% (simulated for demonstration)
+
+**Real Confidence Factors:**
+• **Audio Quality:** Clear recording = higher confidence
+• **Feature Clarity:** Distinct frequency patterns = higher confidence
+• **Training Data Match:** Similar to training samples = higher confidence
+• **Algorithm Certainty:** Multiple features agreeing = higher confidence
+
+**Confidence Interpretation:**
+• **90-95%:** High confidence, strong pattern match
+• **80-89%:** Good confidence, clear indicators
+• **70-79%:** Moderate confidence, some uncertainty
+• **60-69%:** Low confidence, unclear patterns
+• **<60%:** Very low confidence, recommend re-recording
+
+**Note:** Real confidence scores will be based on actual algorithm performance metrics.`;
+            } else {
+                response = 'I understand your concern about respiratory health. For the most accurate analysis, please record or upload an audio sample of your cough. Our MATLAB-powered frequency analysis can identify acoustic patterns associated with various respiratory conditions. Remember, this is for informational purposes only - always consult healthcare professionals for medical advice.';
+            }
+            
+            addMessage(response, 'bot');
+        }
+    </script>
+</body>
+</html>

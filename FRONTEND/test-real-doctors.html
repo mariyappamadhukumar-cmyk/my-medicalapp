@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Real Doctors - Google Places</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: white;
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+      opacity: 0.9;
+    }
+
+    .search-box {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .status {
+      background: #f0f4ff;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      border-left: 5px solid #667eea;
+    }
+
+    .doctor-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .doctor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .doctor-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .avatar {
+      font-size: 3rem;
+    }
+
+    .doctor-info h2 {
+      color: #667eea;
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+    }
+
+    .specialization {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .rating {
+      display: inline-block;
+      background: #ffd700;
+      color: #333;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    .distance {
+      display: inline-block;
+      background: #4caf50;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .details {
+      margin-top: 15px;
+      line-height: 1.8;
+    }
+
+    .details div {
+      margin: 8px 0;
+    }
+
+    .open-badge {
+      display: inline-block;
+      background: #4caf50;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .closed-badge {
+      display: inline-block;
+      background: #f44336;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .source-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .error {
+      background: #ffebee;
+      color: #c62828;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      border-left: 5px solid #c62828;
+    }
+
+    a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏥 Real Doctors Finder</h1>
+    <p class="subtitle">Powered by Google Places API - Find verified doctors near you</p>
+
+    <div class="search-box">
+      <button class="btn" id="searchBtn" onclick="searchNearbyDoctors()">
+        📍 Find Doctors Near Me
+      </button>
+
+      <div id="status" class="status" style="display: none;"></div>
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+  <script>
+    async function searchNearbyDoctors() {
+      const statusDiv = document.getElementById('status');
+      const resultsDiv = document.getElementById('results');
+      const searchBtn = document.getElementById('searchBtn');
+
+      // Show loading
+      statusDiv.style.display = 'block';
+      statusDiv.className = 'status';
+      statusDiv.innerHTML = '📍 Getting your location...';
+      resultsDiv.innerHTML = '';
+      searchBtn.disabled = true;
+
+      try {
+        // Get user location
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+
+        const { latitude, longitude } = position.coords;
+        
+        statusDiv.innerHTML = `✅ Location found: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}<br>
+                               🔍 Searching for nearby doctors...`;
+
+        // Search for doctors
+        const response = await fetch('http://localhost:5000/api/doctors/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            location: 'Near me',
+            specialization: 'all',
+            latitude: latitude,
+            longitude: longitude,
+            radius: 5000 // 5km
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.ok && data.doctors.length > 0) {
+          statusDiv.innerHTML = `✅ Found ${data.doctors.length} doctors nearby!<br>
+                                 📡 Source: <strong>${data.source}</strong>`;
+          
+          displayDoctors(data.doctors);
+        } else {
+          statusDiv.className = 'error';
+          statusDiv.innerHTML = '❌ No doctors found nearby. Try searching in a different area.';
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+        statusDiv.className = 'error';
+        
+        if (error.code === 1) {
+          statusDiv.innerHTML = '❌ Location access denied. Please allow location access and try again.';
+        } else {
+          statusDiv.innerHTML = `❌ Error: ${error.message || 'Failed to search doctors'}`;
+        }
+      } finally {
+        searchBtn.disabled = false;
+      }
+    }
+
+    function displayDoctors(doctors) {
+      const resultsDiv = document.getElementById('results');
+      
+      resultsDiv.innerHTML = doctors.map(doc => `
+        <div class="doctor-card">
+          <div class="doctor-header">
+            <div class="avatar">${doc.avatar}</div>
+            <div class="doctor-info">
+              <h2>${doc.name}</h2>
+              <div class="specialization">${doc.specialization}</div>
+            </div>
+          </div>
+
+          <div>
+            <span class="rating">⭐ ${doc.rating}/5.0 (${doc.reviews} reviews)</span>
+            ${doc.distance ? `<span class="distance">📍 ${doc.distance}</span>` : ''}
+          </div>
+
+          <div class="details">
+            <div><strong>📍 Address:</strong> ${doc.address}</div>
+            <div><strong>📞 Phone:</strong> ${doc.phone}</div>
+            <div><strong>🕒 Timings:</strong> ${doc.timing} 
+              ${doc.isOpen !== undefined ? (doc.isOpen ? '<span class="open-badge">OPEN NOW</span>' : '<span class="closed-badge">CLOSED</span>') : ''}
+            </div>
+            ${doc.experience ? `<div><strong>💼 Experience:</strong> ${doc.experience} years</div>` : ''}
+            ${doc.fee ? `<div><strong>💰 Consultation Fee:</strong> ₹${doc.fee}</div>` : ''}
+            ${doc.website ? `<div><strong>🌐 Website:</strong> <a href="${doc.website}" target="_blank">${doc.website}</a></div>` : ''}
+            ${doc.googleMapsUrl ? `<div><strong>🗺️ Directions:</strong> <a href="${doc.googleMapsUrl}" target="_blank">Open in Google Maps</a></div>` : ''}
+          </div>
+
+          <span class="source-badge">📡 ${doc.source || 'Database'}</span>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

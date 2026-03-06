@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Models & Algorithms - Interactive Guide</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      font-size: 3rem;
+      margin-bottom: 50px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .section {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .section h2 {
+      color: #667eea;
+      font-size: 2rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .diagram {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 15px;
+      padding: 30px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .flow-box {
+      background: white;
+      border: 3px solid #667eea;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .flow-box strong {
+      color: #667eea;
+      font-size: 1.2rem;
+    }
+
+    .arrow {
+      font-size: 2rem;
+      color: #667eea;
+      margin: 10px 0;
+    }
+
+    .code-block {
+      background: #1e1e1e;
+      color: #dcdcdc;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .code-block .keyword {
+      color: #569cd6;
+    }
+
+    .code-block .string {
+      color: #ce9178;
+    }
+
+    .code-block .comment {
+      color: #6a9955;
+    }
+
+    .code-block .function {
+      color: #dcdcaa;
+    }
+
+    .parameter-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin: 15px 0;
+    }
+
+    .parameter-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+
+    .slider-demo {
+      margin: 20px 0;
+    }
+
+    .slider-demo input[type="range"] {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .output-demo {
+      background: rgba(255,255,255,0.2);
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .info-box {
+      background: #f0f4ff;
+      border-left: 5px solid #667eea;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    .info-box strong {
+      color: #667eea;
+      display: block;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    .highlight {
+      background: linear-gradient(120deg, #ffd89b 0%, #19547b 100%);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 AI Models & Algorithms Explained</h1>
+
+    <!-- LLM Section -->
+    <div class="section">
+      <h2>🧠 LLM (Large Language Model)</h2>
+      <p style="font-size: 1.1rem; margin-bottom: 20px;">
+        Your MediCare system uses <span class="highlight">Google Gemini 2.5 Flash</span> - 
+        a powerful language model with 175+ billion parameters trained on medical knowledge.
+      </p>
+
+      <div class="diagram">
+        <h3 style="margin-bottom: 20px; color: #667eea;">How LLM Works in Your System</h3>
+        
+        <div class="flow-box">
+          <strong>🙋 USER INPUT</strong>
+          <p>"I have stomach ache since 2 days"</p>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box">
+          <strong>🔤 TOKENIZATION</strong>
+          <p>Text → Numbers: ["I", "have", "stomach", "ache"] → [123, 456, 789, 101]</p>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box">
+          <strong>🧮 EMBEDDING</strong>
+          <p>Numbers → High-dimensional vectors (512 dimensions per word)</p>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box">
+          <strong>🎯 TRANSFORMER LAYERS (100+ layers)</strong>
+          <p>Attention Mechanism: Understands context and relationships</p>
+          <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+            "stomach" + "ache" + "2 days" → Likely Gastroenteritis
+          </p>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box">
+          <strong>📊 SOFTMAX PROBABILITY</strong>
+          <p>Next word probabilities:</p>
+          <p>"How" = 45% | "That" = 30% | "Let" = 25%</p>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box">
+          <strong>💬 OUTPUT GENERATION</strong>
+          <p>"How long have you been experiencing vomiting?"</p>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>🎓 Key Concepts:</strong>
+        <ul style="margin-left: 20px; line-height: 1.8;">
+          <li><strong>Transformer Architecture:</strong> Uses "attention mechanism" to understand context</li>
+          <li><strong>Parameters:</strong> 175+ billion learned weights that encode medical knowledge</li>
+          <li><strong>Pre-training:</strong> Trained on billions of medical documents, journals, websites</li>
+          <li><strong>Fine-tuning:</strong> Specialized training for medical consultations</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- VLM Section -->
+    <div class="section">
+      <h2>👁️ VLM (Vision Language Model)</h2>
+      <p style="font-size: 1.1rem; margin-bottom: 20px;">
+        VLM combines computer vision with language understanding to analyze images.
+      </p>
+
+      <div class="grid-2">
+        <div class="info-box">
+          <strong>❌ Your Current System:</strong>
+          <p>Currently using LLM only (text-based)</p>
+        </div>
+        
+        <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50;">
+          <strong>✅ Future Enhancement with VLM:</strong>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Analyze skin rashes</li>
+            <li>Read medical reports</li>
+            <li>Interpret X-rays</li>
+            <li>OCR prescriptions</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-block">
+<span class="comment">// Future VLM Implementation Example</span>
+<span class="keyword">const</span> visionModel = genAI.<span class="function">getGenerativeModel</span>({ 
+  model: <span class="string">"gemini-2.0-flash-exp"</span> 
+});
+
+<span class="keyword">const</span> result = <span class="keyword">await</span> visionModel.<span class="function">generateContent</span>([
+  <span class="string">"Analyze this skin condition"</span>,
+  {
+    inlineData: {
+      mimeType: <span class="string">"image/jpeg"</span>,
+      data: imageBase64
+    }
+  }
+]);
+      </div>
+    </div>
+
+    <!-- Temperature Section -->
+    <div class="section">
+      <h2>🌡️ Temperature & Parameters</h2>
+      
+      <div class="parameter-card">
+        <h3>Temperature (Randomness Control)</h3>
+        <p style="margin-bottom: 15px;">Controls how creative vs predictable the AI responses are</p>
+        
+        <div class="slider-demo">
+          <label>Temperature: <span id="temp-value">0.7</span></label>
+          <input type="range" min="0" max="20" value="7" step="1" id="temp-slider">
+          
+          <div class="output-demo">
+            <strong>Example Output:</strong>
+            <p id="temp-output">Balanced responses - Good for medical advice</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="info-box">
+          <strong>🎯 Temperature = 0.1 - 0.3</strong>
+          <p><strong>Use for:</strong> Medical diagnoses, drug information</p>
+          <p><strong>Effect:</strong> Very predictable, safe, factual</p>
+          <p style="margin-top: 10px; font-style: italic; color: #666;">
+            "Paracetamol 500mg every 6 hours" (same every time)
+          </p>
+        </div>
+        
+        <div class="info-box">
+          <strong>🎨 Temperature = 0.7 - 1.0</strong>
+          <p><strong>Use for:</strong> Health tips, general advice</p>
+          <p><strong>Effect:</strong> Varied, creative suggestions</p>
+          <p style="margin-top: 10px; font-style: italic; color: #666;">
+            "Try ginger tea OR warm lemon water OR peppermint" (varies)
+          </p>
+        </div>
+      </div>
+
+      <div class="code-block">
+<span class="comment">// Add temperature to your system</span>
+<span class="keyword">async function</span> <span class="function">geminiGenerate</span>({ 
+  contents, 
+  temperature = <span class="string">0.3</span>  <span class="comment">// Low for medical accuracy</span>
+}) {
+  <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="function">fetch</span>(url, {
+    method: <span class="string">"POST"</span>,
+    body: JSON.<span class="function">stringify</span>({ 
+      contents,
+      generationConfig: {
+        temperature: temperature,
+        maxOutputTokens: <span class="string">2048</span>,
+        topP: <span class="string">0.9</span>,
+        topK: <span class="string">40</span>
+      }
+    }),
+  });
+}
+      </div>
+    </div>
+
+    <!-- Other Parameters -->
+    <div class="section">
+      <h2>🎛️ Other Important Parameters</h2>
+      
+      <div class="grid-2">
+        <div class="parameter-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          <h3>maxOutputTokens</h3>
+          <p><strong>What:</strong> Maximum response length</p>
+          <p><strong>1 token ≈ 0.75 words</strong></p>
+          <p style="margin-top: 15px;">
+            <strong>Recommended:</strong> 2048 tokens (≈1500 words)<br>
+            Perfect for detailed treatment plans
+          </p>
+        </div>
+        
+        <div class="parameter-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+          <h3>topP (Nucleus Sampling)</h3>
+          <p><strong>What:</strong> Consider top P% of probable tokens</p>
+          <p><strong>Range:</strong> 0.0 to 1.0</p>
+          <p style="margin-top: 15px;">
+            <strong>0.95:</strong> Consider top 95% most probable words<br>
+            Diverse yet relevant responses
+          </p>
+        </div>
+        
+        <div class="parameter-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+          <h3>topK (Top-K Sampling)</h3>
+          <p><strong>What:</strong> Consider only top K tokens</p>
+          <p><strong>Typical:</strong> 40-50</p>
+          <p style="margin-top: 15px;">
+            <strong>40:</strong> Only consider 40 most likely words<br>
+            Prevents nonsense medical terms
+          </p>
+        </div>
+        
+        <div class="parameter-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+          <h3>stopSequences</h3>
+          <p><strong>What:</strong> Strings that stop generation</p>
+          <p><strong>Use:</strong> Control response end</p>
+          <p style="margin-top: 15px;">
+            <strong>Example:</strong> ["}", "END"]<br>
+            Stop after JSON closes
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Algorithms Section -->
+    <div class="section">
+      <h2>⚙️ Core Algorithms</h2>
+      
+      <div class="info-box">
+        <strong>1. Self-Attention Mechanism</strong>
+        <p style="margin-top: 10px;">Allows AI to understand relationships between all words in input:</p>
+        <div class="code-block" style="margin-top: 15px;">
+Attention(Q, K, V) = Softmax(QK<sup>T</sup> / √d<sub>k</sub>) × V
+
+<span class="comment">// Q = Query (what we're looking for)</span>
+<span class="comment">// K = Key (what's available)</span>
+<span class="comment">// V = Value (actual content)</span>
+        </div>
+        <p style="margin-top: 15px;"><strong>Example:</strong> "fever" + "cough" + "3 days" → AI learns this pattern = respiratory infection</p>
+      </div>
+      
+      <div class="info-box">
+        <strong>2. Softmax Function (Probability Distribution)</strong>
+        <p style="margin-top: 10px;">Converts neural network outputs to probabilities:</p>
+        <div class="code-block" style="margin-top: 15px;">
+P(word<sub>i</sub>) = e<sup>(score<sub>i</sub>)</sup> / Σ e<sup>(score<sub>j</sub>)</sup>
+
+<span class="comment">// Example:</span>
+Scores: "medicine" = 3.2, "vaccine" = 2.1, "surgery" = 0.5
+
+After Softmax:
+"medicine" → 67% probability
+"vaccine"  → 26% probability
+"surgery"  → 7% probability
+        </div>
+      </div>
+      
+      <div class="info-box">
+        <strong>3. Beam Search (Text Generation)</strong>
+        <p style="margin-top: 10px;">Explores multiple response paths simultaneously:</p>
+        <div style="background: #f5f7fa; padding: 15px; border-radius: 10px; margin-top: 15px;">
+          <p><strong>Step 1:</strong> Generate 3 possible starts</p>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>"Based on symptoms, I recommend rest..."</li>
+            <li>"Based on symptoms, I recommend medicine..."</li>
+            <li>"Based on symptoms, I recommend testing..."</li>
+          </ul>
+          <p style="margin-top: 15px;"><strong>Step 2:</strong> Expand each path</p>
+          <p style="margin-top: 10px;"><strong>Step 3:</strong> Pick path with highest total probability</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Architecture -->
+    <div class="section">
+      <h2>🏗️ Your Complete System Architecture</h2>
+      
+      <div class="diagram">
+        <div class="flow-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+          <strong>👤 USER TYPES: "I have stomach ache"</strong>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box" style="border-color: #4caf50;">
+          <strong>🌐 FRONTEND (ai-doctor.html)</strong>
+          <p>HTML5 + CSS3 + Vanilla JavaScript</p>
+          <p style="margin-top: 10px; font-size: 0.9rem;">
+            fetch('http://localhost:5000/api/ai-doctor/consult')
+          </p>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box" style="border-color: #ff9800;">
+          <strong>⚡ BACKEND (server.js)</strong>
+          <p>Node.js + Express.js on Port 5000</p>
+          <p style="margin-top: 10px; font-size: 0.9rem;">
+            • Build system prompt (Dr. Sarah Mitchell)<br>
+            • Add disease-specific guidelines<br>
+            • Call Google Gemini API
+          </p>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box" style="border-color: #9c27b0;">
+          <strong>🤖 GOOGLE GEMINI 2.5 FLASH</strong>
+          <p>Process through 100+ transformer layers</p>
+          <p style="margin-top: 10px; font-size: 0.9rem;">
+            • Tokenization<br>
+            • Attention mechanism<br>
+            • Generate medical response
+          </p>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box" style="border-color: #2196f3;">
+          <strong>💊 OpenFDA API (Optional)</strong>
+          <p>Fetch real drug information</p>
+          <p style="margin-top: 10px; font-size: 0.9rem;">
+            api.fda.gov/drug/label.json
+          </p>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box" style="border-color: #ff5722;">
+          <strong>📤 RESPONSE TO USER</strong>
+          <p>formatAIText() - Clean formatting</p>
+          <p style="margin-top: 10px; font-size: 0.9rem;">
+            Remove **, add bold tags, color warnings
+          </p>
+        </div>
+        
+        <div class="arrow">↓</div>
+        
+        <div class="flow-box" style="background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%); color: white;">
+          <strong>✅ USER SEES: "How long have you had this pain?"</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Reference -->
+    <div class="section" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+      <h2>📋 Quick Reference</h2>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+        <div class="info-box" style="background: white;">
+          <strong>✅ What Your System Does</strong>
+          <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+            <li>LLM: Google Gemini 2.5 Flash</li>
+            <li>Medical persona: Dr. Sarah Mitchell</li>
+            <li>Disease-specific treatments</li>
+            <li>FDA drug verification</li>
+            <li>Clean text formatting</li>
+          </ul>
+        </div>
+        
+        <div class="info-box" style="background: white;">
+          <strong>🎯 Recommended Settings</strong>
+          <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+            <li>Temperature: 0.3 (accurate)</li>
+            <li>maxTokens: 2048 (detailed)</li>
+            <li>topP: 0.9 (focused)</li>
+            <li>topK: 40 (medical terms)</li>
+          </ul>
+        </div>
+        
+        <div class="info-box" style="background: white;">
+          <strong>🚀 Future Enhancements</strong>
+          <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+            <li>Add VLM for image analysis</li>
+            <li>Implement temperature control</li>
+            <li>Cache frequent responses</li>
+            <li>Multi-language support</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Interactive temperature slider
+    const tempSlider = document.getElementById('temp-slider');
+    const tempValue = document.getElementById('temp-value');
+    const tempOutput = document.getElementById('temp-output');
+    
+    const outputs = {
+      '0': 'Almost identical responses every time - Highest safety',
+      '1': 'Very predictable - Best for diagnoses',
+      '2': 'Predictable - Good for prescriptions',
+      '3': 'Mostly consistent - Ideal for medical advice',
+      '4': 'Slightly varied - Good balance',
+      '5': 'Some variation - Creative suggestions',
+      '6': 'Varied responses - Health tips',
+      '7': 'Balanced responses - Good for general questions',
+      '8': 'More creative - Lifestyle advice',
+      '9': 'Creative - General wellness tips',
+      '10': 'Very creative - Brainstorming ideas',
+      '15': 'Highly creative - May be unreliable',
+      '20': 'Maximum randomness - Too creative for medical use'
+    };
+    
+    tempSlider.addEventListener('input', function() {
+      const val = (this.value / 10).toFixed(1);
+      tempValue.textContent = val;
+      tempOutput.textContent = outputs[this.value] || 'Balanced responses';
+    });
+  </script>
+</body>
+</html>

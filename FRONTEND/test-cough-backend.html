@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cough Analysis Backend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Cough Analysis Backend Test</h1>
+        
+        <div class="status info">
+            <strong>Instructions:</strong>
+            <ol>
+                <li>Make sure the backend server is running on http://localhost:5000</li>
+                <li>Click "Test Backend Connection" to verify the server is running</li>
+                <li>Upload a test audio file to test the cough analysis endpoint</li>
+            </ol>
+        </div>
+
+        <h2>Backend Connection Test</h2>
+        <button onclick="testBackendConnection()">Test Backend Connection</button>
+        <div id="connectionStatus"></div>
+
+        <h2>Cough Analysis Test</h2>
+        <input type="file" id="audioFile" accept="audio/*">
+        <button onclick="testCoughAnalysis()">Test Cough Analysis</button>
+        <div id="analysisStatus"></div>
+
+        <h2>API Response</h2>
+        <pre id="apiResponse">No response yet...</pre>
+
+        <h2>Quick Start Guide</h2>
+        <div class="status info">
+            <strong>To get started:</strong>
+            <ol>
+                <li><strong>Start Backend:</strong> Open terminal in BACKEND folder and run <code>node server.js</code></li>
+                <li><strong>Test Connection:</strong> Click "Test Backend Connection" above</li>
+                <li><strong>Test Analysis:</strong> Upload any audio file (even a voice recording) to test</li>
+                <li><strong>View Results:</strong> Check the API Response section for detailed output</li>
+                <li><strong>Open Main App:</strong> Go to <a href="welcome.html">welcome.html</a> → Cough Disease Prediction</li>
+            </ol>
+        </div>
+
+        <h2>Integration Status</h2>
+        <div class="status info">
+            <strong>Current Setup:</strong>
+            <ul>
+                <li>✅ Frontend: Cough prediction interface with audio recording/upload</li>
+                <li>✅ Backend: Express.js server with /api/cough/analyze endpoint</li>
+                <li>⏳ MATLAB: Currently simulated (see MATLAB_INTEGRATION_GUIDE.md)</li>
+                <li>✅ Navigation: Welcome page links to cough prediction</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function testBackendConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.innerHTML = '<div class="status info">Testing connection...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.innerHTML = '<div class="status success">✅ Backend server is running! ' + JSON.stringify(data) + '</div>';
+                    
+                    // Also test the main info endpoint
+                    const infoResponse = await fetch('http://localhost:5000/');
+                    const infoData = await infoResponse.json();
+                    document.getElementById('apiResponse').textContent = JSON.stringify(infoData, null, 2);
+                } else {
+                    statusDiv.innerHTML = '<div class="status error">❌ Backend server responded with error: ' + response.status + '</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<div class="status error">❌ Cannot connect to backend server. Make sure it\'s running on http://localhost:5000<br>Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function testCoughAnalysis() {
+            const fileInput = document.getElementById('audioFile');
+            const statusDiv = document.getElementById('analysisStatus');
+            
+            if (!fileInput.files[0]) {
+                statusDiv.innerHTML = '<div class="status error">❌ Please select an audio file first</div>';
+                return;
+            }
+            
+            statusDiv.innerHTML = '<div class="status info">🔄 Analyzing audio file...</div>';
+            
+            try {
+                const formData = new FormData();
+                formData.append('audio', fileInput.files[0]);
+                
+                const response = await fetch('http://localhost:5000/api/cough/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.ok) {
+                    statusDiv.innerHTML = '<div class="status success">✅ Cough analysis completed successfully!</div>';
+                    document.getElementById('apiResponse').textContent = JSON.stringify(data, null, 2);
+                } else {
+                    statusDiv.innerHTML = '<div class="status error">❌ Analysis failed: ' + (data.error || 'Unknown error') + '</div>';
+                    document.getElementById('apiResponse').textContent = JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<div class="status error">❌ Network error: ' + error.message + '</div>';
+                document.getElementById('apiResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Test connection on page load
+        window.onload = function() {
+            testBackendConnection();
+        };
+    </script>
+</body>
+</html>

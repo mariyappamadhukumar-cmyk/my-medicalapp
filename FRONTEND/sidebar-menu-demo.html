@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Menu Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .demo-section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .visual-demo {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .menu-preview {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .sidebar-mockup {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header-mock {
+            background: linear-gradient(135deg, #4169E1, #8B5CF6);
+            color: white;
+            padding: 20px;
+        }
+
+        .sidebar-title-mock {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .menu-item-mock {
+            padding: 15px 20px;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-item-mock:hover {
+            background: rgba(65, 105, 225, 0.1);
+            border-left-color: #4169E1;
+        }
+
+        .menu-item-mock.active {
+            background: linear-gradient(90deg, rgba(65, 105, 225, 0.15), rgba(65, 105, 225, 0.05));
+            border-left-color: #4169E1;
+            font-weight: 600;
+        }
+
+        .menu-section-mock {
+            padding: 15px 20px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hamburger-demo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4169E1, #8B5CF6);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin: 20px auto;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .hamburger-demo:hover {
+            transform: scale(1.1);
+        }
+
+        .hamburger-line {
+            width: 30px;
+            height: 3px;
+            background: white;
+            border-radius: 2px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            border-left: 4px solid #0284c7;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .steps-list {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .step {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4169E1, #8B5CF6);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .step-content p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-box {
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .comparison-box.before {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+        }
+
+        .comparison-box.after {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid #10b981;
+        }
+
+        .comparison-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .menu-preview {
+                grid-template-columns: 1fr;
+            }
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍔 Sidebar Navigation Menu</h1>
+        <p class="subtitle">Professional left-side menu with hamburger button</p>
+
+        <!-- What's New -->
+        <div class="demo-section">
+            <h2 class="section-title">✨ What's New</h2>
+            <div class="info-box">
+                <strong style="color: #0284c7; font-size: 1.2em;">Click the 3-line button to access all dashboard features!</strong>
+                <p style="margin-top: 15px; line-height: 1.8;">
+                    Your dashboard now has a professional sidebar navigation menu. Click the hamburger button (three horizontal lines) in the top-left corner to slide open a menu with all your options organized by category.
+                </p>
+            </div>
+        </div>
+
+        <!-- Visual Demo -->
+        <div class="demo-section">
+            <h2 class="section-title">👁️ Visual Preview</h2>
+            <div class="visual-demo">
+                <h3 style="margin-bottom: 20px; color: #333;">Hamburger Button (3 Lines)</h3>
+                <div class="hamburger-demo">
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
+                </div>
+                <p style="text-align: center; color: #666; margin-top: 10px;">
+                    Click this button to open the sidebar menu
+                </p>
+
+                <div class="menu-preview">
+                    <div class="sidebar-mockup">
+                        <div class="sidebar-header-mock">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="font-size: 2em;">🏥</div>
+                                <div>
+                                    <div class="sidebar-title-mock">MediCare</div>
+                                    <div style="font-size: 0.9em; opacity: 0.9;">Health Dashboard</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="menu-section-mock">MAIN MENU</div>
+                        <div class="menu-item-mock active">
+                            <span style="font-size: 20px;">📊</span>
+                            <span>Dashboard</span>
+                        </div>
+                        <div class="menu-item-mock">
+                            <span style="font-size: 20px;">🎤</span>
+                            <span>Cough Analysis</span>
+                        </div>
+                        <div class="menu-item-mock">
+                            <span style="font-size: 20px;">💬</span>
+                            <span>AI Doctor Chat</span>
+                        </div>
+                        <div class="menu-item-mock">
+                            <span style="font-size: 20px;">📋</span>
+                            <span>Medical Records</span>
+                        </div>
+                        <div class="menu-section-mock">HEALTH SERVICES</div>
+                        <div class="menu-item-mock">
+                            <span style="font-size: 20px;">👨‍⚕️</span>
+                            <span>Find Doctors</span>
+                        </div>
+                        <div class="menu-item-mock">
+                            <span style="font-size: 20px;">🏥</span>
+                            <span>Hospitals Nearby</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="margin-bottom: 20px; color: #333;">Menu Features</h3>
+                        <ul style="line-height: 2.5; color: #666; font-size: 1.1em;">
+                            <li>✅ <strong>Organized Sections</strong> - Main Menu, Health Services, Settings</li>
+                            <li>✅ <strong>12 Menu Options</strong> - All your features in one place</li>
+                            <li>✅ <strong>Active Highlighting</strong> - Current page is highlighted</li>
+                            <li>✅ <strong>Hover Effects</strong> - Beautiful animations on hover</li>
+                            <li>✅ <strong>Icons + Text</strong> - Visual + descriptive labels</li>
+                            <li>✅ <strong>Badges</strong> - "New" tags for new features</li>
+                            <li>✅ <strong>Logout Button</strong> - Quick access at bottom</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Features -->
+        <div class="demo-section">
+            <h2 class="section-title">🎯 Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🍔</div>
+                    <div class="feature-title">Hamburger Button</div>
+                    <div class="feature-desc">
+                        Three-line icon in top-left corner. Click to open/close sidebar. Transforms into X when open.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📂</div>
+                    <div class="feature-title">Organized Menu</div>
+                    <div class="feature-desc">
+                        12 options grouped into 3 sections: Main Menu, Health Services, and Settings.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-title">Beautiful Animations</div>
+                    <div class="feature-desc">
+                        Smooth slide-in animation, hover effects, active state highlighting, and overlay fade.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-title">Mobile Friendly</div>
+                    <div class="feature-desc">
+                        Works perfectly on all devices. Touch-friendly with swipe-to-close on overlay.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <div class="feature-title">Working Links</div>
+                    <div class="feature-desc">
+                        Direct links to Cough Analysis, AI Chat, Doctors, Hospitals, and more pages.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">Fast Navigation</div>
+                    <div class="feature-desc">
+                        One click to any feature. Auto-closes on mobile after selection for better UX.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <div class="demo-section">
+            <h2 class="section-title">🚀 How to Use</h2>
+            <div class="steps-list">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Look for the Hamburger Button</h3>
+                        <p>In the top-left corner of your dashboard, you'll see a blue/purple button with three horizontal lines (≡).</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Click to Open</h3>
+                        <p>Click the button and watch the sidebar slide in from the left. The button transforms into an X icon.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Browse Menu Options</h3>
+                        <p>See all 12 options organized into Main Menu (4 items), Health Services (4 items), and Settings (4 items).</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Click Any Option</h3>
+                        <p>Select any menu item to navigate. Dashboard is already highlighted as the active page.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Close the Menu</h3>
+                        <p>Click the X button, click the dark overlay, or click outside the sidebar to close it.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Before/After -->
+        <div class="demo-section">
+            <h2 class="section-title">🔄 Before vs After</h2>
+            <div class="comparison">
+                <div class="comparison-box before">
+                    <div class="comparison-title" style="color: #ef4444;">❌ Before</div>
+                    <ul style="margin-left: 20px; line-height: 2; color: #666;">
+                        <li>No navigation menu</li>
+                        <li>Manual URL typing</li>
+                        <li>Scattered links</li>
+                        <li>Hard to find features</li>
+                        <li>Not organized</li>
+                    </ul>
+                </div>
+                <div class="comparison-box after">
+                    <div class="comparison-title" style="color: #10b981;">✅ After</div>
+                    <ul style="margin-left: 20px; line-height: 2; color: #666;">
+                        <li>Professional sidebar menu</li>
+                        <li>One-click navigation</li>
+                        <li>All features organized</li>
+                        <li>Easy to discover options</li>
+                        <li>Clean categorization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Structure -->
+        <div class="demo-section">
+            <h2 class="section-title">📋 Complete Menu Structure</h2>
+            <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; font-family: 'Courier New', monospace;">
+                <div style="color: #333; line-height: 2;">
+                    🏥 <strong>MediCare Health Dashboard</strong><br>
+                    │<br>
+                    ├── <span style="color: #999;">MAIN MENU</span><br>
+                    │   ├── 📊 Dashboard <span style="background: #4169E1; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em;">Active</span><br>
+                    │   ├── 🎤 Cough Analysis<br>
+                    │   ├── 💬 AI Doctor Chat<br>
+                    │   └── 📋 Medical Records<br>
+                    │<br>
+                    ├── <span style="color: #999;">HEALTH SERVICES</span><br>
+                    │   ├── 👨‍⚕️ Find Doctors<br>
+                    │   ├── 🏥 Hospitals Nearby<br>
+                    │   ├── 📅 Appointments <span style="background: #4169E1; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em;">New</span><br>
+                    │   └── 💊 Medications<br>
+                    │<br>
+                    └── <span style="color: #999;">SETTINGS</span><br>
+                        ├── 👤 Profile<br>
+                        ├── ⚙️ Settings<br>
+                        ├── ❓ Help & Support<br>
+                        └── 🚪 Logout
+                </div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="demo-section">
+            <h2 class="section-title">✅ Status</h2>
+            <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 30px; border-radius: 15px; border-left: 5px solid #10b981;">
+                <div style="font-size: 1.5em; font-weight: 600; color: #065f46; margin-bottom: 15px;">
+                    🎉 Feature Complete & Ready!
+                </div>
+                <div style="color: #047857; line-height: 2;">
+                    ✅ Hamburger button (3 lines) in top-left<br>
+                    ✅ Sidebar slides in from left<br>
+                    ✅ 12 menu items with icons<br>
+                    ✅ 3 organized sections<br>
+                    ✅ Active page highlighting<br>
+                    ✅ Hover animations<br>
+                    ✅ Click overlay to close<br>
+                    ✅ Mobile responsive<br>
+                    ✅ Working navigation links<br>
+                    ✅ Logout functionality
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div style="text-align: center; margin-top: 50px;">
+            <h2 style="color: #333; margin-bottom: 20px;">Ready to Try It?</h2>
+            <a href="health-dashboard.html" class="cta-button">
+                🚀 Open Dashboard & See Sidebar Menu
+            </a>
+        </div>
+    </div>
+</body>
+</html>
