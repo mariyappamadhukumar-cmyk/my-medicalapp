@@ -274,7 +274,7 @@
             }
             const form = new FormData();
             form.append("audio", f);
-            const res = await fetch("http://localhost:5000/api/predict/audio", {
+            const res = await fetch("https://my-medicalapp.onrender.com/api/predict/audio", {
                 method: "POST",
                 body: form
             });
@@ -292,7 +292,7 @@
                 const blob = new Blob(chunks, { type: "audio/webm" });
                 const form = new FormData();
                 form.append("audio", blob, "recording.webm");
-                const res = await fetch("http://localhost:5000/api/predict/audio", {
+                const res = await fetch("https://my-medicalapp.onrender.com/api/predict/audio", {
                     method: "POST",
                     body: form
                 });
@@ -304,7 +304,7 @@
         }
         </script>
         <script>
-            const CH_API = 'http://localhost:5000';   // change if backend runs elsewhere
+            const CH_API = 'https://my-medicalapp.onrender.com';   // change if backend runs elsewhere
             let rec = null, chunks = [];
 
             function busy(btn, on){

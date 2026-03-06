@@ -163,7 +163,7 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:5000';
+        const API_URL = 'https://my-medicalapp.onrender.com';
 
         // Check authentication on load
         window.addEventListener('DOMContentLoaded', () => {
@@ -263,7 +263,7 @@
                     <div class="info-box">
                         <span class="label">Possible Causes:</span>
                         <ul style="margin-left: 30px; margin-top: 10px;">
-                            <li>Backend server not running (check http://localhost:5000/health)</li>
+                            <li>Backend server not running (check https://my-medicalapp.onrender.com/health)</li>
                             <li>No authentication token (please login)</li>
                             <li>MongoDB disconnected</li>
                             <li>Invalid or expired token</li>
@@ -443,7 +443,7 @@
                     </div>
                     <div class="info-box">
                         <span class="label">Solution:</span>
-                        <span class="value">Make sure backend server is running at http://localhost:5000</span>
+                        <span class="value">Make sure backend server is running at https://my-medicalapp.onrender.com</span>
                     </div>
                 `;
             }

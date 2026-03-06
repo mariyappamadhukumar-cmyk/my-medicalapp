@@ -66,7 +66,7 @@
         <div class="status info">
             <strong>Instructions:</strong>
             <ol>
-                <li>Make sure the backend server is running on http://localhost:5000</li>
+                <li>Make sure the backend server is running on https://my-medicalapp.onrender.com</li>
                 <li>Click "Test Backend Connection" to verify the server is running</li>
                 <li>Upload a test audio file to test the cough analysis endpoint</li>
             </ol>
@@ -114,21 +114,21 @@
             statusDiv.innerHTML = '<div class="status info">Testing connection...</div>';
             
             try {
-                const response = await fetch('http://localhost:5000/health');
+                const response = await fetch('https://my-medicalapp.onrender.com/health');
                 
                 if (response.ok) {
                     const data = await response.json();
                     statusDiv.innerHTML = '<div class="status success">✅ Backend server is running! ' + JSON.stringify(data) + '</div>';
                     
                     // Also test the main info endpoint
-                    const infoResponse = await fetch('http://localhost:5000/');
+                    const infoResponse = await fetch('https://my-medicalapp.onrender.com/');
                     const infoData = await infoResponse.json();
                     document.getElementById('apiResponse').textContent = JSON.stringify(infoData, null, 2);
                 } else {
                     statusDiv.innerHTML = '<div class="status error">❌ Backend server responded with error: ' + response.status + '</div>';
                 }
             } catch (error) {
-                statusDiv.innerHTML = '<div class="status error">❌ Cannot connect to backend server. Make sure it\'s running on http://localhost:5000<br>Error: ' + error.message + '</div>';
+                statusDiv.innerHTML = '<div class="status error">❌ Cannot connect to backend server. Make sure it\'s running on https://my-medicalapp.onrender.com<br>Error: ' + error.message + '</div>';
             }
         }
 
@@ -147,7 +147,7 @@
                 const formData = new FormData();
                 formData.append('audio', fileInput.files[0]);
                 
-                const response = await fetch('http://localhost:5000/api/cough/analyze', {
+                const response = await fetch('https://my-medicalapp.onrender.com/api/cough/analyze', {
                     method: 'POST',
                     body: formData
                 });

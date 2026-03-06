@@ -552,7 +552,7 @@
             
             // Show connection status
             if (window.location.protocol === 'file:') {
-                addMessage('⚠️ Note: Running from file system. Make sure backend server is running on http://localhost:5000', 'bot');
+                addMessage('⚠️ Note: Running from file system. Make sure backend server is running on https://my-medicalapp.onrender.com', 'bot');
             } else {
                 addMessage('✅ Connected to server. You can now upload and analyze cough audio.', 'bot');
             }
@@ -660,7 +660,7 @@
                 
                 // Use relative URL when served from server, absolute when from file://
                 const apiUrl = window.location.protocol === 'file:' 
-                    ? 'http://localhost:5000/api/cough/analyze'
+                    ? 'https://my-medicalapp.onrender.com/api/cough/analyze'
                     : '/api/cough/analyze';
                 
                 // Get authentication token if user is logged in
@@ -697,7 +697,7 @@
                 
             } catch (error) {
                 console.error('Analysis error:', error);
-                addMessage(`Analysis failed: ${error.message}. Please ensure the backend server is running on http://localhost:5000`, 'bot');
+                addMessage(`Analysis failed: ${error.message}. Please ensure the backend server is running on https://my-medicalapp.onrender.com`, 'bot');
             } finally {
                 loading.classList.remove('show');
             }

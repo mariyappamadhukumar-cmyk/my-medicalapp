@@ -297,7 +297,7 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:5000';
+        const API_URL = 'https://my-medicalapp.onrender.com';
 
         // Load all records on page load
         window.addEventListener('DOMContentLoaded', () => {
@@ -362,7 +362,7 @@
                 message.innerHTML = `
                     <div class="error">
                         ❌ Error: ${error.message}<br>
-                        Make sure the backend server is running on http://localhost:5000
+                        Make sure the backend server is running on https://my-medicalapp.onrender.com
                     </div>
                 `;
                 stats.style.display = 'none';

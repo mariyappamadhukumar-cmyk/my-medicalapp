@@ -96,7 +96,7 @@
       result.innerHTML = '<p class="info">Testing API with Mumbai coordinates...</p>';
       
       try {
-        const response = await fetch('http://localhost:5000/api/doctors/search', {
+        const response = await fetch('https://my-medicalapp.onrender.com/api/doctors/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -126,7 +126,7 @@
       } catch (error) {
         result.innerHTML = `
           <p class="error">❌ Network Error: ${error.message}</p>
-          <p>Is the server running on http://localhost:5000?</p>
+          <p>Is the server running on https://my-medicalapp.onrender.com?</p>
         `;
       }
     }
@@ -142,7 +142,7 @@
       result.innerHTML = '<p class="info">Testing API with your location...</p>';
       
       try {
-        const response = await fetch('http://localhost:5000/api/doctors/search', {
+        const response = await fetch('https://my-medicalapp.onrender.com/api/doctors/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

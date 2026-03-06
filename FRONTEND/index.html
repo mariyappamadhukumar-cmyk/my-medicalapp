@@ -965,7 +965,7 @@
   <div class="container">
     <header class="header">
       <img
-        src="http://localhost:5000/img/app-avatar.jpg"
+        src="https://my-medicalapp.onrender.com/img/app-avatar.jpg"
         alt="Pranava Health AI"
         class="logo app-logo"
         onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HA'}));"
@@ -1583,12 +1583,12 @@
       try {
         // lazily create a session
         if (!sessionId) {
-          const sres = await fetch('http://localhost:5000/api/session/start', { method: 'POST' });
+          const sres = await fetch('https://my-medicalapp.onrender.com/api/session/start', { method: 'POST' });
           const sj = await sres.json();
           sessionId = sj.sessionId || sj.id || null;
         }
 
-        const response = await fetch('http://localhost:5000/api/triage/next', {
+        const response = await fetch('https://my-medicalapp.onrender.com/api/triage/next', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId, userText: text })
@@ -1667,7 +1667,7 @@
     // Quick analysis function using the new /api/analyze endpoint
     async function quickAnalyze(symptoms) {
       try {
-        const response = await fetch('http://localhost:5000/api/analyze', {
+        const response = await fetch('https://my-medicalapp.onrender.com/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ symptoms })
@@ -1695,8 +1695,8 @@
             medicineHtml += '<div style="margin-top: 12px;"><strong>📋 Tablets/Oral Medicines:</strong><ul style="margin-top: 6px; margin-left: 20px;">';
             data.medicines.tablets.forEach(tablet => {
               medicineHtml += `<li style="margin-bottom: 8px;">`;
-              medicineHtml += `<strong style="color: #5b6bfb;"><a href="http://localhost:5000/medication-lookup.html?drug=${encodeURIComponent(tablet.name)}" target="_blank" style="color: #5b6bfb; text-decoration: none;">${tablet.name}</a></strong>`;
-              medicineHtml += ` <a href="http://localhost:5000/medication-lookup.html?drug=${encodeURIComponent(tablet.name)}&action=order" target="_blank" style="margin-left:8px; background:#28a745;color:#fff;padding:4px 8px;border-radius:6px;text-decoration:none;font-size:12px;">Order</a>`;
+              medicineHtml += `<strong style="color: #5b6bfb;"><a href="https://my-medicalapp.onrender.com/medication-lookup.html?drug=${encodeURIComponent(tablet.name)}" target="_blank" style="color: #5b6bfb; text-decoration: none;">${tablet.name}</a></strong>`;
+              medicineHtml += ` <a href="https://my-medicalapp.onrender.com/medication-lookup.html?drug=${encodeURIComponent(tablet.name)}&action=order" target="_blank" style="margin-left:8px; background:#28a745;color:#fff;padding:4px 8px;border-radius:6px;text-decoration:none;font-size:12px;">Order</a>`;
               if (tablet.dosage) medicineHtml += ` - ${tablet.dosage}`;
               if (tablet.frequency) medicineHtml += `, ${tablet.frequency}`;
               if (tablet.duration) medicineHtml += ` for ${tablet.duration}`;
@@ -1720,8 +1720,8 @@
             medicineHtml += '<div style="margin-top: 12px;"><strong>🧴 Creams/Ointments:</strong><ul style="margin-top: 6px; margin-left: 20px;">';
             data.medicines.creams.forEach(cream => {
               medicineHtml += `<li style="margin-bottom: 6px;">`;
-              medicineHtml += `<strong style="color: #e74c3c;"><a href="http://localhost:5000/medication-lookup.html?drug=${encodeURIComponent(cream.name)}" target="_blank" style="color: #e74c3c; text-decoration: none;">${cream.name}</a></strong>`;
-              medicineHtml += ` <a href="http://localhost:5000/medication-lookup.html?drug=${encodeURIComponent(cream.name)}&action=order" target="_blank" style="margin-left:8px; background:#d35400;color:#fff;padding:4px 8px;border-radius:6px;text-decoration:none;font-size:12px;">Order</a>`;
+              medicineHtml += `<strong style="color: #e74c3c;"><a href="https://my-medicalapp.onrender.com/medication-lookup.html?drug=${encodeURIComponent(cream.name)}" target="_blank" style="color: #e74c3c; text-decoration: none;">${cream.name}</a></strong>`;
+              medicineHtml += ` <a href="https://my-medicalapp.onrender.com/medication-lookup.html?drug=${encodeURIComponent(cream.name)}&action=order" target="_blank" style="margin-left:8px; background:#d35400;color:#fff;padding:4px 8px;border-radius:6px;text-decoration:none;font-size:12px;">Order</a>`;
               if (cream.application) medicineHtml += ` - ${cream.application}`;
               medicineHtml += `</li>`;
             });
@@ -1829,7 +1829,7 @@
         const formData = new FormData();
         formData.append('image', currentImage);
 
-        const response = await fetch('http://localhost:5000/api/generate', {
+        const response = await fetch('https://my-medicalapp.onrender.com/api/generate', {
           method: 'POST',
           body: formData
         });
@@ -1933,7 +1933,7 @@
         const severity = (card.querySelector('.chip-severity')?.value || '').trim();
         const location = (card.querySelector('.chip-location')?.value || '').trim();
         try {
-          const res = await fetch('http://localhost:5000/api/derma/plan', {
+          const res = await fetch('https://my-medicalapp.onrender.com/api/derma/plan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sessionId, condition: lastDerma.top, symptoms, duration, severity, location })
@@ -2147,7 +2147,7 @@
           severity: answers.severity || "",
           location: answers.location || ""
         };
-        const res = await fetch("http://localhost:5000/api/derma/plan", {
+        const res = await fetch("https://my-medicalapp.onrender.com/api/derma/plan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)

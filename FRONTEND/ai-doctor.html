@@ -820,7 +820,7 @@
       showTyping();
 
       try {
-        const response = await fetch('http://localhost:5000/api/ai-doctor/consult', {
+        const response = await fetch('https://my-medicalapp.onrender.com/api/ai-doctor/consult', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
