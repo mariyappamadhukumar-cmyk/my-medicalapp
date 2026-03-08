@@ -1466,6 +1466,69 @@
       `;
     }
 
+    // Convert Groq/Gemini markdown (##, **, - bullets) to styled HTML
+    function markdownToHtml(s) {
+      if (!s) return "";
+
+      // Inline format: bold + escaping (preserve <strong> tags)
+      function inlineFmt(t) {
+        return escapeHtml(t).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      }
+
+      // Parse lines into typed blocks
+      const lines = s.split('\n');
+      const blocks = [];
+      for (const raw of lines) {
+        const line = raw.trim();
+        if (!line) continue;
+        if (/^#{1,3}\s+/.test(line)) {
+          blocks.push({ type: 'heading', text: line.replace(/^#{1,3}\s+/, '') });
+        } else if (/^[*\-•]\s+/.test(line)) {
+          blocks.push({ type: 'bullet', text: line.replace(/^[*\-•]\s+/, '') });
+        } else {
+          blocks.push({ type: 'text', text: line });
+        }
+      }
+
+      let html = '';
+      let i = 0;
+      while (i < blocks.length) {
+        const b = blocks[i];
+        if (b.type === 'heading') {
+          // Collect following bullets into this section
+          const items = [];
+          let j = i + 1;
+          while (j < blocks.length && blocks[j].type === 'bullet') {
+            items.push(blocks[j].text);
+            j++;
+          }
+          if (items.length) {
+            const lis = items.map(t => `<li>${inlineFmt(t)}</li>`).join('');
+            html += `<div class="advice"><div class="advice-title">${inlineFmt(b.text)}</div><ul>${lis}</ul></div>`;
+            i = j;
+          } else {
+            html += `<div class="advice"><div class="advice-title">${inlineFmt(b.text)}</div></div>`;
+            i++;
+          }
+        } else if (b.type === 'bullet') {
+          // Collect consecutive bullets
+          const items = [];
+          let j = i;
+          while (j < blocks.length && blocks[j].type === 'bullet') {
+            items.push(blocks[j].text);
+            j++;
+          }
+          const lis = items.map(t => `<li>${inlineFmt(t)}</li>`).join('');
+          html += `<div class="advice"><ul>${lis}</ul></div>`;
+          i = j;
+        } else {
+          html += `<p style="margin:6px 0">${inlineFmt(b.text)}</p>`;
+          i++;
+        }
+      }
+      return html || `<div class="advice"><p>${escapeHtml(s)}</p></div>`;
+    }
+
     function renderQaAnswer(raw) {
       // JSON path (preferred)
       const j = typeof raw === "string" ? parseJsonBlock(raw)
@@ -1475,14 +1538,10 @@
       // Check if it's already HTML content
       const rawString = String(raw || "");
       const looksLikeHtml = /<\/?[a-z][\s\S]*>/i.test(rawString);
-      
-      if (looksLikeHtml) {
-        // Return the HTML as-is
-        return rawString.trim();
-      }
+      if (looksLikeHtml) return rawString.trim();
 
-      // Plain text path - convert to HTML
-      return plainBulletsToHtml(rawString);
+      // Markdown path (handles ##, **, - bullets from Groq/Gemini)
+      return markdownToHtml(rawString);
     }
 
     // Add message to chat - improved version that handles HTML for assistant replies
@@ -2114,6 +2173,13 @@
 
       if (e.target.classList.contains('chip')) {
         e.target.classList.toggle('active');
+        // Visual feedback for active/inactive state
+        e.target.style.background = e.target.classList.contains('active')
+          ? 'rgba(233,30,140,0.45)'
+          : 'transparent';
+        e.target.style.borderColor = e.target.classList.contains('active')
+          ? '#e91e8c'
+          : 'rgba(233,30,140,0.4)';
         return;
       }
 
@@ -2125,8 +2191,9 @@
       if (e.target.classList.contains('chip-wizard-start')) {
         // Start the wizard
         card.remove();
-        document.getElementById('derma-panel').style.display = 'none';
-        startWizard();
+        const dp = document.getElementById('derma-panel');
+        if (dp) dp.style.display = 'none';
+        startDermaWizard();
         return;
       }
 
@@ -2151,17 +2218,26 @@
             why_causes: data.why_causes,
             likely_causes: data.likely_causes,
             what_to_do_now: data.what_to_do_now,
+            home_remedies: data.home_remedies,
             diet_and_home: data.diet_and_home,
+            food_plan: data.food_plan,
             foods_to_eat: data.foods_to_eat,
             foods_to_avoid: data.foods_to_avoid,
-            meds_to_discuss: data.tablets_oral_to_discuss,
+            creams_topicals: data.creams_topicals,
+            how_to_use_topicals: data.how_to_use_topicals,
+            tablets_oral_to_discuss: data.tablets_oral_to_discuss,
+            how_to_use_orals: data.how_to_use_orals,
             prevention: data.prevention,
+            prevention_detailed: data.prevention_detailed,
+            expected_course: data.expected_course,
+            expected_course_timeline: data.expected_course_timeline,
+            common_mistakes: data.common_mistakes,
+            faqs: data.faqs,
             red_flags: data.red_flags,
+            red_flags_thresholds: data.red_flags_thresholds,
+            youtube: data.youtube,
             side_effects_or_complications: data.side_effects_or_complications || []
-          }));
-          if (data.creams_topicals?.length) {
-            addMessage(`<div class="advice"><b>Creams/Topicals:</b> ${data.creams_topicals.join('; ')}</div>`, "assistant", { html: true });
-          }
+          }), "assistant", { html: true });
           card.remove();
         } catch (err) {
           addMessage(`❌ ${err.message}`, "assistant");
@@ -2179,16 +2255,12 @@
   <!-- Dermatology Wizard Script -->
   <script>
   (function () {
-    // Turn on the step-by-step wizard and hide the old panel
-    const WIZARD_MODE = true;
-
-    // Steps: one question at a time
     const STEPS = [
       {
         id: "symptoms",
         type: "chips",
         multiple: true,
-        question: "Any of these apply? (tap to select, then Next)",
+        question: "Any of these symptoms apply? (tap to select, then Next)",
         options: [
           "Itching","Pain","Burning sensation","Swelling","Increased redness",
           "Warm to touch","Discharge/pus","Scaling/flaking","Crusting",
@@ -2199,7 +2271,7 @@
       {
         id: "duration",
         type: "text",
-        question: "How long? (e.g., 3 days, 1 week)",
+        question: "How long have you had this condition? (e.g., 3 days, 1 week)",
         placeholder: "e.g., 5 days",
         required: true,
         validate: v => /(\d+)\s*(day|week|month|d|w|m)/i.test(v) || /today|yesterday/i.test(v)
@@ -2214,7 +2286,7 @@
       {
         id: "location",
         type: "text",
-        question: "Where on the body? (e.g., elbows, face, groin)",
+        question: "Where on your body is this? (e.g., elbows, face, groin)",
         placeholder: "e.g., elbows, face",
         required: false
       }
@@ -2222,107 +2294,121 @@
 
     const answers = { symptoms: [] };
     let stepIdx = 0;
-
     const oldPanel = document.getElementById("derma-panel");
-    const wiz = document.getElementById("derma-wizard");
-    if (!wiz) return;
 
-    if (WIZARD_MODE) {
-      if (oldPanel) oldPanel.style.display = "none";
-      wiz.style.display = "block";
+    function getChatEl() {
+      return document.getElementById('messages');
     }
 
-    function btn(html, id, disabled=false) {
-      return `<button class="btn" id="${id}" ${disabled?'disabled':''}>${html}</button>`;
+    function removeWizardBubble() {
+      const c = getChatEl();
+      if (!c) return;
+      c.querySelectorAll('[data-wizard]').forEach(el => el.remove());
     }
 
     function renderStep() {
       const s = STEPS[stepIdx];
-      const header = `
-        <div class="section-title">Dermatology Treatment Plan</div>
-        <div class="advice-title" style="margin-bottom:.5rem">${s.question}</div>
-      `;
+      const isLast = stepIdx === STEPS.length - 1;
 
       let inputHTML = "";
       if (s.type === "chips") {
         const picked = new Set(answers[s.id] || []);
         inputHTML = `
-          <div id="chipbox" class="chipbox">
+          <div id="wiz-chipbox" style="display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0 .8rem;">
             ${s.options.map(o => {
-              const on = picked.has(o) ? "chip chip-on" : "chip";
-              return `<span class="${on}" data-val="${o}">${o}</span>`;
+              const on = picked.has(o);
+              return `<span class="wiz-chip${on ? ' wiz-chip-on' : ''}" data-val="${o}">${o}</span>`;
             }).join("")}
-          </div>
-        `;
+          </div>`;
       } else if (s.type === "select") {
         inputHTML = `
-          <select id="field" class="input">
+          <select id="wiz-field" style="width:100%;padding:.6rem .8rem;border:1.5px solid rgba(233,30,140,0.3);border-radius:.6rem;background:#fff;color:#3d1a2e;margin:.6rem 0 .8rem;font-size:.9rem;">
             <option value="">Select…</option>
-            ${s.options.map(o => `<option>${o}</option>`).join("")}
+            ${s.options.map(o => `<option${answers[s.id] === o ? ' selected' : ''}>${o}</option>`).join("")}
           </select>`;
       } else {
-        inputHTML = `<input id="field" class="input" placeholder="${s.placeholder||''}" value="${answers[s.id]||''}" />`;
+        inputHTML = `<input id="wiz-field" placeholder="${s.placeholder || ''}" value="${answers[s.id] || ''}" style="width:100%;padding:.6rem .8rem;border:1.5px solid rgba(233,30,140,0.3);border-radius:.6rem;background:#fff;color:#3d1a2e;margin:.6rem 0 .8rem;font-size:.9rem;box-sizing:border-box;" />`;
       }
 
+      const needsNext = s.required && s.type !== "chips";
       const nav = `
-        <div class="row" style="gap:.5rem;margin-top:1rem">
-          ${btn("Back","back", stepIdx===0)}
-          ${btn("Skip","skip", !s.required && s.type!=="chips" ? false : (s.required ? false : false))}
-          ${btn(stepIdx === STEPS.length-1 ? "Finish" : "Next","next", true)}
-        </div>
-      `;
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.2rem;">
+          <button id="wiz-back" ${stepIdx === 0 ? 'disabled' : ''} style="padding:.42rem .85rem;border-radius:.6rem;border:1.5px solid rgba(233,30,140,0.35);background:#fff;color:#e91e8c;cursor:pointer;font-size:.83rem;${stepIdx === 0 ? 'opacity:.35;cursor:not-allowed;' : ''}">← Back</button>
+          ${!s.required ? `<button id="wiz-skip" style="padding:.42rem .85rem;border-radius:.6rem;border:1.5px solid #ddd;background:#fff;color:#888;cursor:pointer;font-size:.83rem;">Skip</button>` : ''}
+          <button id="wiz-next" ${needsNext ? 'disabled' : ''} style="padding:.42rem 1.2rem;border-radius:.6rem;border:none;background:linear-gradient(135deg,#e91e8c,#f06292);color:#fff;cursor:pointer;font-size:.85rem;font-weight:600;margin-left:auto;${needsNext ? 'opacity:.45;cursor:not-allowed;' : ''}">${isLast ? 'Get My Plan ✨' : 'Next →'}</button>
+        </div>`;
 
-      wiz.innerHTML = `<div class="advice">${header}${inputHTML}${nav}</div>`;
+      removeWizardBubble();
+      const chatEl = getChatEl();
+      if (!chatEl) return;
 
-      // wire up interactions
-      const nextBtn = document.getElementById("next");
-      const backBtn = document.getElementById("back");
-      const skipBtn = document.getElementById("skip");
+      const bubble = document.createElement('div');
+      bubble.className = 'message bot';
+      bubble.setAttribute('data-wizard', 'true');
+      bubble.innerHTML = `
+        <div style="background:#fff5f9;border:1.5px solid rgba(233,30,140,0.22);border-radius:14px;padding:1rem 1.1rem;">
+          <div style="font-size:.95rem;font-weight:700;color:#e91e8c;margin-bottom:.35rem;">🩺 Dermatology Treatment Plan <span style="font-size:.75rem;font-weight:400;color:#888;">Step ${stepIdx + 1}/${STEPS.length}</span></div>
+          <div style="color:#3d1a2e;font-size:.88rem;margin-bottom:.1rem;">${s.question}</div>
+          ${inputHTML}
+          ${nav}
+        </div>`;
+      chatEl.appendChild(bubble);
+      setTimeout(() => { chatEl.scrollTop = chatEl.scrollHeight; }, 80);
 
+      // Wire chips
       if (s.type === "chips") {
-        const box = document.getElementById("chipbox");
-        box.addEventListener("click", e => {
-          const el = e.target.closest("span[data-val]");
+        const box = bubble.querySelector('#wiz-chipbox');
+        box.addEventListener('click', e => {
+          const el = e.target.closest('[data-val]');
           if (!el) return;
-          const val = el.getAttribute("data-val");
+          const val = el.getAttribute('data-val');
           const arr = new Set(answers[s.id] || []);
-          if (arr.has(val)) { arr.delete(val); el.classList.remove("chip-on"); }
-          else { arr.add(val); el.classList.add("chip-on"); }
+          if (arr.has(val)) {
+            arr.delete(val);
+            el.classList.remove('wiz-chip-on');
+          } else {
+            arr.add(val);
+            el.classList.add('wiz-chip-on');
+          }
           answers[s.id] = Array.from(arr);
-          // chips question can always advance
-          nextBtn.disabled = false;
         });
-        nextBtn.disabled = false; // allow moving on even with zero chips
       } else {
-        const field = document.getElementById("field");
+        const field = bubble.querySelector('#wiz-field');
+        const nextBtn = bubble.querySelector('#wiz-next');
         const validate = () => {
           const v = (field.value || "").trim();
-          if (!s.required && !v) return true;
+          if (!s.required) return true;
           if (s.validate) return !!s.validate(v);
           return !!v;
         };
-        const updateNext = () => nextBtn.disabled = !validate();
-        field.addEventListener("input", updateNext);
-        field.addEventListener("change", updateNext);
-        field.addEventListener("keyup", e => { if(e.key==="Enter" && !nextBtn.disabled) nextBtn.click(); });
+        const updateNext = () => {
+          const ok = validate();
+          nextBtn.disabled = !ok;
+          nextBtn.style.opacity = ok ? '1' : '0.45';
+          nextBtn.style.cursor = ok ? 'pointer' : 'not-allowed';
+        };
+        field.addEventListener('input', updateNext);
+        field.addEventListener('change', updateNext);
+        field.addEventListener('keyup', e => {
+          if (e.key === 'Enter') { const nb = bubble.querySelector('#wiz-next'); if (nb && !nb.disabled) nb.click(); }
+        });
         updateNext();
       }
 
-      backBtn.onclick = () => { if (stepIdx>0) { stepIdx--; renderStep(); } };
+      // Wire nav buttons
+      const backBtn = bubble.querySelector('#wiz-back');
+      const skipBtn = bubble.querySelector('#wiz-skip');
+      const nextBtn = bubble.querySelector('#wiz-next');
 
-      skipBtn.onclick = () => {
-        if (s.required && s.type !== "chips") return;
-        if (s.type === "chips") { /* keep whatever is selected */ }
-        else { answers[s.id] = ""; }
+      if (backBtn) backBtn.onclick = () => { if (stepIdx > 0) { stepIdx--; renderStep(); } };
+      if (skipBtn) skipBtn.onclick = () => {
+        if (s.type !== "chips") answers[s.id] = "";
         advance();
       };
-
-      nextBtn.onclick = () => {
-        if (s.type === "chips") {
-          // already collected
-        } else {
-          const field = document.getElementById("field");
-          const v = (field.value || "").trim();
+      if (nextBtn) nextBtn.onclick = () => {
+        if (s.type !== "chips") {
+          const field = bubble.querySelector('#wiz-field');
+          const v = (field ? field.value : "").trim();
           if (s.required && !v) return;
           if (s.validate && !s.validate(v)) return;
           answers[s.id] = v;
@@ -2336,16 +2422,23 @@
         stepIdx++;
         renderStep();
       } else {
-        // auto-submit: call backend and render the plan
         submitDermaWizard();
       }
     }
 
     async function submitDermaWizard() {
+      removeWizardBubble();
+      const chatEl = getChatEl();
+      // Show loading bubble
+      const loadBubble = document.createElement('div');
+      loadBubble.className = 'message bot';
+      loadBubble.setAttribute('data-wizard', 'loading');
+      loadBubble.innerHTML = `<div style="color:#e91e8c;font-size:.9rem;padding:.3rem 0;">⏳ Getting your personalized treatment plan...</div>`;
+      if (chatEl) { chatEl.appendChild(loadBubble); chatEl.scrollTop = chatEl.scrollHeight; }
+
       try {
-        // Map answers to your existing /api/derma/plan payload
         const payload = {
-          sessionId: sessionId || "",   // use the global sessionId
+          sessionId: window.sessionId || "",
           symptoms: answers.symptoms || [],
           duration: answers.duration || "",
           severity: answers.severity || "",
@@ -2357,47 +2450,41 @@
           body: JSON.stringify(payload)
         });
         const data = await res.json();
+        removeWizardBubble();
         if (!data || !data.ok) throw new Error("Failed to get plan");
-        // Reuse your existing renderer
         if (window.renderDoctorSummary) {
-          addMessage(renderDoctorSummary(data));
+          addMessage(renderDoctorSummary(data), "assistant", { html: true });
         } else {
-          // Fallback simple render
-          addMessage("<div class='advice'><div class='advice-title'>Treatment Plan</div><pre>"+JSON.stringify(data,null,2)+"</pre></div>");
+          addMessage(data.plan || data.message || "Treatment plan received!", "assistant");
         }
-        // Hide the wizard after submit
-        wiz.style.display = "none";
       } catch (e) {
-        addMessage(`<div class="advice error">Failed to get treatment plan. ${e.message||e}</div>`);
+        removeWizardBubble();
+        addMessage(`Sorry, couldn't get the treatment plan right now. Please try again.`);
       }
     }
 
-    // small styles for chips if you don't have them
+    // Chip styles
     const style = document.createElement("style");
     style.textContent = `
-      .chipbox { display:flex; flex-wrap:wrap; gap:.5rem; }
-      .chip { padding:.4rem .7rem; border:1px solid var(--border, #3a3f4b); border-radius:999px; cursor:pointer; opacity:.9; }
-      .chip-on { background:#5b6bfb22; border-color:#5b6bfb; }
-      .input { width:100%; padding:.65rem .8rem; border:1px solid var(--border, #3a3f4b); border-radius:.6rem; background:transparent; color:inherit; }
-      .btn { padding:.55rem .9rem; border-radius:.6rem; border:1px solid var(--border, #3a3f4b); background:#2a2f3a; color:#fff; cursor:pointer; }
-      .btn[disabled]{ opacity:.5; cursor:not-allowed; }
-      .row { display:flex; align-items:center; justify-content:space-between; }
-      .section-title { font-size:1.1rem; font-weight:600; margin-bottom:0.5rem; }
+      .wiz-chip { display:inline-block; padding:.35rem .75rem; border:1.5px solid rgba(233,30,140,0.3); border-radius:999px; cursor:pointer; background:#fff; color:#3d1a2e; font-size:.82rem; transition:all .15s; user-select:none; }
+      .wiz-chip:hover { border-color:#e91e8c; color:#e91e8c; background:rgba(233,30,140,0.06); }
+      .wiz-chip-on { background:rgba(233,30,140,0.15) !important; border-color:#e91e8c !important; color:#e91e8c !important; }
     `;
     document.head.appendChild(style);
 
-    // Only start the wizard when we have skin analysis results
     window.startDermaWizard = function() {
-      if (!lastDerma || !lastDerma.top) {
+      if (!window.lastDerma || !window.lastDerma.top) {
         addMessage('Please analyze a skin image first before getting treatment recommendations.');
         return;
       }
       if (oldPanel) oldPanel.style.display = "none";
-      wiz.style.display = "block";
+      stepIdx = 0;
+      answers.symptoms = [];
+      delete answers.duration;
+      delete answers.severity;
+      delete answers.location;
       renderStep();
     };
-
-    // Don't auto-start the wizard, let it be triggered by the inline chips
   })();
   </script>
 
