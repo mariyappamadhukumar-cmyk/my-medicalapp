@@ -437,7 +437,7 @@
           history.push({ role: 'assistant', content: data.response });
           step = data.nextStep || step;
         } else {
-          addMessage('Sorry, I encountered an error. Please try again.', false);
+          addMessage("I'm sorry, I'm having a little trouble connecting right now. Please try again in a moment.", false);
         }
       } catch (e) {
         hideTyping();

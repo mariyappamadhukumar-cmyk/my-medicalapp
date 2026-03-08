@@ -2983,7 +2983,19 @@ Or if asking follow-up question:
       { role: "user", parts: [{ text: systemPrompt }] }
     ];
 
-    const raw = await geminiGenerate({ contents });
+    let raw;
+    try {
+      raw = await geminiGenerate({ contents });
+    } catch (aiErr) {
+      console.warn('AI Doctor: both AI providers failed, using fallback', aiErr.message);
+      // Return a warm fallback so the user never sees a cold error
+      return res.json({
+        ok: true,
+        isTreatment: false,
+        response: "I'm sorry, I'm having a little trouble connecting right now. Could you please repeat what you said? I'm here and ready to help you.",
+        nextStep: 'symptoms'
+      });
+    }
     
     // Try to extract JSON from response
     let response;
@@ -3000,9 +3012,12 @@ Or if asking follow-up question:
 
   } catch (error) {
     console.error('AI Doctor consultation error:', error);
-    res.status(500).json({ 
-      ok: false, 
-      error: 'Failed to process consultation. Please try again.' 
+    // Still return ok:true with a graceful fallback so frontend never shows a raw error
+    res.json({
+      ok: true,
+      isTreatment: false,
+      response: "I'm sorry, I'm having a little trouble connecting right now. Could you please repeat your question? I'm here to help.",
+      nextStep: 'symptoms'
     });
   }
 });
