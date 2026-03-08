@@ -10,44 +10,45 @@
     body {
       margin: 0;
       font-family: system-ui, Arial, sans-serif;
-      background: #0f1724;
-      color: #e6eef8;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
     }
     .wrap { max-width: 1200px; margin: 20px auto; padding: 20px; }
-    h1 { color: #ff3b3b; text-align: center; }
+    h1 { color: white; text-align: center; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     button {
-      background: #ff3b3b; color: #fff; border: none;
-      padding: 10px 16px; border-radius: 5px; cursor: pointer;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none;
+      padding: 10px 16px; border-radius: 5px; cursor: pointer; font-weight: 600;
     }
-    button:hover { background: #e33434; }
-    .info { background: #081225; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-    #map { height: 500px; border-radius: 8px; border: 1px solid rgba(255,255,255,.1); }
-    .label { color: #9fbce6; font-weight: 600; margin-top: 10px; }
-    .value { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 4px; }
-    .hospitals { margin-top: 30px; background: #081225; padding: 20px; border-radius: 8px; }
+    button:hover { opacity: 0.9; transform: translateY(-1px); }
+    .info { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    #map { height: 500px; border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+    .label { color: #667eea; font-weight: 600; margin-top: 10px; }
+    .value { background: rgba(102,126,234,0.08); padding: 8px; border-radius: 4px; color: #333; }
+    .hospitals { margin-top: 30px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
     .hospital { 
       padding: 15px; 
-      border: 2px solid #ff3b3b; 
+      border: 2px solid #667eea; 
       border-radius: 8px;
       margin-bottom: 15px;
-      background: rgba(255,59,59,0.05);
+      background: rgba(102,126,234,0.05);
       transition: all 0.3s ease;
       cursor: pointer;
     }
     .hospital:hover {
-      background: rgba(255,59,59,0.1);
+      background: rgba(102,126,234,0.1);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255,59,59,0.3);
+      box-shadow: 0 4px 12px rgba(102,126,234,0.3);
     }
-    .hospital strong { color: #ff3b3b; font-size: 18px; }
+    .hospital strong { color: #667eea; font-size: 18px; }
     .hospital button:hover {
       opacity: 0.8;
       transform: scale(1.05);
     }
     input[type="text"], input[type="number"] {
-      background: #1a2332;
-      color: #e6eef8;
-      border: 1px solid #3a4a5c;
+      background: white;
+      color: #333;
+      border: 2px solid #e0e0e0;
       padding: 10px;
       border-radius: 4px;
     }
@@ -64,15 +65,15 @@
       <button id="openFinderBtn" style="margin-left:12px;background:#0ea5a4;color:#022c22;padding:10px 14px;border-radius:6px;border:none;cursor:pointer;font-weight:700;">🔎 Open Nearby Hospitals (full page)</button>
     </div>
 
-    <div id="manualInput" style="display: none; background: #081225; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-      <h3 style="color: #ff3b3b; margin-top: 0;">🌍 Enter Location Manually</h3>
+    <div id="manualInput" style="display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+      <h3 style="color: #667eea; margin-top: 0;">🌍 Enter Location Manually</h3>
       <div style="margin-bottom: 15px;">
         <input type="text" id="addressInput" placeholder="Enter address (e.g., Chennai, Tamil Nadu)" 
                style="width: 70%; margin-right: 10px;">
         <button id="searchAddressBtn" style="padding: 10px 15px;">🔍 Search</button>
       </div>
       <div style="margin-bottom: 15px;">
-        <strong style="color: #9fbce6;">OR Enter Coordinates:</strong>
+        <strong style="color: #667eea;">OR Enter Coordinates:</strong>
       </div>
       <div style="margin-bottom: 15px;">
         <input type="number" id="latInput" placeholder="Latitude (e.g., 13.0827)" step="any"
@@ -348,14 +349,14 @@
           
           div.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <strong style="color: #ff3b3b; font-size: 18px;">${name}</strong>
+              <strong style="color: #667eea; font-size: 18px;">${name}</strong>
               <div style="text-align: right;">
                 <span style="color: #a6bcd6; font-size: 12px;">📏 ${hospital.distance.toFixed(1)} km away</span>
                 ${rating ? `<div style="color: #FFD700; font-size: 14px; margin-top: 2px;">⭐ ${rating}/5 ${totalRatings ? `(${totalRatings} reviews)` : ''}</div>` : ''}
               </div>
             </div>
             
-            <div style="background: rgba(255,59,59,0.1); padding: 12px; border-radius: 5px; margin: 8px 0;">
+            <div style="background: rgba(102,126,234,0.1); padding: 12px; border-radius: 5px; margin: 8px 0;">
               <div style="margin-bottom: 8px;"><strong>🏥 Type:</strong> ${hospitalType}</div>
               ${businessStatus !== 'Unknown' ? `<div style="margin-bottom: 8px;"><strong>🏢 Status:</strong> <span style="color: ${businessStatus === 'OPERATIONAL' ? '#4CAF50' : '#ff6b6b'}">${businessStatus}</span></div>` : ''}
               <div style="margin-bottom: 8px;"><strong>📍 Address:</strong> ${address}</div>
@@ -406,7 +407,7 @@
             ${facilities.length > 0 ? `
             <div style="background: rgba(0,0,255,0.1); padding: 10px; border-radius: 5px; margin: 8px 0;">
               <strong>🏥 Facilities & Services:</strong><br>
-              ${facilities.map(facility => `<span style="background: #ff3b3b; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; margin: 2px; display: inline-block;">${facility}</span>`).join(' ')}
+              ${facilities.map(facility => `<span style="background: #667eea; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; margin: 2px; display: inline-block;">${facility}</span>`).join(' ')}
             </div>` : ""}
             
             <div style="text-align: center; margin-top: 10px;">
@@ -423,7 +424,7 @@
         hospitalsToShow.forEach(hospital => {
           const hospitalMarker = L.circleMarker([hospital.hospitalLat, hospital.hospitalLon], {
             radius: 6,
-            fillColor: "#ff3b3b",
+            fillColor: "#667eea",
             color: "#fff",
             weight: 2,
             opacity: 1,
@@ -817,3 +818,4 @@
   </script>
 </body>
 </html>
+
