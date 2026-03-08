@@ -5,8 +5,6 @@
   ],
   "routes": [
     { "src": "/", "dest": "/welcome.html" },
-    { "src": "/index", "dest": "/welcome.html" },
-    { "src": "/index.html", "dest": "/welcome.html" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 }

@@ -658,10 +658,8 @@
                 const formData = new FormData();
                 formData.append('audio', audioData);
                 
-                // Use relative URL when served from server, absolute when from file://
-                const apiUrl = window.location.protocol === 'file:' 
-                    ? 'https://my-medicalapp.onrender.com/api/cough/analyze'
-                    : '/api/cough/analyze';
+                // Always use the deployed backend URL
+                const apiUrl = 'https://my-medicalapp.onrender.com/api/cough/analyze';
                 
                 // Get authentication token if user is logged in
                 const token = localStorage.getItem('authToken');
