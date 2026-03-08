@@ -165,7 +165,7 @@ async function checkDrugInteractions(drugNames) {
   }
 }
 
-// Groq fallback: converts Gemini-style contents to OpenAI messages format
+// Groq (PRIMARY): converts Gemini-style contents to OpenAI messages format
 async function groqGenerate(contents) {
   if (!GROQ_API_KEY) throw new Error('No Groq API key');
   const messages = contents.map(c => ({
@@ -186,6 +186,17 @@ async function groqGenerate(contents) {
 }
 
 async function geminiGenerate({ contents, model = "gemini-2.0-flash" }, retryCount = 0) {
+  // Try Groq FIRST — faster and more reliable
+  if (GROQ_API_KEY) {
+    try {
+      console.log('🚀 Using Groq (primary)...');
+      return await groqGenerate(contents);
+    } catch (groqErr) {
+      console.warn('⚠️ Groq failed, falling back to Gemini:', groqErr.message);
+    }
+  }
+
+  // Gemini as fallback
   const maxRetries = 2;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
   
@@ -199,12 +210,6 @@ async function geminiGenerate({ contents, model = "gemini-2.0-flash" }, retryCou
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       
-      // On 429 quota exceeded, fall back to Groq immediately
-      if (res.status === 429 && GROQ_API_KEY) {
-        console.warn('⚠️ Gemini quota exceeded, switching to Groq fallback...');
-        return groqGenerate(contents);
-      }
-
       // If 503 (overloaded), retry with exponential backoff
       if (res.status === 503 && retryCount < maxRetries) {
         const waitTime = Math.pow(2, retryCount) * 1000;
@@ -220,11 +225,6 @@ async function geminiGenerate({ contents, model = "gemini-2.0-flash" }, retryCou
     const out = json?.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("\n") || "";
     return out;
   } catch (error) {
-    // If Gemini failed entirely and Groq is available, try Groq
-    if (GROQ_API_KEY && !error.message.includes('Groq')) {
-      console.warn('⚠️ Gemini failed, switching to Groq fallback...');
-      return groqGenerate(contents);
-    }
     throw error;
   }
 }
