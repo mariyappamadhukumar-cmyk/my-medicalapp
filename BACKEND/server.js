@@ -163,7 +163,7 @@ async function checkDrugInteractions(drugNames) {
   }
 }
 
-async function geminiGenerate({ contents, model = "gemini-2.5-flash" }, retryCount = 0) {
+async function geminiGenerate({ contents, model = "gemini-3.1-flash" }, retryCount = 0) {
   const maxRetries = 3;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_API_KEY}`;
   
