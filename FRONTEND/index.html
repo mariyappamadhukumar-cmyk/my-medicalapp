@@ -686,27 +686,81 @@
 
     @media (max-width: 768px) {
       .container {
-        padding: 12px;
+        padding: 10px;
+        height: auto;
+        min-height: 100vh;
       }
-      
+
       .header {
         flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 16px;
+        gap: 6px;
+        margin-bottom: 12px;
+        padding: 12px 14px;
       }
-      
+
+      .title h1 {
+        font-size: 16px;
+      }
+
+      .title p {
+        font-size: 11px;
+      }
+
+      .logo {
+        width: 34px;
+        height: 34px;
+        font-size: 15px;
+      }
+
+      .version {
+        font-size: 10px;
+        padding: 3px 8px;
+      }
+
+      .messages {
+        padding: 14px;
+        gap: 12px;
+        max-height: calc(100vh - 220px);
+      }
+
       .upload-buttons {
         flex-wrap: wrap;
+        gap: 8px;
       }
-      
+
       .upload-btn, .analyze-btn {
         font-size: 12px;
         padding: 8px 12px;
       }
-      
+
       .file-status {
         font-size: 10px;
       }
+
+      .input-area {
+        padding: 10px 12px;
+      }
+
+      .chat-input {
+        font-size: 14px;
+        padding: 10px 14px;
+      }
+
+      .send-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+
+      .message {
+        max-width: 92%;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .container { padding: 8px; }
+      .title h1 { font-size: 14px; }
+      .messages { padding: 10px; max-height: calc(100vh - 200px); }
     }
     /* 3D Background Styles */
     #bg3d {

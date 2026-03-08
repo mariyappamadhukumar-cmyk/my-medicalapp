@@ -662,72 +662,124 @@
 
     /* Responsive */
     @media (max-width: 768px) {
+      .container {
+        padding: 20px 15px;
+        justify-content: flex-start;
+      }
+
       h1 {
-        font-size: 2.2rem;
+        font-size: 1.8rem;
+        letter-spacing: -0.5px;
       }
 
       .subtitle {
-        font-size: 1.1rem;
+        font-size: 0.95rem;
       }
 
       .main-logo {
-        width: 80px;
-        height: 80px;
-        font-size: 40px;
+        width: 70px;
+        height: 70px;
+        font-size: 35px;
+      }
+
+      .logo-section {
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .header {
+        margin-bottom: 30px;
+        padding-top: 60px;
+      }
+
+      .auth-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 8px 14px;
+        font-size: 0.82rem;
+      }
+
+      .user-greeting {
+        position: absolute;
+        top: 5px;
+        right: 110px;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+
+      .user-name {
+        display: none;
       }
 
       .options-grid {
         grid-template-columns: 1fr;
-        gap: 25px;
+        gap: 16px;
       }
 
       .option-card {
-        padding: 35px 25px;
+        padding: 25px 20px;
+        border-radius: 20px;
+      }
+
+      .option-card:hover {
+        transform: translateY(-5px) scale(1.01);
       }
 
       .option-icon {
-        font-size: 4rem;
+        font-size: 3.2rem;
+        margin-bottom: 15px;
       }
 
       .option-title {
-        font-size: 1.4rem;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
       }
 
-      .auth-button {
-        position: static;
-        margin: 0 auto 20px;
-      }
-
-      .user-greeting {
-        position: static;
-        margin: 0 auto 15px;
-        width: fit-content;
-      }
-
-      .header {
-        margin-bottom: 50px;
+      .option-description {
+        font-size: 0.9rem;
       }
 
       .stats-section {
-        gap: 20px;
+        gap: 12px;
+        margin: 25px 0 35px 0;
       }
 
       .stat-card {
-        min-width: 140px;
-        padding: 25px 30px;
+        min-width: 120px;
+        padding: 18px 20px;
+        border-radius: 18px;
+        flex: 1;
       }
 
       .stat-number {
-        font-size: 2.5rem;
+        font-size: 2rem;
       }
 
       .stat-label {
+        font-size: 0.75rem;
+      }
+
+      .footer {
+        margin-top: 40px;
         font-size: 0.85rem;
       }
 
       .floating-shapes {
-        display: none; /* Hide on mobile for better performance */
+        display: none;
       }
+
+      .waves {
+        height: 100px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      h1 { font-size: 1.5rem; }
+      .options-grid { gap: 12px; }
+      .option-card { padding: 20px 15px; }
+      .stat-card { min-width: 100px; padding: 14px 12px; }
+      .stat-number { font-size: 1.6rem; }
     }
 
     /* Loading animation */
