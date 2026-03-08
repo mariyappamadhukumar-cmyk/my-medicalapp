@@ -1,541 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - MediCare AI</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - MediCare AI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(ellipse 120% 80% at 20% 0%, #FFE4E6, #FFCCD5, #FFB3C1);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(233,30,140,0.15);
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 36px;
+      animation: pop .4s ease;
+    }
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .logo { text-align: center; margin-bottom: 28px; }
+    .logo-icon {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: linear-gradient(135deg, #e91e8c, #f06292);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 28px; margin-bottom: 10px;
+    }
+    .logo h1 { font-size: 22px; color: #e91e8c; font-weight: 700; }
+    .logo p  { font-size: 13px; color: #aaa; margin-top: 3px; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+    label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; }
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #eee;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: border .2s;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    input:focus { border-color: #e91e8c; }
 
-        .register-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
-            width: 100%;
-            padding: 40px;
-            animation: slideIn 0.5s ease-out;
-        }
+    .btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #e91e8c, #f06292);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(233,30,140,0.35);
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .88; }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo-icon {
-            font-size: 60px;
-            margin-bottom: 10px;
-        }
-
-        .logo h1 {
-            color: #667eea;
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-
-        .logo p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .password-container {
-            position: relative;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-size: 20px;
-            user-select: none;
-        }
-
-        .password-strength {
-            margin-top: 8px;
-            font-size: 12px;
-        }
-
-        .strength-bar {
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
-            margin-top: 5px;
-            overflow: hidden;
-        }
-
-        .strength-fill {
-            height: 100%;
-            width: 0%;
-            transition: all 0.3s;
-        }
-
-        .strength-weak { background: #f44336; width: 33%; }
-        .strength-medium { background: #ff9800; width: 66%; }
-        .strength-strong { background: #4caf50; width: 100%; }
-
-        .register-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-        }
-
-        .register-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .register-btn:active {
-            transform: translateY(0);
-        }
-
-        .register-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 25px 0;
-            position: relative;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 100%;
-            height: 1px;
-            background: #e0e0e0;
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 15px;
-            position: relative;
-            color: #999;
-            font-size: 14px;
-        }
-
-        .login-link {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .login-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-
-        .alert {
-            padding: 12px 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .alert.error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-
-        .alert.success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
-        }
-
-        .alert.show {
-            display: block;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .required {
-            color: #f44336;
-        }
-
-        .guest-link {
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .guest-link a {
-            color: #999;
-            text-decoration: none;
-            font-size: 13px;
-        }
-
-        .guest-link a:hover {
-            color: #667eea;
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 15px;
-                align-items: flex-start;
-                padding-top: 30px;
-            }
-
-            .register-container {
-                padding: 25px 20px;
-                border-radius: 16px;
-            }
-
-            .logo-icon {
-                font-size: 45px;
-            }
-
-            .logo h1 {
-                font-size: 22px;
-            }
-
-            .form-group input {
-                font-size: 16px;
-                padding: 11px 13px;
-            }
-
-            .register-btn {
-                font-size: 15px;
-                padding: 13px;
-            }
-        }
-    </style>
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #888;
+    }
+    .footer a { color: #e91e8c; text-decoration: none; font-weight: 600; }
+  </style>
 </head>
 <body>
-    <div class="register-container">
-        <div class="logo">
-            <div class="logo-icon">🏥</div>
-            <h1>Create Account</h1>
-            <p>Join MediCare AI today</p>
-        </div>
-
-        <div id="alert" class="alert"></div>
-
-        <form id="registerForm">
-            <div class="form-group">
-                <label for="name">Full Name <span class="required">*</span></label>
-                <input 
-                    type="text" 
-                    id="name" 
-                    placeholder="Enter your full name"
-                    required
-                    autocomplete="name"
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="email">Email Address <span class="required">*</span></label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    placeholder="Enter your email"
-                    required
-                    autocomplete="email"
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="phone">Phone Number (Optional)</label>
-                <input 
-                    type="tel" 
-                    id="phone" 
-                    placeholder="Enter your phone number"
-                    autocomplete="tel"
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password <span class="required">*</span></label>
-                <div class="password-container">
-                    <input 
-                        type="password" 
-                        id="password" 
-                        placeholder="Create a strong password"
-                        required
-                        autocomplete="new-password"
-                    >
-                    <span class="toggle-password" onclick="togglePassword('password')">👁️</span>
-                </div>
-                <div class="password-strength">
-                    <div class="strength-bar">
-                        <div class="strength-fill" id="strengthBar"></div>
-                    </div>
-                    <span id="strengthText"></span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
-                <div class="password-container">
-                    <input 
-                        type="password" 
-                        id="confirmPassword" 
-                        placeholder="Re-enter your password"
-                        required
-                        autocomplete="new-password"
-                    >
-                    <span class="toggle-password" onclick="togglePassword('confirmPassword')">👁️</span>
-                </div>
-            </div>
-
-            <button type="submit" class="register-btn" id="registerBtn">
-                Create Account
-            </button>
-        </form>
-
-        <div class="divider">
-            <span>OR</span>
-        </div>
-
-        <div class="login-link">
-            Already have an account? <a href="login.html">Login here</a>
-        </div>
-
-        <div class="guest-link">
-            <a href="welcome.html">← Back to Home</a>
-        </div>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">??</div>
+      <h1>MediCare AI</h1>
+      <p>Create your account</p>
     </div>
 
-    <script>
-        const API_URL = 'https://my-medicalapp.onrender.com';
+    <label>Full Name</label>
+    <input type="text" id="name" placeholder="Your name" />
 
-        // Check if already logged in
-        if (localStorage.getItem('authToken')) {
-            window.location.href = 'welcome.html';
-        }
+    <label>Email</label>
+    <input type="email" id="email" placeholder="you@example.com" />
 
-        // Toggle password visibility
-        function togglePassword(fieldId) {
-            const passwordInput = document.getElementById(fieldId);
-            const toggleIcon = passwordInput.parentElement.querySelector('.toggle-password');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.textContent = '🙈';
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.textContent = '👁️';
-            }
-        }
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Any password" />
 
-        // Check password strength
-        document.getElementById('password').addEventListener('input', (e) => {
-            const password = e.target.value;
-            const strengthBar = document.getElementById('strengthBar');
-            const strengthText = document.getElementById('strengthText');
+    <button class="btn" onclick="register()">Create Account</button>
 
-            let strength = 0;
-            if (password.length >= 6) strength++;
-            if (password.length >= 10) strength++;
-            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-            if (/\d/.test(password)) strength++;
-            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+    <div class="footer">
+      Already have an account? <a href="login.html">Sign in</a>
+    </div>
+  </div>
 
-            strengthBar.className = 'strength-fill';
-            if (strength <= 2) {
-                strengthBar.classList.add('strength-weak');
-                strengthText.textContent = '❌ Weak password';
-                strengthText.style.color = '#f44336';
-            } else if (strength <= 3) {
-                strengthBar.classList.add('strength-medium');
-                strengthText.textContent = '⚠️ Medium strength';
-                strengthText.style.color = '#ff9800';
-            } else {
-                strengthBar.classList.add('strength-strong');
-                strengthText.textContent = '✅ Strong password';
-                strengthText.style.color = '#4caf50';
-            }
-        });
-
-        // Show alert message
-        function showAlert(message, type = 'error') {
-            const alertDiv = document.getElementById('alert');
-            alertDiv.textContent = message;
-            alertDiv.className = `alert ${type} show`;
-            
-            setTimeout(() => {
-                alertDiv.classList.remove('show');
-            }, 5000);
-        }
-
-        // Handle registration form submission
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const registerBtn = document.getElementById('registerBtn');
-
-            // Validation
-            if (!name || !email || !password || !confirmPassword) {
-                showAlert('Please fill in all required fields');
-                return;
-            }
-
-            if (password.length < 6) {
-                showAlert('Password must be at least 6 characters long');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                showAlert('Passwords do not match');
-                return;
-            }
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showAlert('Please enter a valid email address');
-                return;
-            }
-
-            // Disable button and show loading
-            registerBtn.disabled = true;
-            registerBtn.innerHTML = '<span class="loading"></span>Creating account...';
-
-            try {
-                const response = await fetch(`${API_URL}/api/auth/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name, email, phone, password })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Store token and user info
-                    localStorage.setItem('authToken', data.token);
-                    localStorage.setItem('userInfo', JSON.stringify(data.user));
-                    
-                    showAlert('Account created successfully! Redirecting...', 'success');
-                    
-                    // Redirect to welcome page
-                    setTimeout(() => {
-                        window.location.href = 'welcome.html';
-                    }, 1000);
-                } else {
-                    showAlert(data.error || 'Registration failed. Please try again.');
-                    registerBtn.disabled = false;
-                    registerBtn.textContent = 'Create Account';
-                }
-            } catch (error) {
-                console.error('Registration error:', error);
-                showAlert('Network error. Please check your connection and try again.');
-                registerBtn.disabled = false;
-                registerBtn.textContent = 'Create Account';
-            }
-        });
-
-        // Auto-focus name field
-        document.getElementById('name').focus();
-    </script>
+  <script>
+    function register() {
+      const name  = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      if (!name || !email || !password) {
+        alert('Please fill in all fields.');
+        return;
+      }
+      // Prototype: just save and go
+      localStorage.setItem('userName', name);
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('authToken', 'prototype-token');
+      window.location.href = 'welcome.html';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') register(); });
+  </script>
 </body>
 </html>
