@@ -1218,12 +1218,8 @@
     }
 
     function navigateTo(option) {
-      const loading = document.getElementById('loading');
-      loading.classList.add('active');
-
-      // Navigate based on option
-      setTimeout(() => {
-        switch(option) {
+      // Navigate based on option — no loading overlay, instant navigation
+      switch(option) {
           case 'chatbot':
             window.location.href = 'ai-chat.html';
             break;
@@ -1238,7 +1234,6 @@
             break;
             case 'hospitals':
               // open the full hospital finder page robustly (handle file:// and http(s) served cases)
-              loading.classList.remove('active');
               (async () => {
                 // If served over HTTP(S) try the server path first
                 if (location.protocol === 'http:' || location.protocol === 'https:') {
@@ -1275,9 +1270,8 @@
               })();
               return;
           default:
-            loading.classList.remove('active');
+            break;
         }
-      }, 500);
     }
 
     // Add particle animation
