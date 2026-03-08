@@ -1851,7 +1851,7 @@
 
         // Ask next focused question if not done
         if (!data.done && data.next_question) {
-          addMessage(`<div class="next-question"><b>Next:</b> ${nl2br(data.next_question)}</div>`, "assistant", { html: true });
+          addMessage(`<div class="next-question">${nl2br(data.next_question)}</div>`, "assistant", { html: true });
           return;
         }
 
@@ -2069,7 +2069,7 @@
           
           // Add next question if available
           if (data.next_question) {
-            message += `<div class="next-question"><b>Next:</b> ${nl2br(data.next_question)}</div>`;
+            message += `<div class="next-question">${nl2br(data.next_question)}</div>`;
           }
           
           // Add advice if available
