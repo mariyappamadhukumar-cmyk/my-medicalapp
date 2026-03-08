@@ -29,6 +29,7 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const MATLAB_PATH = process.env.MATLAB_PATH || 'C:\\Program Files\\MATLAB\\R2025b\\bin\\matlab.exe';
 const MATLAB_CODE_PATH = process.env.MATLAB_CODE_PATH || 'C:\\Users\\Madhukumar\\OneDrive\\Desktop\\MATHLAB COUGH PREDICTOR';
 
@@ -37,6 +38,7 @@ if (!YOUTUBE_API_KEY) console.warn("[WARN] Missing YOUTUBE_API_KEY in .env - You
 if (!GOOGLE_PLACES_API_KEY) console.warn("[WARN] Missing GOOGLE_PLACES_API_KEY in .env - Doctor search will use sample data");
 if (!GEMINI_API_KEY) console.warn("[WARN] Missing GEMINI_API_KEY in .env - MATLAB cough analysis will use simulation");
 else console.log("✅ Gemini API Key loaded for cough analysis");
+if (GROQ_API_KEY) console.log("✅ Groq API Key loaded (fallback AI)");
 
 // Initialize Google Maps client for real doctor search
 const googleMapsClient = new Client({});
@@ -163,9 +165,29 @@ async function checkDrugInteractions(drugNames) {
   }
 }
 
-async function geminiGenerate({ contents, model = "gemini-3.1-flash" }, retryCount = 0) {
-  const maxRetries = 3;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_API_KEY}`;
+// Groq fallback: converts Gemini-style contents to OpenAI messages format
+async function groqGenerate(contents) {
+  if (!GROQ_API_KEY) throw new Error('No Groq API key');
+  const messages = contents.map(c => ({
+    role: c.role === 'model' ? 'assistant' : 'user',
+    content: c.parts.map(p => p.text || '').join('')
+  }));
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+    body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, temperature: 0.7 })
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Groq error ${res.status}: ${text.slice(0, 300)}`);
+  }
+  const json = await res.json();
+  return json?.choices?.[0]?.message?.content || '';
+}
+
+async function geminiGenerate({ contents, model = "gemini-2.0-flash" }, retryCount = 0) {
+  const maxRetries = 2;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
   
   try {
     const res = await fetch(url, {
@@ -177,10 +199,16 @@ async function geminiGenerate({ contents, model = "gemini-3.1-flash" }, retryCou
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       
-      // If 503 (overloaded) or 429 (rate limit), retry with exponential backoff
-      if ((res.status === 503 || res.status === 429) && retryCount < maxRetries) {
-        const waitTime = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
-        console.warn(`⚠️ Gemini ${res.status} error, retrying in ${waitTime/1000}s... (attempt ${retryCount + 1}/${maxRetries})`);
+      // On 429 quota exceeded, fall back to Groq immediately
+      if (res.status === 429 && GROQ_API_KEY) {
+        console.warn('⚠️ Gemini quota exceeded, switching to Groq fallback...');
+        return groqGenerate(contents);
+      }
+
+      // If 503 (overloaded), retry with exponential backoff
+      if (res.status === 503 && retryCount < maxRetries) {
+        const waitTime = Math.pow(2, retryCount) * 1000;
+        console.warn(`⚠️ Gemini 503, retrying in ${waitTime/1000}s...`);
         await new Promise(resolve => setTimeout(resolve, waitTime));
         return geminiGenerate({ contents, model }, retryCount + 1);
       }
@@ -192,12 +220,10 @@ async function geminiGenerate({ contents, model = "gemini-3.1-flash" }, retryCou
     const out = json?.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("\n") || "";
     return out;
   } catch (error) {
-    // Network errors - retry if we haven't exceeded max retries
-    if (retryCount < maxRetries && (error.message.includes('fetch') || error.message.includes('network'))) {
-      const waitTime = Math.pow(2, retryCount) * 1000;
-      console.warn(`⚠️ Network error, retrying in ${waitTime/1000}s... (attempt ${retryCount + 1}/${maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-      return geminiGenerate({ contents, model }, retryCount + 1);
+    // If Gemini failed entirely and Groq is available, try Groq
+    if (GROQ_API_KEY && !error.message.includes('Groq')) {
+      console.warn('⚠️ Gemini failed, switching to Groq fallback...');
+      return groqGenerate(contents);
     }
     throw error;
   }
