@@ -788,6 +788,37 @@
         line-height: 1.5;
       }
 
+      /* ── Fix text visibility on light background ── */
+      .message.bot {
+        background: rgba(255,240,246,0.9) !important;
+        border: 1px solid rgba(233,30,140,0.18) !important;
+        color: #3d1a2e !important;
+        backdrop-filter: none;
+      }
+      .message.bot * {
+        color: #3d1a2e !important;
+      }
+      .message.user {
+        background: linear-gradient(135deg, #e91e8c, #f06292) !important;
+        color: #fff !important;
+      }
+      .message.user * { color: #fff !important; }
+      .next-question {
+        background: rgba(233,30,140,0.08) !important;
+        border-left-color: #e91e8c !important;
+        color: #3d1a2e !important;
+      }
+      .condition-result {
+        background: rgba(233,30,140,0.07) !important;
+        border-color: rgba(233,30,140,0.3) !important;
+        color: #3d1a2e !important;
+      }
+      .advice {
+        background: rgba(233,30,140,0.06) !important;
+        color: #3d1a2e !important;
+      }
+      .advice h3, .advice strong, .advice li, .advice p { color: #3d1a2e !important; }
+
       /* ── Upload section ── */
       .upload-section {
         flex-shrink: 0;
