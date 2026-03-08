@@ -685,17 +685,22 @@
     }
 
     @media (max-width: 768px) {
+      /* Fix body so keyboard resize doesn't break layout */
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+
       .container {
-        padding: 10px;
-        height: auto;
-        min-height: 100vh;
+        padding: 8px;
+        height: 100%;          /* fills parent body, no scrolling */
       }
 
       .header {
         flex-wrap: wrap;
         gap: 6px;
-        margin-bottom: 12px;
-        padding: 12px 14px;
+        margin-bottom: 8px;
+        padding: 10px 12px;
       }
 
       .title h1 {
@@ -712,25 +717,34 @@
         font-size: 15px;
       }
 
+      .logo.app-logo {
+        width: 34px;
+        height: 34px;
+      }
+
       .version {
         font-size: 10px;
         padding: 3px 8px;
       }
 
       .messages {
-        padding: 14px;
-        gap: 12px;
-        max-height: calc(100vh - 220px);
+        padding: 10px;
+        gap: 10px;
+        max-height: none;      /* let flex control height so input stays visible */
+      }
+
+      .upload-section {
+        padding: 8px 12px;
       }
 
       .upload-buttons {
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 6px;
       }
 
       .upload-btn, .analyze-btn {
         font-size: 12px;
-        padding: 8px 12px;
+        padding: 8px 10px;
       }
 
       .file-status {
@@ -738,16 +752,17 @@
       }
 
       .input-area {
+        padding: 8px 10px;
+      }
+
+      /* CRITICAL: font-size 16px prevents iOS Safari from zooming when tapping input */
+      .message-input {
+        font-size: 16px;
         padding: 10px 12px;
       }
 
-      .chat-input {
-        font-size: 14px;
-        padding: 10px 14px;
-      }
-
       .send-btn {
-        padding: 10px 16px;
+        padding: 10px 14px;
         font-size: 13px;
       }
 
@@ -755,12 +770,16 @@
         max-width: 92%;
         font-size: 14px;
       }
+
+      .input-container {
+        gap: 8px;
+      }
     }
 
     @media (max-width: 400px) {
-      .container { padding: 8px; }
+      .container { padding: 6px; }
       .title h1 { font-size: 14px; }
-      .messages { padding: 10px; max-height: calc(100vh - 200px); }
+      .messages { padding: 8px; max-height: none; }
     }
     /* 3D Background Styles */
     #bg3d {
@@ -780,6 +799,17 @@
       position: relative;
       margin: 0;
       padding: 0;
+    }
+
+    /* Override body height on mobile so keyboard resize is handled properly */
+    @media (max-width: 768px) {
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+      .container {
+        height: 100%;
+      }
     }
     
     /* Ensure chat container has proper stacking */
@@ -1019,7 +1049,7 @@
   <div class="container">
     <header class="header">
       <img
-        src="https://my-medicalapp.onrender.com/img/app-avatar.jpg"
+        src="http://localhost:5000/img/app-avatar.jpg"
         alt="Pranava Health AI"
         class="logo app-logo"
         onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'HA'}));"
@@ -1637,12 +1667,12 @@
       try {
         // lazily create a session
         if (!sessionId) {
-          const sres = await fetch('https://my-medicalapp.onrender.com/api/session/start', { method: 'POST' });
+          const sres = await fetch('http://localhost:5000/api/session/start', { method: 'POST' });
           const sj = await sres.json();
           sessionId = sj.sessionId || sj.id || null;
         }
 
-        const response = await fetch('https://my-medicalapp.onrender.com/api/triage/next', {
+        const response = await fetch('http://localhost:5000/api/triage/next', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId, userText: text })
@@ -1721,7 +1751,7 @@
     // Quick analysis function using the new /api/analyze endpoint
     async function quickAnalyze(symptoms) {
       try {
-        const response = await fetch('https://my-medicalapp.onrender.com/api/analyze', {
+        const response = await fetch('http://localhost:5000/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ symptoms })
@@ -1749,8 +1779,8 @@
             medicineHtml += '<div style="margin-top: 12px;"><strong>📋 Tablets/Oral Medicines:</strong><ul style="margin-top: 6px; margin-left: 20px;">';
             data.medicines.tablets.forEach(tablet => {
               medicineHtml += `<li style="margin-bottom: 8px;">`;
-              medicineHtml += `<strong style="color: #5b6bfb;"><a href="https://my-medicalapp.onrender.com/medication-lookup.html?drug=${encodeURIComponent(tablet.name)}" target="_blank" style="color: #5b6bfb; text-decoration: none;">${tablet.name}</a></strong>`;
-              medicineHtml += ` <a href="https://my-medicalapp.onrender.com/medication-lookup.html?drug=${encodeURIComponent(tablet.name)}&action=order" target="_blank" style="margin-left:8px; background:#28a745;color:#fff;padding:4px 8px;border-radius:6px;text-decoration:none;font-size:12px;">Order</a>`;
+              medicineHtml += `<strong style="color: #5b6bfb;"><a href="http://localhost:5000/medication-lookup.html?drug=${encodeURIComponent(tablet.name)}" target="_blank" style="color: #5b6bfb; text-decoration: none;">${tablet.name}</a></strong>`;
+              medicineHtml += ` <a href="http://localhost:5000/medication-lookup.html?drug=${encodeURIComponent(tablet.name)}&action=order" target="_blank" style="margin-left:8px; background:#28a745;color:#fff;padding:4px 8px;border-radius:6px;text-decoration:none;font-size:12px;">Order</a>`;
               if (tablet.dosage) medicineHtml += ` - ${tablet.dosage}`;
               if (tablet.frequency) medicineHtml += `, ${tablet.frequency}`;
               if (tablet.duration) medicineHtml += ` for ${tablet.duration}`;
@@ -1774,8 +1804,8 @@
             medicineHtml += '<div style="margin-top: 12px;"><strong>🧴 Creams/Ointments:</strong><ul style="margin-top: 6px; margin-left: 20px;">';
             data.medicines.creams.forEach(cream => {
               medicineHtml += `<li style="margin-bottom: 6px;">`;
-              medicineHtml += `<strong style="color: #e74c3c;"><a href="https://my-medicalapp.onrender.com/medication-lookup.html?drug=${encodeURIComponent(cream.name)}" target="_blank" style="color: #e74c3c; text-decoration: none;">${cream.name}</a></strong>`;
-              medicineHtml += ` <a href="https://my-medicalapp.onrender.com/medication-lookup.html?drug=${encodeURIComponent(cream.name)}&action=order" target="_blank" style="margin-left:8px; background:#d35400;color:#fff;padding:4px 8px;border-radius:6px;text-decoration:none;font-size:12px;">Order</a>`;
+              medicineHtml += `<strong style="color: #e74c3c;"><a href="http://localhost:5000/medication-lookup.html?drug=${encodeURIComponent(cream.name)}" target="_blank" style="color: #e74c3c; text-decoration: none;">${cream.name}</a></strong>`;
+              medicineHtml += ` <a href="http://localhost:5000/medication-lookup.html?drug=${encodeURIComponent(cream.name)}&action=order" target="_blank" style="margin-left:8px; background:#d35400;color:#fff;padding:4px 8px;border-radius:6px;text-decoration:none;font-size:12px;">Order</a>`;
               if (cream.application) medicineHtml += ` - ${cream.application}`;
               medicineHtml += `</li>`;
             });
@@ -1883,7 +1913,7 @@
         const formData = new FormData();
         formData.append('image', currentImage);
 
-        const response = await fetch('https://my-medicalapp.onrender.com/api/generate', {
+        const response = await fetch('http://localhost:5000/api/generate', {
           method: 'POST',
           body: formData
         });
@@ -1987,7 +2017,7 @@
         const severity = (card.querySelector('.chip-severity')?.value || '').trim();
         const location = (card.querySelector('.chip-location')?.value || '').trim();
         try {
-          const res = await fetch('https://my-medicalapp.onrender.com/api/derma/plan', {
+          const res = await fetch('http://localhost:5000/api/derma/plan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sessionId, condition: lastDerma.top, symptoms, duration, severity, location })
@@ -2201,7 +2231,7 @@
           severity: answers.severity || "",
           location: answers.location || ""
         };
-        const res = await fetch("https://my-medicalapp.onrender.com/api/derma/plan", {
+        const res = await fetch("http://localhost:5000/api/derma/plan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
