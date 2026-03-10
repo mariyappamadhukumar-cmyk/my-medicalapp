@@ -937,22 +937,30 @@ async function answerFollowupQuestion({ session, userText = "" }) {
 // -------------------------------------------------------------------------------------
 // Prompts
 // -------------------------------------------------------------------------------------
-const SKIN_SYSTEM = `You are an expert medical image analysis AI. Analyze the provided image and identify the medical condition shown.
+const SKIN_SYSTEM = `You are a medical image diagnosis AI. Look at the image carefully and answer these two questions first:
+1. Does this image show ONE small localized spot/mole/lesion on otherwise normal skin? If YES, it is a localized lesion.
+2. Does this image show skin changes covering a LARGE AREA of the face or body (widespread, diffuse, whole-face, or full-body involvement)? If YES, it is a diffuse skin disorder.
 
-Diagnosis rules:
-- If the image shows a single localized spot, mole, or pigmented lesion on otherwise normal skin, diagnose it as a localized skin lesion (e.g. Melanocytic Nevus, Seborrheic Keratosis, Basal Cell Carcinoma, Squamous Cell Carcinoma, Melanoma, Dermatofibroma).
-- If the image shows widespread, diffuse skin involvement covering a large area of the face or body, diagnose it as a diffuse skin disorder. Examples: Lamellar Ichthyosis, Harlequin Ichthyosis, Psoriasis, Atopic Dermatitis, Seborrheic Dermatitis, Impetigo, Rosacea, Vitiligo, Lupus, Chickenpox, Measles, Scabies, Drug rash, Stevens-Johnson Syndrome. Do NOT use localized lesion labels (Nevus, BCC, SCC) for diffuse conditions.
-- If the image shows an eye condition, diagnose the eye disorder (Conjunctivitis, Cataract, Glaucoma, Diabetic Retinopathy, Pterygium, Stye).
-- If the image shows nails, diagnose nail disorders (Fungal Nail Infection, Nail Psoriasis, Ingrown Nail).
-- If the image shows a wound, burn, or injury, diagnose it specifically.
-- If the image is an X-ray, identify the organ and finding (e.g. Pneumonia Right Lower Lobe, Tibial Fracture).
-- Always provide your most confident clinical assessment. Never refuse to analyze.
-- Be specific with diagnosis names (e.g. "Lamellar Ichthyosis" not "skin condition").
+IMPORTANT: For DIFFUSE/WIDESPREAD skin conditions (question 2 = YES), you MUST NOT use these labels: Melanocytic Nevus, Seborrheic Keratosis, Basal Cell Carcinoma, Squamous Cell Carcinoma, Melanoma, Dermatofibroma. Those labels are ONLY for small isolated spots.
 
-Return ONLY valid JSON, no markdown, no explanation outside JSON:
-{"image_type":"skin|eye|oral|nail|wound|ear|xray|other","predictions":[{"label":"condition name","probability":0.0}],"next_question":"one follow-up question","final_assessment":null,"advice":"1-2 line specific advice"}
+For diffuse skin conditions covering the face or body, use appropriate diagnoses such as: Lamellar Ichthyosis, Harlequin Ichthyosis, Ichthyosis Vulgaris, Psoriasis, Atopic Dermatitis (Eczema), Seborrheic Dermatitis, Impetigo, Rosacea, Vitiligo, Lupus erythematosus, Chickenpox, Measles, Scabies, Stevens-Johnson Syndrome, Exfoliative Dermatitis, or any other appropriate diffuse skin disorder.
 
-Rules for predictions: maximum 5 items, probability values between 0 and 1, ordered highest first.`;
+Key visual patterns:
+- Thick, tight, shiny, fish-scale or plate-like skin covering the whole face = Ichthyosis (Lamellar or Harlequin)
+- Red scaly plaques on face/scalp/elbows = Psoriasis
+- Dry, itchy, inflamed patches = Atopic Dermatitis
+- Butterfly rash across nose and cheeks = Lupus
+
+For other image types:
+- Eye conditions: Conjunctivitis, Cataract, Glaucoma, Diabetic Retinopathy, Stye
+- Nail conditions: Fungal Nail Infection, Nail Psoriasis, Ingrown Nail
+- Wounds/burns: classify by type and severity
+- X-rays: organ + finding (e.g. Pneumonia Right Lower Lobe)
+
+Return ONLY a raw JSON object with no markdown fences or extra text:
+{"image_type":"skin","predictions":[{"label":"diagnosis name","probability":0.95}],"next_question":"relevant clinical question","final_assessment":null,"advice":"specific 1-2 line advice"}
+
+Max 5 predictions, probability 0-1, highest first.`;
 
 const DOCTOR_SYSTEM = `
 You are a primary-care doctor for India.
@@ -1985,8 +1993,14 @@ app.post("/api/generate", upload.single("image"), async (req, res) => {
       const imageMime = req.file.mimetype || "image/jpeg";
 
       const contents = [
-        { role: "user", parts: [{ text: SKIN_SYSTEM }] },
-        { role: "user", parts: [toInlineData(imageMime, imageB64)] },
+        {
+          role: "user",
+          parts: [
+            { text: SKIN_SYSTEM },
+            toInlineData(imageMime, imageB64),
+            { text: "Analyze the image above following all the rules in my instructions. Return ONLY the JSON object." }
+          ]
+        }
       ];
 
       const raw = await geminiGenerate({ contents });
