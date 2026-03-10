@@ -186,7 +186,7 @@ async function groqGenerate(contents) {
 }
 
 // Gemini-only: used for image analysis where Groq vision is not accurate enough
-async function geminiOnlyGenerate({ contents, model = "gemini-2.0-flash" }, retryCount = 0) {
+async function geminiOnlyGenerate({ contents, model = "gemini-2.5-flash-preview-04-17" }, retryCount = 0) {
   const maxRetries = 2;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
   const res = await fetch(url, {
@@ -207,7 +207,7 @@ async function geminiOnlyGenerate({ contents, model = "gemini-2.0-flash" }, retr
   return json?.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("\n") || "";
 }
 
-async function geminiGenerate({ contents, model = "gemini-2.0-flash" }, retryCount = 0) {
+async function geminiGenerate({ contents, model = "gemini-2.5-flash-preview-04-17" }, retryCount = 0) {
   // Try Groq FIRST — faster and more reliable (text only)
   if (GROQ_API_KEY) {
     try {
