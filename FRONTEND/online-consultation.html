@@ -17,7 +17,7 @@
     }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* ── TOP BAR ── */
+    /* TOP BAR */
     .topbar {
       background: rgba(255,255,255,0.92); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
@@ -43,7 +43,7 @@
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background:#10b981; animation: blink 1.5s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* ── HERO ── */
+    /* HERO */
     .hero {
       background: linear-gradient(135deg, #e91e8c 0%, #f06292 50%, #f48fb1 100%);
       padding: 40px 24px; text-align: center; color: #fff;
@@ -55,223 +55,71 @@
     .stat-num { font-size: 1.6rem; font-weight: 800; }
     .stat-label { font-size: 0.78rem; opacity: 0.85; }
 
-    /* ── PLATFORM CARDS ── */
-    .section { max-width: 1000px; margin: 0 auto; padding: 32px 20px; }
-    .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+    /* LAYOUT */
+    .section { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+    .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; color: var(--text); }
+    .section-sub { font-size: 0.88rem; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
 
-    /* ── SPECIALITY PICKER ── */
-    .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 36px; }
+    /* HOW IT WORKS */
+    .steps { display: flex; gap: 12px; margin-bottom: 36px; }
+    .step {
+      flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      padding: 18px 14px; text-align: center;
+    }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg,#e91e8c,#f06292);
+      color: #fff; font-weight: 800; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 10px;
+    }
+    .step-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 4px; }
+    .step-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+
+    /* SPECIALITY GRID */
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
     .spec-card {
       background: #fff; border: 1.5px solid var(--border); border-radius: 16px;
-      padding: 18px 12px; text-align: center; cursor: pointer;
-      transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 8px;
+      padding: 20px 12px 16px; text-align: center; cursor: pointer;
+      transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px;
+      text-decoration: none;
     }
-    .spec-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(233,30,140,0.15); border-color: var(--primary); background: rgba(233,30,140,0.03); }
-    .spec-card.active { border-color: var(--primary); background: linear-gradient(135deg,rgba(233,30,140,0.08),rgba(240,98,146,0.06)); box-shadow: 0 4px 20px rgba(233,30,140,0.2); }
-    .spec-icon { font-size: 2rem; }
-    .spec-name { font-weight: 700; font-size: 0.88rem; color: var(--text); line-height: 1.3; }
+    .spec-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(233,30,140,0.18);
+      border-color: var(--primary);
+      background: rgba(233,30,140,0.03);
+    }
+    .spec-name { font-weight: 700; font-size: 0.9rem; color: var(--text); line-height: 1.3; }
     .spec-desc { font-size: 0.72rem; color: var(--muted); }
-    .spec-1mg { font-size: 0.68rem; color: #e91e8c; font-weight: 700; background: rgba(233,30,140,0.08); padding: 2px 8px; border-radius: 20px; margin-top: 2px; }
-
-    /* ── 1MG BANNER ── */
-    .onemg-banner {
-      display: none; background: linear-gradient(135deg,#fff8e1,#fff3e0);
-      border: 1.5px solid #ff9800; border-radius: 16px;
-      padding: 16px 20px; margin-bottom: 20px;
-      align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
-    }
-    .onemg-banner.show { display: flex; }
-    .onemg-banner-left { display: flex; align-items: center; gap: 12px; }
-    .onemg-logo { background: #ff6600; color: #fff; font-weight: 900; font-size: 0.85rem; padding: 5px 10px; border-radius: 8px; letter-spacing: -0.5px; }
-    .onemg-text { font-size: 0.88rem; font-weight: 600; color: #5d4037; }
-    .onemg-sub { font-size: 0.76rem; color: #8d6e63; margin-top: 2px; }
-    .btn-1mg { padding: 10px 18px; background: linear-gradient(135deg,#ff6600,#ff9800); color: #fff; font-weight: 700; font-size: 0.85rem; border-radius: 11px; text-decoration: none; white-space: nowrap; border: none; cursor: pointer; }
-
-    /* ── QUICK VIDEO CALL CARD ── */
-    .quick-call-card {
-      background: linear-gradient(135deg,rgba(233,30,140,0.06),rgba(240,98,146,0.04));
-      border: 1.5px dashed var(--border); border-radius: 18px;
-      padding: 24px; text-align: center; cursor: pointer;
-      transition: all 0.2s; margin-top: 8px;
-    }
-    .quick-call-card:hover { border-color: var(--primary); background: rgba(233,30,140,0.08); transform: translateY(-2px); }
-    .quick-call-title { font-weight: 800; font-size: 1rem; margin-bottom: 6px; }
-    .quick-call-sub { font-size: 0.84rem; color: var(--muted); margin-bottom: 16px; }
-
-    /* ── DOCTOR CARDS ── */
-    .filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-    .filter-select {
-      padding: 9px 14px; border: 1px solid var(--border); border-radius: 10px;
-      background: #fff; color: var(--text); font-size: 0.88rem; cursor: pointer;
-    }
-    .filter-select:focus { outline: none; border-color: var(--primary); }
-
-    .doctors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
-    .doc-card {
-      background: #fff; border: 1px solid var(--border); border-radius: 18px;
-      padding: 20px; display: flex; flex-direction: column; gap: 12px;
-      box-shadow: 0 2px 12px rgba(233,30,140,0.05);
-      transition: all 0.2s;
-    }
-    .doc-card:hover { box-shadow: 0 8px 32px rgba(233,30,140,0.12); transform: translateY(-2px); }
-    .doc-top { display: flex; gap: 14px; align-items: flex-start; }
-    .doc-avatar {
-      width: 56px; height: 56px; border-radius: 50%;
-      background: linear-gradient(135deg, #e91e8c, #f48fb1);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem; flex-shrink: 0;
-    }
-    .doc-name { font-weight: 700; font-size: 1rem; }
-    .doc-spec { font-size: 0.82rem; color: var(--primary); font-weight: 600; margin-top: 2px; }
-    .doc-exp { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
-    .doc-rating { display: flex; align-items: center; gap: 4px; font-size: 0.82rem; margin-top: 4px; }
-    .rating-star { color: #f59e0b; }
-
-    .doc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .tag {
-      background: rgba(233,30,140,0.07); border: 1px solid rgba(233,30,140,0.18);
-      color: var(--primary); padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;
-    }
-    .tag.green { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.25); color:#059669; }
-
-    .doc-fee { display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; }
-    .fee-amount { font-weight: 700; font-size: 1rem; color: var(--text); }
-    .fee-label { color: var(--muted); font-size: 0.78rem; }
-    .avail-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; display:inline-block; margin-right: 4px; }
-
-    .doc-actions { display: flex; gap: 8px; }
-    .btn-consult {
-      flex: 1; padding: 11px; border-radius: 11px; border: none;
-      background: linear-gradient(135deg, #e91e8c, #f06292);
-      color: #fff; font-weight: 700; font-size: 0.88rem; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-consult:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(233,30,140,0.4); }
-    .btn-profile {
-      padding: 11px 14px; border-radius: 11px;
-      border: 1px solid var(--border); background: #fff;
-      color: var(--primary); font-weight: 600; font-size: 0.85rem; cursor: pointer;
+    .spec-badge {
+      font-size: 0.66rem; font-weight: 700; color: #ff6600;
+      background: rgba(255,102,0,0.1); border: 1px solid rgba(255,102,0,0.25);
+      padding: 2px 8px; border-radius: 20px; margin-top: 2px;
     }
 
-    /* ── BOOKING MODAL ── */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(61,26,46,0.5); backdrop-filter: blur(4px);
-      z-index: 999; align-items: center; justify-content: center; padding: 16px;
+    /* INFO NOTE */
+    .info-note {
+      background: linear-gradient(135deg,#fff8e1,#fff3e0);
+      border: 1px solid rgba(255,152,0,0.4); border-radius: 14px;
+      padding: 14px 18px; margin-top: 28px;
     }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: #fff; border-radius: 22px; width: 100%; max-width: 520px;
-      max-height: 90vh; overflow-y: auto;
-      box-shadow: 0 24px 80px rgba(233,30,140,0.25);
-      animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    @keyframes slideUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:none} }
-    .modal-head {
-      background: linear-gradient(135deg, #e91e8c, #f06292);
-      padding: 22px 24px; border-radius: 22px 22px 0 0;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .modal-head h3 { color: #fff; font-size: 1.05rem; font-weight: 700; }
-    .modal-close { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; }
-    .modal-body { padding: 24px; }
-
-    .modal-doc-info { display: flex; gap: 14px; align-items: center; margin-bottom: 20px; padding: 14px; background: rgba(233,30,140,0.04); border-radius: 14px; border: 1px solid var(--border); }
-    .modal-doc-av { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg,#e91e8c,#f48fb1); display:flex;align-items:center;justify-content:center;font-size:1.4rem; }
-    .modal-doc-name { font-weight: 700; }
-    .modal-doc-spec { font-size: 0.82rem; color: var(--primary); }
-
-    .form-label { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 6px; display: block; }
-    .form-group { margin-bottom: 16px; }
-    .form-input, .form-select, .form-textarea {
-      width: 100%; padding: 11px 14px; border: 1px solid var(--border);
-      border-radius: 11px; font-family: 'Inter', sans-serif;
-      font-size: 0.9rem; color: var(--text); background: #fff;
-      transition: border-color 0.2s;
-    }
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      outline: none; border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(233,30,140,0.1);
-    }
-    .form-textarea { resize: vertical; min-height: 80px; }
-
-    .slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
-    .slot-btn {
-      padding: 8px 6px; border: 1.5px solid var(--border); border-radius: 9px;
-      background: #fff; color: var(--text); font-size: 0.8rem; font-weight: 500;
-      cursor: pointer; transition: all 0.15s; text-align: center;
-    }
-    .slot-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .slot-btn.selected { background: linear-gradient(135deg,#e91e8c,#f06292); color:#fff; border-color: var(--primary); font-weight: 700; }
-    .slot-btn.taken { opacity: 0.35; cursor: not-allowed; text-decoration: line-through; }
-
-    .fee-row { display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--border); margin-top: 4px; font-size: 0.9rem; }
-    .confirm-btn {
-      width: 100%; padding: 14px; border-radius: 13px; border: none;
-      background: linear-gradient(135deg, #e91e8c, #f06292);
-      color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer;
-      margin-top: 16px; transition: all 0.2s;
-    }
-    .confirm-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(233,30,140,0.4); }
-    .confirm-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    /* ── VIDEO CALL MODAL ── */
-    .video-modal {
-      background: #0f0f1a; border-radius: 22px; width: 100%; max-width: 680px;
-      max-height: 90vh; overflow: hidden;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-      animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .video-head {
-      background: #1a1a2e; padding: 18px 22px;
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .video-head h3 { color: #fff; font-size: 1rem; font-weight: 700; }
-    .video-close { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; }
-    #jitsiContainer { width: 100%; height: 500px; }
-
-    /* ── CONFIRMATION ── */
-    .confirm-card {
-      background: #fff; border: 1px solid rgba(16,185,129,0.3); border-radius: 18px;
-      padding: 28px; text-align: center; margin-bottom: 20px;
-    }
-    .confirm-icon { font-size: 3rem; margin-bottom: 12px; }
-    .confirm-title { font-size: 1.2rem; font-weight: 800; color: #059669; margin-bottom: 6px; }
-    .confirm-subtitle { font-size: 0.9rem; color: var(--muted); margin-bottom: 20px; }
-    .meeting-link-box {
-      background: rgba(233,30,140,0.05); border: 1px solid var(--border);
-      border-radius: 12px; padding: 14px 16px; word-break: break-all;
-      font-size: 0.85rem; color: var(--primary); font-weight: 600;
-      margin-bottom: 16px;
-    }
-    .confirm-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-    .btn-join { padding: 12px 24px; border-radius: 11px; border: none; background: linear-gradient(135deg,#e91e8c,#f06292); color:#fff; font-weight:700; cursor:pointer; font-size:0.9rem; }
-    .btn-copy { padding: 12px 20px; border-radius: 11px; border: 1.5px solid var(--border); background:#fff; color:var(--primary); font-weight:600; cursor:pointer; font-size:0.9rem; }
-    .btn-whatsapp { padding: 12px 20px; border-radius: 11px; border: none; background: linear-gradient(135deg,#25d366,#128c7e); color:#fff; font-weight:600; cursor:pointer; font-size:0.9rem; }
+    .info-note-text { font-size: 0.84rem; color: #5d4037; line-height: 1.6; }
+    .info-note-text strong { color: #e65100; }
 
     @media(max-width:600px){
-      .hero h2{font-size:1.3rem}
-      .hero-stats{gap:20px}
-      .doctors-grid{grid-template-columns:1fr}
-      .platform-grid{grid-template-columns:repeat(2,1fr)}
-      .slots-grid{grid-template-columns:repeat(2,1fr)}
-      #jitsiContainer{height:380px}
-      .spec-grid{grid-template-columns:repeat(2,1fr);gap:8px}
-      .spec-card{padding:14px 8px}
-      .spec-icon{font-size:1.6rem}
-      .spec-name{font-size:0.8rem}
-      .onemg-banner{flex-direction:column;align-items:flex-start;gap:10px}
-      .onemg-banner-left{flex-direction:column;align-items:flex-start;gap:6px}
-      .btn-1mg{width:100%;text-align:center}
-      .quick-call-card{padding:18px 14px}
-      .quick-call-title{font-size:0.92rem}
-      .confirm-actions{flex-direction:column}
-      .btn-join,.btn-copy,.btn-whatsapp{width:100%;text-align:center}
-      .modal{border-radius:16px}
-      .section{padding:20px 14px}
-      .filter-row{gap:8px}
-      .filter-select{font-size:0.8rem;padding:8px 10px}
+      .hero h2 { font-size: 1.3rem; }
+      .hero-stats { gap: 16px; }
+      .stat-num { font-size: 1.3rem; }
+      .steps { flex-direction: column; gap: 10px; }
+      .spec-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .spec-card { padding: 16px 8px 12px; }
+      .spec-name { font-size: 0.82rem; }
+      .section { padding: 22px 14px; }
     }
   </style>
 </head>
@@ -279,18 +127,17 @@
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <a href="doctor-options.html" class="back-btn">← Back</a>
-  <h1>🩺 Online Doctor Consultation</h1>
-  <div class="live-badge"><span class="live-dot"></span> <span id="onlineBadge">Doctors Online</span></div>
+  <a href="doctor-options.html" class="back-btn">&#8592; Back</a>
+  <h1>Online Consultation</h1>
+  <div class="live-badge"><span class="live-dot"></span> Doctors Online</div>
 </div>
 
 <!-- HERO -->
 <div class="hero">
-  <h2>Consult a Doctor from Home 🏠</h2>
-  <p>Video call, chat, or instant appointment — real doctors, real care</p>
+  <h2>Book a Doctor Online</h2>
+  <p>Choose your specialization and book an appointment instantly</p>
   <div class="hero-stats">
     <div class="stat"><div class="stat-num">500+</div><div class="stat-label">Verified Doctors</div></div>
-    <div class="stat"><div class="stat-num">Free</div><div class="stat-label">Video Calls</div></div>
     <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">Available</div></div>
     <div class="stat"><div class="stat-num">5 min</div><div class="stat-label">Avg. Wait Time</div></div>
   </div>
@@ -298,550 +145,101 @@
 
 <div class="section">
 
+  <!-- HOW IT WORKS -->
+  <div class="section-title">How it Works</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Choose Specialization</div>
+      <div class="step-desc">Tap the doctor type you need below</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Pick a Doctor</div>
+      <div class="step-desc">Browse verified doctors and select a time slot</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Confirm Booking</div>
+      <div class="step-desc">Book your appointment in seconds</div>
+    </div>
+  </div>
+
   <!-- SPECIALIZATION PICKER -->
-  <div class="section-title">🩺 Choose a Specialization</div>
-  <p style="color:var(--muted);font-size:0.88rem;margin-bottom:18px;">Browse verified doctors from 1mg by specialty, then video call them directly inside this app — free, no download needed.</p>
-  <div class="spec-grid" id="specGrid">
-    <div class="spec-card" onclick="pickSpec('General Physician','general-physician')">
-      <div class="spec-icon">🩺</div>
+  <div class="section-title">Select Specialization</div>
+  <p class="section-sub">Tap any specialization to see available doctors and book your appointment directly.</p>
+
+  <div class="spec-grid">
+    <a class="spec-card" href="https://www.1mg.com/doctors/general-physician-online-consultation" target="_blank">
       <div class="spec-name">General Physician</div>
       <div class="spec-desc">Fever, Cold, General</div>
-      <div class="spec-1mg">View on 1mg →</div>
-    </div>
-    <div class="spec-card" onclick="pickSpec('Dermatologist','dermatologist')">
-      <div class="spec-icon">🧴</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/dermatologist-online-consultation" target="_blank">
       <div class="spec-name">Dermatologist</div>
       <div class="spec-desc">Skin, Hair, Allergy</div>
-      <div class="spec-1mg">View on 1mg →</div>
-    </div>
-    <div class="spec-card" onclick="pickSpec('Pediatrician','pediatrician')">
-      <div class="spec-icon">👶</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/pediatrician-online-consultation" target="_blank">
       <div class="spec-name">Pediatrician</div>
       <div class="spec-desc">Child Health, Growth</div>
-      <div class="spec-1mg">View on 1mg →</div>
-    </div>
-    <div class="spec-card" onclick="pickSpec('Cardiologist','cardiologist')">
-      <div class="spec-icon">❤️</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/cardiologist-online-consultation" target="_blank">
       <div class="spec-name">Cardiologist</div>
       <div class="spec-desc">Heart, BP, ECG</div>
-      <div class="spec-1mg">View on 1mg →</div>
-    </div>
-    <div class="spec-card" onclick="pickSpec('Gynecologist','gynecologist')">
-      <div class="spec-icon">🌸</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/gynecologist-online-consultation" target="_blank">
       <div class="spec-name">Gynecologist</div>
       <div class="spec-desc">PCOS, Pregnancy</div>
-      <div class="spec-1mg">View on 1mg →</div>
-    </div>
-    <div class="spec-card" onclick="pickSpec('Orthopedist','orthopedic')">
-      <div class="spec-icon">🦴</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/neurologist-online-consultation" target="_blank">
+      <div class="spec-name">Neurologist</div>
+      <div class="spec-desc">Brain, Nerves, Migraine</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/orthopedic-surgeon-online-consultation" target="_blank">
       <div class="spec-name">Orthopedist</div>
       <div class="spec-desc">Joints, Back, Sports</div>
-      <div class="spec-1mg">View on 1mg →</div>
-    </div>
-    <div class="spec-card" onclick="pickSpec('ENT','ent')">
-      <div class="spec-icon">👂</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/ent-specialist-online-consultation" target="_blank">
       <div class="spec-name">ENT Specialist</div>
       <div class="spec-desc">Ear, Nose, Throat</div>
-      <div class="spec-1mg">View on 1mg →</div>
-    </div>
-    <div class="spec-card" onclick="pickSpec('Diabetologist','diabetologist')">
-      <div class="spec-icon">🩸</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/diabetologist-online-consultation" target="_blank">
       <div class="spec-name">Diabetologist</div>
       <div class="spec-desc">Diabetes, Thyroid</div>
-      <div class="spec-1mg">View on 1mg →</div>
-    </div>
-    <div class="spec-card" onclick="pickSpec('Psychiatrist','psychiatrist')">
-      <div class="spec-icon">🧠</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/psychiatrist-online-consultation" target="_blank">
       <div class="spec-name">Psychiatrist</div>
       <div class="spec-desc">Anxiety, Depression</div>
-      <div class="spec-1mg">View on 1mg →</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/urologist-online-consultation" target="_blank">
+      <div class="spec-name">Urologist</div>
+      <div class="spec-desc">Kidney, Bladder</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+    <a class="spec-card" href="https://www.1mg.com/doctors/ophthalmologist-online-consultation" target="_blank">
+      <div class="spec-name">Ophthalmologist</div>
+      <div class="spec-desc">Eyes, Vision</div>
+      <div class="spec-badge">Book on 1mg</div>
+    </a>
+  </div>
+
+  <!-- INFO NOTE -->
+  <div class="info-note">
+    <div class="info-note-text">
+      <strong>How booking works:</strong> Tapping any specialization above opens the 1mg doctor booking page for that specialty. You can browse real verified doctors, check their availability, and confirm your appointment directly - all in one place.
     </div>
-    <div class="spec-card" onclick="pickSpec('all','')">
-      <div class="spec-icon">👨‍⚕️</div>
-      <div class="spec-name">All Doctors</div>
-      <div class="spec-desc">Show everyone</div>
-    </div>
   </div>
 
-  <!-- 1MG BROWSE BANNER (shown after picking a specialty) -->
-  <div class="onemg-banner" id="onemgBanner">
-    <div class="onemg-banner-left">
-      <div class="onemg-logo">1mg</div>
-      <div>
-        <div class="onemg-text" id="onemgBannerText">Browse verified doctors on 1mg</div>
-        <div class="onemg-sub">Pick a doctor on 1mg → note their name → come back here to video call them free</div>
-      </div>
-    </div>
-    <a id="onemgBannerLink" href="#" target="_blank" class="btn-1mg">Open 1mg ↗</a>
-  </div>
-
-  <!-- BUILT-IN DOCTOR LIST -->
-  <div class="section-title" id="doctorListTitle">👨‍⚕️ Available Doctors</div>
-  <p style="color:var(--muted);font-size:0.88rem;margin-bottom:18px;">Already chose a doctor from 1mg? Enter their name below to start a free video call — or book one of our registered doctors directly.</p>
-
-  <!-- QUICK VIDEO CALL WITH ANY DOCTOR (from 1mg or anywhere) -->
-  <div class="quick-call-card" onclick="openQuickCall()" id="quickCallCard">
-    <div style="font-size:2.2rem;margin-bottom:8px;">🎥</div>
-    <div class="quick-call-title">Start Video Call with Any Doctor</div>
-    <div class="quick-call-sub">Found a doctor on 1mg? Just enter their name and start a free video consultation right here — no extra app needed.</div>
-    <button style="margin-top:16px;padding:12px 28px;border-radius:12px;border:none;background:linear-gradient(135deg,#e91e8c,#f06292);color:#fff;font-weight:700;font-size:0.9rem;cursor:pointer;">📞 Start Free Video Call →</button>
-  </div>
-
-  <!-- Doctor Register CTA -->
-  <div style="background:linear-gradient(135deg,rgba(233,30,140,0.07),rgba(240,98,146,0.05));border:1px solid var(--border);border-radius:16px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-    <div>
-      <div style="font-weight:700;font-size:0.95rem;">👨‍⚕️ Are you a Doctor?</div>
-      <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;">Register for free to receive patient bookings and video consultations.</div>
-    </div>
-    <a href="doctor-register.html" style="padding:10px 20px;background:linear-gradient(135deg,#e91e8c,#f06292);color:#fff;font-weight:700;font-size:0.88rem;border-radius:11px;text-decoration:none;white-space:nowrap;">Register / Login →</a>
-  </div>
-
-  <!-- Filters -->
-  <div class="filter-row">
-    <select class="filter-select" id="langFilter" onchange="renderDoctors()">
-      <option value="all">All Languages</option>
-      <option value="Tamil">Tamil</option>
-      <option value="English">English</option>
-      <option value="Hindi">Hindi</option>
-      <option value="Telugu">Telugu</option>
-    </select>
-    <select class="filter-select" id="availFilter" onchange="renderDoctors()">
-      <option value="all">Any Availability</option>
-      <option value="now">Available Now</option>
-    </select>
-    <button onclick="pickSpec('all','')" style="padding:9px 16px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--primary);font-size:0.88rem;font-weight:600;cursor:pointer;">✕ Clear Filter</button>
-  </div>
-
-  <div class="doctors-grid" id="doctorsGrid"></div>
 </div>
 
-<!-- BOOKING MODAL -->
-<div class="modal-overlay" id="bookingModal">
-  <div class="modal">
-    <div class="modal-head">
-      <h3>📅 Book Appointment</h3>
-      <button class="modal-close" onclick="closeModal('bookingModal')">✕</button>
-    </div>
-    <div class="modal-body" id="bookingModalBody"></div>
-  </div>
-</div>
-
-<!-- VIDEO CALL MODAL -->
-<div class="modal-overlay" id="videoModal">
-  <div class="video-modal">
-    <div class="video-head">
-      <h3 id="videoModalTitle">🎥 Video Consultation</h3>
-      <button class="video-close" onclick="closeModal('videoModal')">✕</button>
-    </div>
-    <div id="jitsiContainer"></div>
-  </div>
-</div>
-
-<!-- QUICK CALL MODAL (video call with any doctor — from 1mg or elsewhere) -->
-<div class="modal-overlay" id="quickCallModal">
-  <div class="modal">
-    <div class="modal-head">
-      <h3>🎥 Start Video Call</h3>
-      <button class="modal-close" onclick="closeModal('quickCallModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div style="background:linear-gradient(135deg,#fff8e1,#fff3e0);border:1px solid #ff9800;border-radius:14px;padding:14px 16px;margin-bottom:20px;font-size:0.85rem;color:#5d4037;">
-        <strong>How it works:</strong> Browse doctors on 1mg → note the doctor's name → come back here → enter their name → get a free video call link you can WhatsApp to them. The call happens right here in this app! 🎉
-      </div>
-      <div class="form-group">
-        <label class="form-label">Doctor's Name</label>
-        <input class="form-input" id="quickDoctorName" placeholder="e.g. Dr. Priya Sharma (from 1mg)" oninput="validateQuickCall()" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Doctor's Specialization</label>
-        <select class="form-select" id="quickDoctorSpec">
-          <option value="General Physician">General Physician</option>
-          <option value="Dermatologist">Dermatologist</option>
-          <option value="Pediatrician">Pediatrician</option>
-          <option value="Cardiologist">Cardiologist</option>
-          <option value="Gynecologist">Gynecologist</option>
-          <option value="Orthopedist">Orthopedist</option>
-          <option value="ENT">ENT Specialist</option>
-          <option value="Diabetologist">Diabetologist</option>
-          <option value="Psychiatrist">Psychiatrist</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Your Name</label>
-        <input class="form-input" id="quickPatientName" placeholder="Your full name" oninput="validateQuickCall()" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Appointment Time (from 1mg)</label>
-        <input class="form-input" id="quickApptTime" placeholder="e.g. Today 4:30 PM" />
-      </div>
-      <button class="confirm-btn" id="quickCallBtn" onclick="startQuickCall()" disabled>
-        Generate Video Call Link & Join 🎥
-      </button>
-    </div>
-  </div>
-</div>
-
-<script>
-  const API = 'http://localhost:5000';
-
-  // ── 1MG SPECIALTY URL MAP ─────────────────────────────────────────
-  const ONEMG_URLS = {
-    'general-physician': 'https://www.1mg.com/online-doctor-consultation/general-physician',
-    'dermatologist':     'https://www.1mg.com/online-doctor-consultation/dermatologist',
-    'pediatrician':      'https://www.1mg.com/online-doctor-consultation/pediatrician',
-    'cardiologist':      'https://www.1mg.com/online-doctor-consultation/cardiologist',
-    'gynecologist':      'https://www.1mg.com/online-doctor-consultation/gynecologist',
-    'orthopedic':        'https://www.1mg.com/online-doctor-consultation/orthopedic',
-    'ent':               'https://www.1mg.com/online-doctor-consultation/ent',
-    'diabetologist':     'https://www.1mg.com/online-doctor-consultation/diabetologist',
-    'psychiatrist':      'https://www.1mg.com/online-doctor-consultation/psychiatrist',
-  };
-
-  // ── DEMO DOCTORS (shown if no real doctors registered yet) ────────
-  const DEMO_DOCTORS = [
-    { _id:'demo1', name:"Dr. Priya Sharma",   specialization:"General Physician", experience:12, rating:4.9, totalReviews:1240, consultationFee:299, avatar:"👩‍⚕️", languages:["Tamil","English","Hindi"],    tags:["Fever","Cold","Diabetes Care"],        availableNow:true,  slots:["9:00 AM","9:30 AM","11:00 AM","2:00 PM","4:30 PM","6:00 PM"], isDemo:true },
-    { _id:'demo2', name:"Dr. Arjun Nair",     specialization:"Dermatologist",     experience:9,  rating:4.8, totalReviews:876,  consultationFee:499, avatar:"👨‍⚕️", languages:["Malayalam","Tamil","English"], tags:["Acne","Eczema","Skin Allergy"],        availableNow:true,  slots:["10:00 AM","11:30 AM","3:00 PM","5:00 PM"], isDemo:true },
-    { _id:'demo3', name:"Dr. Meera Iyer",     specialization:"Pediatrician",      experience:15, rating:4.9, totalReviews:2100, consultationFee:399, avatar:"👩‍⚕️", languages:["Tamil","English"],            tags:["Child Health","Vaccination","Growth"], availableNow:false, slots:["10:30 AM","12:00 PM","4:00 PM","6:30 PM"], isDemo:true },
-    { _id:'demo4', name:"Dr. Suresh Patel",   specialization:"Cardiologist",      experience:20, rating:4.7, totalReviews:654,  consultationFee:799, avatar:"👨‍⚕️", languages:["Hindi","English","Gujarati"], tags:["Heart Disease","Hypertension","ECG"],  availableNow:true,  slots:["9:00 AM","11:00 AM","2:30 PM","5:30 PM"], isDemo:true },
-    { _id:'demo5', name:"Dr. Lakshmi Reddy",  specialization:"Gynecologist",      experience:14, rating:4.9, totalReviews:1580, consultationFee:599, avatar:"👩‍⚕️", languages:["Telugu","Hindi","English"],   tags:["PCOS","Pregnancy","Menstrual"],        availableNow:true,  slots:["9:30 AM","11:00 AM","2:00 PM","4:00 PM","6:00 PM"], isDemo:true },
-    { _id:'demo6', name:"Dr. Karthik Rajan",  specialization:"Orthopedist",       experience:11, rating:4.6, totalReviews:432,  consultationFee:549, avatar:"👨‍⚕️", languages:["Tamil","English"],            tags:["Joint Pain","Back Pain","Sports"],     availableNow:false, slots:["10:00 AM","1:00 PM","4:30 PM"], isDemo:true },
-    { _id:'demo7', name:"Dr. Anjali Singh",   specialization:"ENT",               experience:8,  rating:4.8, totalReviews:721,  consultationFee:449, avatar:"👩‍⚕️", languages:["Hindi","English"],            tags:["Ear","Nose","Throat","Sinusitis"],     availableNow:true,  slots:["9:00 AM","10:30 AM","3:30 PM","5:00 PM"], isDemo:true },
-    { _id:'demo8', name:"Dr. Rajesh Kumar",   specialization:"Diabetologist",     experience:18, rating:4.9, totalReviews:1890, consultationFee:499, avatar:"👨‍⚕️", languages:["Tamil","Telugu","English"],   tags:["Diabetes","Thyroid","Obesity"],        availableNow:true,  slots:["9:30 AM","11:30 AM","2:30 PM","6:00 PM"], isDemo:true },
-    { _id:'demo9', name:"Dr. Nisha Thomas",   specialization:"Psychiatrist",      experience:10, rating:4.8, totalReviews:543,  consultationFee:699, avatar:"👩‍⚕️", languages:["Malayalam","English"],        tags:["Anxiety","Depression","Stress"],       availableNow:false, slots:["11:00 AM","1:30 PM","4:00 PM","6:30 PM"], isDemo:true },
-    { _id:'demo10',name:"Dr. Vikram Menon",   specialization:"General Physician", experience:7,  rating:4.7, totalReviews:980,  consultationFee:249, avatar:"👨‍⚕️", languages:["Tamil","English","Malayalam"],tags:["Viral Fever","Cough","General"],       availableNow:true,  slots:["9:00 AM","10:00 AM","12:00 PM","3:00 PM","5:00 PM","7:00 PM"], isDemo:true },
-  ];
-
-  let ALL_DOCTORS   = [];
-  let activeSpec    = 'all';
-  let selectedSlot  = null;
-  let currentDoctor = null;
-  let pendingRoomId = null;
-  let jitsiApi      = null;
-
-  // ── LOAD DOCTORS FROM API ─────────────────────────────────────────
-  async function loadDoctors() {
-    try {
-      const res  = await fetch(API + '/api/online-doctors');
-      const data = await res.json();
-      if (data.ok && data.doctors.length > 0) {
-        const real = data.doctors.map(d => ({ ...d, isDemo: false }));
-        ALL_DOCTORS = [...real, ...DEMO_DOCTORS];
-        const onlineReal = real.filter(d => d.availableNow).length;
-        document.getElementById('onlineBadge').textContent =
-          onlineReal + ' Real Doctor' + (onlineReal !== 1 ? 's' : '') + ' Online';
-      } else {
-        ALL_DOCTORS = DEMO_DOCTORS;
-      }
-    } catch {
-      ALL_DOCTORS = DEMO_DOCTORS;
-    }
-    renderDoctors();
-  }
-
-  // ── SPECIALTY PICKER ──────────────────────────────────────────────
-  function pickSpec(spec, onemgSlug) {
-    activeSpec = spec;
-    document.querySelectorAll('.spec-card').forEach(c => c.classList.remove('active'));
-    const SPECS = ['General Physician','Dermatologist','Pediatrician','Cardiologist','Gynecologist','Orthopedist','ENT','Diabetologist','Psychiatrist','all'];
-    const cards = document.querySelectorAll('#specGrid .spec-card');
-    const idx   = SPECS.indexOf(spec);
-    if (idx >= 0 && cards[idx]) cards[idx].classList.add('active');
-    const titleEl = document.getElementById('doctorListTitle');
-    titleEl.textContent = spec === 'all' ? '👨‍⚕️ All Available Doctors' : '👨‍⚕️ ' + spec + ' Doctors';
-
-    // Show/update the 1mg banner
-    const banner   = document.getElementById('onemgBanner');
-    const bannerTx = document.getElementById('onemgBannerText');
-    const bannerLk = document.getElementById('onemgBannerLink');
-    if (onemgSlug && ONEMG_URLS[onemgSlug]) {
-      bannerTx.textContent = 'Browse ' + spec + ' doctors on 1mg';
-      bannerLk.href = ONEMG_URLS[onemgSlug];
-      banner.classList.add('show');
-    } else {
-      banner.classList.remove('show');
-    }
-
-    renderDoctors();
-    titleEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  // ── RENDER DOCTORS ────────────────────────────────────────────────
-  function renderDoctors() {
-    const spec  = activeSpec;
-    const lang  = document.getElementById('langFilter').value;
-    const avail = document.getElementById('availFilter').value;
-
-    const list = ALL_DOCTORS.filter(d => {
-      const specOk  = spec  === 'all' || d.specialization === spec;
-      const langOk  = lang  === 'all' || (d.languages || []).includes(lang);
-      const availOk = avail === 'all' || (avail === 'now' && d.availableNow);
-      return specOk && langOk && availOk;
-    });
-
-    const grid = document.getElementById('doctorsGrid');
-    if (!list.length) {
-      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">No doctors match your filters. Try removing some filters.</div>`;
-      return;
-    }
-
-    grid.innerHTML = list.map(d => {
-      const fee      = d.consultationFee || 0;
-      const reviews  = d.totalReviews   || 0;
-      const demoTag  = d.isDemo
-        ? `<span class="tag" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:#d97706;font-size:0.7rem;">Demo</span>`
-        : `<span class="tag" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#059669;font-size:0.7rem;">✅ Real Doctor</span>`;
-      const langTags = (d.languages || []).map(l => `<span class="tag">${l}</span>`).join('');
-      const topicTags= (d.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
-      return `
-      <div class="doc-card">
-        <div class="doc-top">
-          <div class="doc-avatar">${d.avatar || '👨‍⚕️'}</div>
-          <div>
-            <div class="doc-name">${d.name} ${demoTag}</div>
-            <div class="doc-spec">${d.specialization}</div>
-            <div class="doc-exp">${d.experience} years experience${d.qualifications ? ' • ' + d.qualifications : ''}</div>
-            <div class="doc-rating">
-              <span class="rating-star">⭐</span>
-              <strong>${d.rating ? d.rating.toFixed(1) : 'New'}</strong>
-              ${reviews ? `<span style="color:var(--muted)">(${reviews.toLocaleString()} reviews)</span>` : ''}
-            </div>
-          </div>
-        </div>
-        <div class="doc-tags">
-          ${langTags}
-          ${d.availableNow ? '<span class="tag green"><span class="avail-dot"></span>Available Now</span>' : '<span class="tag" style="opacity:0.6">Next: Today</span>'}
-        </div>
-        ${topicTags ? `<div class="doc-tags">${topicTags}</div>` : ''}
-        <div class="doc-fee">
-          <div>
-            <div class="fee-amount">₹${fee}</div>
-            <div class="fee-label">per consultation</div>
-          </div>
-          <div style="font-size:0.8rem;color:var(--muted);text-align:right">🎥 Video Call<br>📄 Prescription included</div>
-        </div>
-        <div class="doc-actions">
-          <button class="btn-consult" onclick="openBooking('${d._id}')">📅 Book Consultation</button>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  // ── BOOKING MODAL ─────────────────────────────────────────────────
-  function openBooking(doctorId) {
-    currentDoctor = ALL_DOCTORS.find(d => d._id == doctorId);
-    selectedSlot  = null;
-
-    const today   = new Date();
-    const tomorrow= new Date(today); tomorrow.setDate(today.getDate() + 1);
-    const dayAfter= new Date(today); dayAfter.setDate(today.getDate() + 2);
-    const fmt = d => d.toLocaleDateString('en-IN', { weekday:'short', month:'short', day:'numeric' });
-    const fee = currentDoctor.consultationFee || 0;
-
-    const slotsHtml = (currentDoctor.slots || []).map(s =>
-      `<button class="slot-btn" onclick="selectSlot(this,'${s}')">${s}</button>`
-    ).join('');
-
-    document.getElementById('bookingModalBody').innerHTML = `
-      <div class="modal-doc-info">
-        <div class="modal-doc-av">${currentDoctor.avatar || '👨‍⚕️'}</div>
-        <div>
-          <div class="modal-doc-name">${currentDoctor.name}</div>
-          <div class="modal-doc-spec">${currentDoctor.specialization} • ${currentDoctor.experience} yrs exp</div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Your Name</label>
-        <input class="form-input" id="patientName" placeholder="Enter your full name" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Phone Number</label>
-        <input class="form-input" id="patientPhone" type="tel" placeholder="+91 XXXXX XXXXX" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Appointment Date</label>
-        <select class="form-select" id="apptDate">
-          <option value="${fmt(today)}">Today — ${fmt(today)}</option>
-          <option value="${fmt(tomorrow)}">Tomorrow — ${fmt(tomorrow)}</option>
-          <option value="${fmt(dayAfter)}">${fmt(dayAfter)}</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Select Time Slot</label>
-        <div class="slots-grid">${slotsHtml}</div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Describe your concern <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-        <textarea class="form-textarea" id="concern" placeholder="e.g. I have had fever for 3 days with cough..."></textarea>
-      </div>
-      <div class="fee-row">
-        <span>Consultation fee</span><strong>₹${fee}</strong>
-      </div>
-      <div class="fee-row" style="border-top:none;padding-top:4px;">
-        <span style="color:#059669;font-size:0.82rem">✅ Includes e-Prescription + Video Call link</span>
-      </div>
-      <button class="confirm-btn" id="confirmBtn" onclick="confirmBooking()" disabled>
-        Confirm & Get Video Link 🎥
-      </button>
-    `;
-    document.getElementById('bookingModal').classList.add('open');
-    document.getElementById('patientName').addEventListener('input', validateForm);
-    document.getElementById('patientPhone').addEventListener('input', validateForm);
-  }
-
-  function selectSlot(btn, slot) {
-    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedSlot = slot;
-    validateForm();
-  }
-
-  function validateForm() {
-    const name  = (document.getElementById('patientName')?.value || '').trim();
-    const phone = (document.getElementById('patientPhone')?.value || '').trim();
-    const btn   = document.getElementById('confirmBtn');
-    if (btn) btn.disabled = !(name && phone.length >= 7 && selectedSlot);
-  }
-
-  function confirmBooking() {
-    const name    = document.getElementById('patientName').value.trim();
-    const phone   = document.getElementById('patientPhone').value.trim();
-    const date    = document.getElementById('apptDate').value;
-    const concern = document.getElementById('concern').value.trim();
-
-    const roomId   = 'pranava-' + currentDoctor.name.replace(/\s+/g,'').toLowerCase() + '-' + Date.now().toString(36);
-    pendingRoomId  = roomId;
-    const jitsiUrl = 'https://meet.jit.si/' + roomId;
-    const waText = encodeURIComponent(
-      `Hello ${currentDoctor.name}! I have booked an online consultation.\n\n` +
-      `Patient: ${name}\nDate: ${date}\nTime: ${selectedSlot}\n` +
-      (concern ? `Concern: ${concern}\n\n` : '\n') +
-      `Video Call Link:\n${jitsiUrl}\n\nPlease join at the scheduled time.`
-    );
-
-    document.getElementById('bookingModalBody').innerHTML = `
-      <div class="confirm-card">
-        <div class="confirm-icon">✅</div>
-        <div class="confirm-title">Appointment Confirmed!</div>
-        <div class="confirm-subtitle">${currentDoctor.name} • ${date} at ${selectedSlot}</div>
-        <div style="font-size:0.88rem;color:var(--muted);margin-bottom:16px;">
-          Your video call room is ready. Share the link below with the doctor.
-        </div>
-        <div class="meeting-link-box">🎥 ${jitsiUrl}</div>
-        <div class="confirm-actions">
-          <button class="btn-join" onclick="startVideoCall()">🎥 Join Now</button>
-          <button class="btn-copy" onclick="navigator.clipboard.writeText('${jitsiUrl}');this.textContent='✅ Copied!'">📋 Copy Link</button>
-          <a class="btn-whatsapp" href="https://wa.me/?text=${waText}" target="_blank">💬 WhatsApp Doctor</a>
-        </div>
-      </div>
-      <div style="font-size:0.82rem;color:var(--muted);text-align:center;padding-top:8px;">
-        No app download needed. The doctor can join from any device using the link.
-      </div>
-    `;
-    const history = JSON.parse(localStorage.getItem('consultations') || '[]');
-    history.push({ doctor: currentDoctor.name, spec: currentDoctor.specialization, date, time: selectedSlot, room: jitsiUrl, patient: name, ts: Date.now() });
-    localStorage.setItem('consultations', JSON.stringify(history));
-  }
-
-  function startVideoCall() {
-    const roomId = pendingRoomId;
-    closeModal('bookingModal');
-    document.getElementById('videoModalTitle').textContent = '🎥 Consulting: ' + currentDoctor.name;
-    document.getElementById('videoModal').classList.add('open');
-    loadJitsi(roomId);
-  }
-
-  function loadJitsi(roomId) {
-    const container = document.getElementById('jitsiContainer');
-    container.innerHTML = '';
-    if (jitsiApi) { try { jitsiApi.dispose(); } catch(e){} jitsiApi = null; }
-    if (typeof JitsiMeetExternalAPI !== 'undefined') {
-      jitsiApi = new JitsiMeetExternalAPI('meet.jit.si', {
-        roomName: roomId, width: '100%', height: 500, parentNode: container,
-        configOverwrite: { startWithVideoMuted: false, startWithAudioMuted: false },
-        interfaceConfigOverwrite: { SHOW_JITSI_WATERMARK: false, SHOW_WATERMARK_FOR_GUESTS: false }
-      });
-    } else {
-      window.open(`https://meet.jit.si/${roomId}`, '_blank');
-      container.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;background:#1a1a2e;color:#fff;gap:16px;padding:24px;text-align:center;">
-          <div style="font-size:3rem">🎥</div>
-          <div style="font-size:1.1rem;font-weight:700">Video call opened in new tab</div>
-          <div style="font-size:0.88rem;opacity:0.7">Share the room link with your doctor to meet</div>
-          <a href="https://meet.jit.si/${roomId}" target="_blank" style="padding:12px 28px;background:linear-gradient(135deg,#e91e8c,#f06292);color:#fff;border-radius:11px;font-weight:700;text-decoration:none;">Reopen Call ↗</a>
-        </div>`;
-    }
-  }
-
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('open');
-    if (id === 'videoModal' && jitsiApi) { try { jitsiApi.dispose(); } catch(e){} jitsiApi = null; }
-  }
-
-  // ── QUICK VIDEO CALL (for doctors found on 1mg) ─────────────────
-  function openQuickCall() {
-    document.getElementById('quickCallModal').classList.add('open');
-    document.getElementById('quickDoctorName').focus();
-  }
-
-  function validateQuickCall() {
-    const name    = (document.getElementById('quickDoctorName')?.value || '').trim();
-    const patient = (document.getElementById('quickPatientName')?.value || '').trim();
-    const btn     = document.getElementById('quickCallBtn');
-    if (btn) btn.disabled = !(name && patient);
-  }
-
-  function startQuickCall() {
-    const docName  = document.getElementById('quickDoctorName').value.trim();
-    const spec     = document.getElementById('quickDoctorSpec').value;
-    const patient  = document.getElementById('quickPatientName').value.trim();
-    const apptTime = document.getElementById('quickApptTime').value.trim() || 'Now';
-
-    const roomId   = 'pranava-' + docName.replace(/\s+/g,'').toLowerCase().slice(0,20) + '-' + Date.now().toString(36);
-    pendingRoomId  = roomId;
-    currentDoctor  = { name: docName, specialization: spec, avatar: '👨‍⚕️', consultationFee: 0 };
-    const jitsiUrl = 'https://meet.jit.si/' + roomId;
-    const waText   = encodeURIComponent(
-      `Hello ${docName}! I am ${patient}, your patient.\n\n` +
-      `Booked via Pranava Health App\nTime: ${apptTime}\n\n` +
-      `Please join my free video consultation here:\n${jitsiUrl}\n\nNo download needed — works in any browser.`
-    );
-
-    document.querySelector('#quickCallModal .modal-body').innerHTML = `
-      <div class="confirm-card">
-        <div class="confirm-icon">✅</div>
-        <div class="confirm-title">Video Room Ready!</div>
-        <div class="confirm-subtitle">${docName} • ${apptTime}</div>
-        <div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">Share the link below with your doctor via WhatsApp. They can join from any browser — no app needed!</div>
-        <div class="meeting-link-box">🎥 ${jitsiUrl}</div>
-        <div class="confirm-actions">
-          <button class="btn-join" onclick="joinQuickCall('${roomId}','${docName}')">🎥 Join Now</button>
-          <button class="btn-copy" onclick="navigator.clipboard.writeText('${jitsiUrl}');this.textContent='✅ Copied!'">📋 Copy Link</button>
-          <a class="btn-whatsapp" href="https://wa.me/?text=${waText}" target="_blank">💬 WhatsApp to Doctor</a>
-        </div>
-      </div>
-      <div style="font-size:0.8rem;color:var(--muted);text-align:center;padding-top:8px;">The doctor just needs to tap the WhatsApp link to join your call — completely free.</div>
-    `;
-  }
-
-  function joinQuickCall(roomId, docName) {
-    pendingRoomId = roomId;
-    currentDoctor = { name: docName, specialization: '', avatar: '👨‍⚕️' };
-    closeModal('quickCallModal');
-    document.getElementById('videoModalTitle').textContent = '🎥 Consulting: ' + docName;
-    document.getElementById('videoModal').classList.add('open');
-    loadJitsi(roomId);
-  }
-
-  document.querySelectorAll('.modal-overlay').forEach(el => {
-    el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
-  });
-
-  // Load real doctors from API on page open
-  loadDoctors();
-</script>
-
-<!-- Jitsi Meet SDK (loaded async) -->
-<script src="https://meet.jit.si/external_api.js" async></script>
 </body>
 </html>
