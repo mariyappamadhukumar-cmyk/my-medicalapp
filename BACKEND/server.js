@@ -968,13 +968,14 @@ const SKIN_SYSTEM = `You are a medical image diagnosis AI. Look at the image car
 
 IMPORTANT: For DIFFUSE/WIDESPREAD skin conditions (question 2 = YES), you MUST NOT use these labels: Melanocytic Nevus, Seborrheic Keratosis, Basal Cell Carcinoma, Squamous Cell Carcinoma, Melanoma, Dermatofibroma. Those labels are ONLY for small isolated spots.
 
-For diffuse skin conditions covering the face or body, use appropriate diagnoses such as: Lamellar Ichthyosis, Harlequin Ichthyosis, Ichthyosis Vulgaris, Psoriasis, Atopic Dermatitis (Eczema), Seborrheic Dermatitis, Impetigo, Rosacea, Vitiligo, Lupus erythematosus, Chickenpox, Measles, Scabies, Stevens-Johnson Syndrome, Exfoliative Dermatitis, or any other appropriate diffuse skin disorder.
-
-Key visual patterns:
-- Thick, tight, shiny, fish-scale or plate-like skin covering the whole face = Ichthyosis (Lamellar or Harlequin)
-- Red scaly plaques on face/scalp/elbows = Psoriasis
-- Dry, itchy, inflamed patches = Atopic Dermatitis
-- Butterfly rash across nose and cheeks = Lupus
+For diffuse skin conditions covering the face or body, distinguish carefully:
+- Thick, tight, shiny, parchment-like or fish-scale skin on a child covering the whole face and body = Ichthyosis. Subtypes: Lamellar Ichthyosis (large plate-like scales, ectropion/eyelid pulling), Harlequin Ichthyosis (severe thick armor-like skin), Ichthyosis Vulgaris (fine white scales). This is a GENETIC condition present from birth — NOT Exfoliative Dermatitis.
+- Exfoliative Dermatitis = acquired adult condition, red inflamed skin with peeling, usually has an underlying cause (drug reaction, lymphoma). If the patient appears to be a child with lifelong tight shiny skin, it is Ichthyosis NOT Exfoliative Dermatitis.
+- Widespread pustules/pox-like lesions all over body = Smallpox, Monkeypox, or Chickenpox depending on pattern.
+- Red scaly plaques on face/scalp/elbows = Psoriasis.
+- Dry, itchy, inflamed patches = Atopic Dermatitis.
+- Butterfly rash across nose and cheeks = Lupus.
+- Depigmented patches = Vitiligo.
 
 For other image types:
 - Eye conditions: Conjunctivitis, Cataract, Glaucoma, Diabetic Retinopathy, Stye
