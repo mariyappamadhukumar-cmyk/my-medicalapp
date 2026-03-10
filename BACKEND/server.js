@@ -168,41 +168,14 @@ async function checkDrugInteractions(drugNames) {
 // Groq (PRIMARY): converts Gemini-style contents to OpenAI messages format
 async function groqGenerate(contents) {
   if (!GROQ_API_KEY) throw new Error('No Groq API key');
-
-  // Detect if any part contains inline image data
-  const hasImage = contents.some(c => c.parts?.some(p => p.inline_data));
-
-  const messages = contents.map(c => {
-    if (hasImage) {
-      // Build multimodal content array for vision model
-      const contentParts = [];
-      for (const p of (c.parts || [])) {
-        if (p.text) {
-          contentParts.push({ type: 'text', text: p.text });
-        } else if (p.inline_data) {
-          contentParts.push({
-            type: 'image_url',
-            image_url: { url: `data:${p.inline_data.mime_type};base64,${p.inline_data.data}` }
-          });
-        }
-      }
-      return { role: c.role === 'model' ? 'assistant' : 'user', content: contentParts };
-    } else {
-      return {
-        role: c.role === 'model' ? 'assistant' : 'user',
-        content: c.parts.map(p => p.text || '').join('')
-      };
-    }
-  });
-
-  // Use vision model when image is present, text model otherwise
-  const model = hasImage ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile';
-  const temperature = hasImage ? 0.2 : 0.7; // Lower temp for medical image accuracy
-
+  const messages = contents.map(c => ({
+    role: c.role === 'model' ? 'assistant' : 'user',
+    content: c.parts.map(p => p.text || '').join('')
+  }));
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
-    body: JSON.stringify({ model, messages, temperature })
+    body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, temperature: 0.7 })
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
@@ -212,8 +185,30 @@ async function groqGenerate(contents) {
   return json?.choices?.[0]?.message?.content || '';
 }
 
+// Gemini-only: used for image analysis where Groq vision is not accurate enough
+async function geminiOnlyGenerate({ contents, model = "gemini-2.0-flash" }, retryCount = 0) {
+  const maxRetries = 2;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contents }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    if (res.status === 503 && retryCount < maxRetries) {
+      const waitTime = Math.pow(2, retryCount) * 1000;
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      return geminiOnlyGenerate({ contents, model }, retryCount + 1);
+    }
+    throw new Error(`Gemini error ${res.status}: ${text.slice(0, 400)}`);
+  }
+  const json = await res.json();
+  return json?.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("\n") || "";
+}
+
 async function geminiGenerate({ contents, model = "gemini-2.0-flash" }, retryCount = 0) {
-  // Try Groq FIRST — faster and more reliable
+  // Try Groq FIRST — faster and more reliable (text only)
   if (GROQ_API_KEY) {
     try {
       console.log('🚀 Using Groq (primary)...');
@@ -2030,7 +2025,8 @@ app.post("/api/generate", upload.single("image"), async (req, res) => {
         }
       ];
 
-      const raw = await geminiGenerate({ contents });
+      // Use Gemini directly for image analysis — Groq vision is not accurate enough for medical images
+      const raw = await geminiOnlyGenerate({ contents });
       const parsed = extractLeadingJSON(raw);
       if (!parsed || !Array.isArray(parsed.predictions)) {
         return res.status(502).json({ ok: false, error: "Bad model output", raw: raw.slice(0, 400) });
