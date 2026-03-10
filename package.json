@@ -1,0 +1,7 @@
+{
+  "name": "train-model1-add-features",
+  "scripts": {
+    "start": "cd BACKEND && npm start",
+    "dev": "cd BACKEND && npm run dev"
+  }
+}

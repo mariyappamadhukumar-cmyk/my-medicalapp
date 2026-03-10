@@ -27,7 +27,7 @@ export async function connectToDatabase() {
     
     // Handle connection events
     mongoose.connection.on('error', (err) => {
-      console.error('❌ MongoDB connection error:', err);
+      console.warn('⚠️ MongoDB connection error (non-fatal):', err.message);
       isConnected = false;
     });
     

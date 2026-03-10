@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doctor Registration — Pranava Health</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #e91e8c; --primary2: #f06292;
+      --bg: #fff0f5; --text: #3d1a2e; --muted: #9e5070;
+      --border: rgba(233,30,140,0.18); --green: #059669;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .topbar {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border); padding: 14px 24px;
+      display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 16px rgba(233,30,140,0.08);
+    }
+    .back-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(233,30,140,0.07); border: 1px solid var(--border);
+      padding: 8px 16px; border-radius: 12px; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; color: var(--primary);
+      text-decoration: none; transition: all 0.2s;
+    }
+    .back-btn:hover { background: rgba(233,30,140,0.14); }
+    .topbar h1 { font-size: 1.1rem; font-weight: 700; }
+
+    /* TABS */
+    .tab-bar {
+      max-width: 560px; margin: 0 auto; padding: 28px 20px 0;
+      display: flex; gap: 8px;
+    }
+    .tab-btn {
+      flex: 1; padding: 11px; border-radius: 12px; border: 1.5px solid var(--border);
+      background: #fff; color: var(--muted); font-weight: 600; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .tab-btn.active { background: linear-gradient(135deg,#e91e8c,#f06292); color: #fff; border-color: var(--primary); }
+
+    /* FORM CARD */
+    .form-card {
+      max-width: 560px; margin: 20px auto 40px; background: #fff;
+      border-radius: 22px; border: 1px solid var(--border);
+      box-shadow: 0 4px 32px rgba(233,30,140,0.08); overflow: hidden;
+    }
+    .form-head {
+      background: linear-gradient(135deg, #e91e8c, #f06292);
+      padding: 24px; color: #fff;
+    }
+    .form-head h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; }
+    .form-head p { font-size: 0.88rem; opacity: 0.9; }
+    .form-body { padding: 28px; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 6px; }
+    .form-label span { color: var(--primary); }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+      border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 0.9rem;
+      color: var(--text); background: #fff; transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(233,30,140,0.1);
+    }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* LANGUAGE CHECKBOXES */
+    .lang-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .lang-chip {
+      padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: #fff; color: var(--muted); font-size: 0.82rem; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .lang-chip.selected { background: linear-gradient(135deg,#e91e8c,#f06292); color:#fff; border-color:var(--primary); }
+
+    /* SLOT CHIPS */
+    .slots-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .slot-chip {
+      padding: 6px 12px; border-radius: 9px; border: 1.5px solid var(--border);
+      background: #fff; color: var(--muted); font-size: 0.8rem; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .slot-chip.selected { background: linear-gradient(135deg,#e91e8c,#f06292); color:#fff; border-color:var(--primary); }
+
+    /* AVATAR PICKER */
+    .avatar-pick { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+    .av-opt {
+      width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+      cursor: pointer; transition: all 0.15s; background: rgba(233,30,140,0.04);
+    }
+    .av-opt.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(233,30,140,0.2); }
+
+    .submit-btn {
+      width: 100%; padding: 14px; border-radius: 13px; border: none;
+      background: linear-gradient(135deg, #e91e8c, #f06292);
+      color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 8px;
+      transition: all 0.2s;
+    }
+    .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(233,30,140,0.4); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .msg { padding: 14px 16px; border-radius: 11px; margin-bottom: 18px; font-size: 0.9rem; font-weight: 500; display: none; }
+    .msg.success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #059669; }
+    .msg.error { background: rgba(233,30,140,0.08); border: 1px solid rgba(233,30,140,0.25); color: var(--primary); }
+
+    /* DASHBOARD */
+    .dashboard { max-width: 560px; margin: 24px auto 40px; display: none; }
+    .dash-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 20px;
+      overflow: hidden; box-shadow: 0 4px 24px rgba(233,30,140,0.07);
+    }
+    .dash-head {
+      background: linear-gradient(135deg,#e91e8c,#f06292);
+      padding: 22px 24px; color: #fff; display: flex; align-items: center; gap: 14px;
+    }
+    .dash-avatar { font-size: 2.5rem; }
+    .dash-name { font-size: 1.1rem; font-weight: 800; }
+    .dash-spec { font-size: 0.85rem; opacity: 0.9; }
+    .verified-badge { background: rgba(255,255,255,0.25); padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-top: 4px; display: inline-block; }
+    .dash-body { padding: 24px; }
+    .avail-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(233,30,140,0.04); border-radius: 14px; border: 1px solid var(--border); margin-bottom: 18px; }
+    .avail-label { font-weight: 700; font-size: 0.95rem; }
+    .avail-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .toggle-btn {
+      padding: 10px 22px; border-radius: 11px; border: none; font-weight: 700;
+      font-size: 0.88rem; cursor: pointer; transition: all 0.2s;
+    }
+    .toggle-btn.online { background: linear-gradient(135deg,#10b981,#059669); color:#fff; }
+    .toggle-btn.offline { background: rgba(233,30,140,0.1); border: 1.5px solid var(--border); color: var(--primary); }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .status-dot.green { background: #10b981; }
+    .status-dot.grey { background: #ccc; }
+    .logout-btn { width: 100%; padding: 11px; border-radius: 11px; border: 1.5px solid var(--border); background: #fff; color: var(--muted); font-weight: 600; cursor: pointer; margin-top: 10px; }
+    .logout-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    @media(max-width:520px){
+      .form-row { grid-template-columns: 1fr; }
+      .tab-bar, .form-card, .dashboard { margin-left: 12px; margin-right: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="online-consultation.html" class="back-btn">← Back</a>
+  <h1>🩺 Doctor Portal — Pranava Health</h1>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar" id="tabBar">
+  <button class="tab-btn active" onclick="switchTab('register')">📝 Register</button>
+  <button class="tab-btn" onclick="switchTab('login')">🔑 Login</button>
+</div>
+
+<!-- REGISTER FORM -->
+<div class="form-card" id="registerSection">
+  <div class="form-head">
+    <h2>👨‍⚕️ Join as a Doctor</h2>
+    <p>Register to appear in Pranava Health's consultation list and receive patient bookings.</p>
+  </div>
+  <div class="form-body">
+    <div class="msg" id="regMsg"></div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Full Name <span>*</span></label>
+        <input class="form-input" id="reg_name" placeholder="Dr. Your Name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email <span>*</span></label>
+        <input class="form-input" id="reg_email" type="email" placeholder="doctor@example.com" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Password <span>*</span></label>
+        <input class="form-input" id="reg_password" type="password" placeholder="Min. 6 characters" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone <span>*</span></label>
+        <input class="form-input" id="reg_phone" type="tel" placeholder="+91 XXXXX XXXXX" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Specialization <span>*</span></label>
+        <select class="form-select" id="reg_spec">
+          <option value="">Select...</option>
+          <option>General Physician</option>
+          <option>Dermatologist</option>
+          <option>Pediatrician</option>
+          <option>Cardiologist</option>
+          <option>Gynecologist</option>
+          <option>Orthopedist</option>
+          <option>ENT</option>
+          <option>Diabetologist</option>
+          <option>Psychiatrist</option>
+          <option>Neurologist</option>
+          <option>Ophthalmologist</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Experience (years) <span>*</span></label>
+        <input class="form-input" id="reg_exp" type="number" min="0" placeholder="e.g. 10" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Qualifications</label>
+        <input class="form-input" id="reg_qual" placeholder="MBBS, MD, etc." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Consultation Fee (₹) <span>*</span></label>
+        <input class="form-input" id="reg_fee" type="number" min="0" placeholder="e.g. 299" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Medical Council Registration No.</label>
+      <input class="form-input" id="reg_regno" placeholder="e.g. MCI-12345" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Avatar</label>
+      <div class="avatar-pick" id="avatarPick">
+        <div class="av-opt selected" data-av="👩‍⚕️" onclick="pickAvatar(this)">👩‍⚕️</div>
+        <div class="av-opt" data-av="👨‍⚕️" onclick="pickAvatar(this)">👨‍⚕️</div>
+        <div class="av-opt" data-av="🧑‍⚕️" onclick="pickAvatar(this)">🧑‍⚕️</div>
+        <div class="av-opt" data-av="👩‍🔬" onclick="pickAvatar(this)">👩‍🔬</div>
+        <div class="av-opt" data-av="👨‍🔬" onclick="pickAvatar(this)">👨‍🔬</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Languages Spoken</label>
+      <div class="lang-grid" id="langGrid">
+        <div class="lang-chip selected" onclick="toggleChip(this)">English</div>
+        <div class="lang-chip" onclick="toggleChip(this)">Tamil</div>
+        <div class="lang-chip" onclick="toggleChip(this)">Hindi</div>
+        <div class="lang-chip" onclick="toggleChip(this)">Telugu</div>
+        <div class="lang-chip" onclick="toggleChip(this)">Malayalam</div>
+        <div class="lang-chip" onclick="toggleChip(this)">Kannada</div>
+        <div class="lang-chip" onclick="toggleChip(this)">Bengali</div>
+        <div class="lang-chip" onclick="toggleChip(this)">Marathi</div>
+        <div class="lang-chip" onclick="toggleChip(this)">Gujarati</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Available Time Slots <span style="font-weight:400;color:var(--muted)">(select all that apply)</span></label>
+      <div class="slots-wrap" id="slotsWrap">
+        <div class="slot-chip selected" onclick="toggleChip(this)">9:00 AM</div>
+        <div class="slot-chip selected" onclick="toggleChip(this)">10:00 AM</div>
+        <div class="slot-chip selected" onclick="toggleChip(this)">11:00 AM</div>
+        <div class="slot-chip" onclick="toggleChip(this)">12:00 PM</div>
+        <div class="slot-chip selected" onclick="toggleChip(this)">2:00 PM</div>
+        <div class="slot-chip selected" onclick="toggleChip(this)">3:00 PM</div>
+        <div class="slot-chip selected" onclick="toggleChip(this)">4:00 PM</div>
+        <div class="slot-chip selected" onclick="toggleChip(this)">5:00 PM</div>
+        <div class="slot-chip" onclick="toggleChip(this)">6:00 PM</div>
+        <div class="slot-chip" onclick="toggleChip(this)">7:00 PM</div>
+        <div class="slot-chip" onclick="toggleChip(this)">8:00 PM</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">About You <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea class="form-textarea" id="reg_about" placeholder="Brief intro — your expertise, hospital affiliation, conditions you treat..."></textarea>
+    </div>
+
+    <button class="submit-btn" id="regBtn" onclick="submitRegister()">Register as a Doctor →</button>
+  </div>
+</div>
+
+<!-- LOGIN FORM -->
+<div class="form-card" id="loginSection" style="display:none;">
+  <div class="form-head">
+    <h2>🔑 Doctor Login</h2>
+    <p>Log in to manage your availability and see your appointments.</p>
+  </div>
+  <div class="form-body">
+    <div class="msg" id="loginMsg"></div>
+    <div class="form-group">
+      <label class="form-label">Email <span>*</span></label>
+      <input class="form-input" id="login_email" type="email" placeholder="doctor@example.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password <span>*</span></label>
+      <input class="form-input" id="login_password" type="password" placeholder="Your password" />
+    </div>
+    <button class="submit-btn" onclick="submitLogin()">Login →</button>
+  </div>
+</div>
+
+<!-- DASHBOARD (shown after login) -->
+<div class="dashboard" id="dashSection">
+  <div class="dash-card">
+    <div class="dash-head">
+      <div class="dash-avatar" id="dash_avatar">👨‍⚕️</div>
+      <div>
+        <div class="dash-name" id="dash_name">Dr. Name</div>
+        <div class="dash-spec" id="dash_spec">Specialization</div>
+        <div class="verified-badge" id="dash_verified">⏳ Pending Verification</div>
+      </div>
+    </div>
+    <div class="dash-body">
+      <div class="avail-row">
+        <div>
+          <div class="avail-label" id="avail_status_text">
+            <span class="status-dot grey" id="avail_dot"></span>You are Offline
+          </div>
+          <div class="avail-sub">Toggle to appear as "Available Now" to patients</div>
+        </div>
+        <button class="toggle-btn offline" id="availToggle" onclick="toggleAvailability()">Go Online</button>
+      </div>
+      <div style="font-size:0.85rem;color:var(--muted);padding:12px 0;border-top:1px solid var(--border);">
+        ✅ Your profile is live on the consultation page.<br>
+        📅 When a patient books you, they get a Jitsi video link. Share it to join the call.<br>
+        🔔 Keep this page open to stay visible as "Available Now".
+      </div>
+      <button class="logout-btn" onclick="logoutDoctor()">🚪 Logout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:5000';
+  let selectedAvatar = '👩‍⚕️';
+  let doctorToken = localStorage.getItem('doctorToken');
+  let doctorInfo  = JSON.parse(localStorage.getItem('doctorInfo') || 'null');
+  let isAvailNow  = false;
+
+  // Auto-show dashboard if already logged in
+  if (doctorToken && doctorInfo) {
+    showDashboard(doctorInfo);
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (tab==='register'?i===0:i===1)));
+    document.getElementById('registerSection').style.display = tab === 'register' ? 'block' : 'none';
+    document.getElementById('loginSection').style.display    = tab === 'login'    ? 'block' : 'none';
+  }
+
+  function pickAvatar(el) {
+    document.querySelectorAll('.av-opt').forEach(a => a.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedAvatar = el.dataset.av;
+  }
+
+  function toggleChip(el) {
+    el.classList.toggle('selected');
+  }
+
+  function getSelected(containerId) {
+    return [...document.querySelectorAll('#' + containerId + ' .selected')].map(el => el.textContent.trim());
+  }
+
+  function showMsg(id, type, text) {
+    const el = document.getElementById(id);
+    el.className = 'msg ' + type;
+    el.textContent = text;
+    el.style.display = 'block';
+  }
+
+  async function submitRegister() {
+    const name     = document.getElementById('reg_name').value.trim();
+    const email    = document.getElementById('reg_email').value.trim();
+    const password = document.getElementById('reg_password').value;
+    const phone    = document.getElementById('reg_phone').value.trim();
+    const spec     = document.getElementById('reg_spec').value;
+    const exp      = document.getElementById('reg_exp').value;
+    const fee      = document.getElementById('reg_fee').value;
+
+    if (!name || !email || !password || !phone || !spec || !exp || !fee) {
+      showMsg('regMsg', 'error', '⚠️ Please fill in all required fields (marked with *).');
+      return;
+    }
+
+    const btn = document.getElementById('regBtn');
+    btn.disabled = true; btn.textContent = 'Registering...';
+
+    try {
+      const res = await fetch(API + '/api/online-doctors/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, email, password, phone,
+          specialization: spec,
+          experience: Number(exp),
+          consultationFee: Number(fee),
+          qualifications: document.getElementById('reg_qual').value.trim(),
+          registrationNumber: document.getElementById('reg_regno').value.trim(),
+          about: document.getElementById('reg_about').value.trim(),
+          avatar: selectedAvatar,
+          languages: getSelected('langGrid'),
+          slots: getSelected('slotsWrap')
+        })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        localStorage.setItem('doctorToken', data.token);
+        localStorage.setItem('doctorInfo', JSON.stringify(data.doctor));
+        doctorToken = data.token;
+        showMsg('regMsg', 'success', '✅ ' + data.message);
+        setTimeout(() => showDashboard(data.doctor), 1200);
+      } else {
+        showMsg('regMsg', 'error', '❌ ' + data.error);
+      }
+    } catch (e) {
+      showMsg('regMsg', 'error', '❌ Cannot connect to server. Make sure the backend is running on port 5000.');
+    }
+    btn.disabled = false; btn.textContent = 'Register as a Doctor →';
+  }
+
+  async function submitLogin() {
+    const email    = document.getElementById('login_email').value.trim();
+    const password = document.getElementById('login_password').value;
+    if (!email || !password) { showMsg('loginMsg','error','⚠️ Enter email and password.'); return; }
+
+    try {
+      const res = await fetch(API + '/api/online-doctors/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        localStorage.setItem('doctorToken', data.token);
+        localStorage.setItem('doctorInfo', JSON.stringify(data.doctor));
+        doctorToken = data.token;
+        isAvailNow  = data.doctor.availableNow;
+        showDashboard(data.doctor);
+      } else {
+        showMsg('loginMsg', 'error', '❌ ' + data.error);
+      }
+    } catch (e) {
+      showMsg('loginMsg', 'error', '❌ Cannot connect to server. Is it running?');
+    }
+  }
+
+  function showDashboard(doc) {
+    document.getElementById('tabBar').style.display = 'none';
+    document.getElementById('registerSection').style.display = 'none';
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('dashSection').style.display = 'block';
+
+    document.getElementById('dash_avatar').textContent = doc.avatar || '👨‍⚕️';
+    document.getElementById('dash_name').textContent   = doc.name;
+    document.getElementById('dash_spec').textContent   = doc.specialization || '';
+    const vbadge = document.getElementById('dash_verified');
+    vbadge.textContent = doc.verified ? '✅ Verified Doctor' : '⏳ Pending Verification';
+    vbadge.style.background = doc.verified ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.2)';
+
+    isAvailNow = doc.availableNow || false;
+    updateAvailUI();
+  }
+
+  function updateAvailUI() {
+    const dot  = document.getElementById('avail_dot');
+    const text = document.getElementById('avail_status_text');
+    const btn  = document.getElementById('availToggle');
+    if (isAvailNow) {
+      dot.className = 'status-dot green';
+      text.innerHTML = '<span class="status-dot green"></span>You are Online — Patients can see you!';
+      btn.textContent = 'Go Offline';
+      btn.className = 'toggle-btn online';
+    } else {
+      dot.className = 'status-dot grey';
+      text.innerHTML = '<span class="status-dot grey"></span>You are Offline';
+      btn.textContent = 'Go Online';
+      btn.className = 'toggle-btn offline';
+    }
+  }
+
+  async function toggleAvailability() {
+    const newState = !isAvailNow;
+    try {
+      const res = await fetch(API + '/api/online-doctors/availability', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + doctorToken },
+        body: JSON.stringify({ availableNow: newState })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        isAvailNow = data.availableNow;
+        updateAvailUI();
+        // Update stored info
+        const info = JSON.parse(localStorage.getItem('doctorInfo') || '{}');
+        info.availableNow = isAvailNow;
+        localStorage.setItem('doctorInfo', JSON.stringify(info));
+      }
+    } catch (e) {
+      alert('Could not connect to server. Is the backend running?');
+    }
+  }
+
+  function logoutDoctor() {
+    localStorage.removeItem('doctorToken');
+    localStorage.removeItem('doctorInfo');
+    doctorToken = null;
+    document.getElementById('tabBar').style.display = 'flex';
+    document.getElementById('dashSection').style.display = 'none';
+    switchTab('login');
+  }
+</script>
+</body>
+</html>

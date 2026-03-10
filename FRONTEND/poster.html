@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Pranava Health AI – Poster</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Patrick+Hand&family=Nunito:wght@400;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #fdf6ec;
+    font-family: 'Patrick Hand', 'Nunito', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .poster {
+    width: 794px;
+    min-height: 1123px;
+    margin: 20px auto;
+    background: #fffdf8;
+    border: 3px solid #c8a96e;
+    border-radius: 14px;
+    padding: 18px 20px 24px;
+    position: relative;
+    box-shadow: 4px 6px 24px rgba(0,0,0,0.13);
+  }
+
+  /* ── TITLE ── */
+  .title-bar {
+    background: linear-gradient(135deg, #fff4e6 0%, #ffe8cc 100%);
+    border: 2.5px solid #e8923a;
+    border-radius: 12px;
+    padding: 12px 18px 10px;
+    text-align: center;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .title-bar h1 {
+    font-family: 'Caveat', cursive;
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #b84a00;
+    line-height: 1.2;
+  }
+  .title-bar h1 span { color: #e55a00; text-decoration: underline wavy #e55a00; }
+  .title-bar p {
+    font-size: 0.97rem;
+    color: #7a4a1e;
+    margin-top: 4px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .title-icon {
+    position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+    font-size: 2.4rem;
+  }
+
+  /* ── GRID ── */
+  .grid-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .grid-mid {
+    display: grid;
+    grid-template-columns: 1fr 220px 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+  .grid-mid-left { display: flex; flex-direction: column; gap: 10px; }
+  .grid-mid-right { display: flex; flex-direction: column; gap: 10px; }
+  .grid-bot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    border-radius: 11px;
+    padding: 11px 13px 10px;
+    border: 2.2px solid;
+    position: relative;
+  }
+  .card-title {
+    font-family: 'Caveat', cursive;
+    font-size: 1.13rem;
+    font-weight: 700;
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card ul { padding-left: 4px; list-style: none; }
+  .card ul li {
+    font-size: 0.82rem;
+    color: #3a2a1a;
+    margin-bottom: 4px;
+    padding-left: 12px;
+    position: relative;
+    line-height: 1.35;
+  }
+  .card ul li::before { content: '•'; position: absolute; left: 0; color: #e55a00; }
+
+  /* colour themes */
+  .red    { background:#fff0f0; border-color:#e05050; }
+  .red    .card-title { color:#c0392b; }
+  .red    ul li::before { color:#c0392b; }
+
+  .blue   { background:#eff6ff; border-color:#4a8fd4; }
+  .blue   .card-title { color:#1a5fa8; }
+  .blue   ul li::before { color:#1a5fa8; }
+
+  .green  { background:#f0faf2; border-color:#3aad5e; }
+  .green  .card-title { color:#1e7e42; }
+  .green  ul li::before { color:#1e7e42; }
+
+  .orange { background:#fff8ee; border-color:#e8923a; }
+  .orange .card-title { color:#b85a00; }
+  .orange ul li::before { color:#b85a00; }
+
+  .purple { background:#f8f0ff; border-color:#9b59b6; }
+  .purple .card-title { color:#6a1e9b; }
+  .purple ul li::before { color:#6a1e9b; }
+
+  .yellow { background:#fffbea; border-color:#d4ac00; }
+  .yellow .card-title { color:#8a6a00; }
+  .yellow ul li::before { color:#8a6a00; }
+
+  .pink   { background:#fff0f6; border-color:#e91e8c; }
+  .pink   .card-title { color:#c2006e; }
+  .pink   ul li::before { color:#e91e8c; }
+
+  /* numbered badge */
+  .badge {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .badge-red    { background:#c0392b; }
+  .badge-blue   { background:#1a5fa8; }
+  .badge-green  { background:#1e7e42; }
+  .badge-orange { background:#b85a00; }
+  .badge-purple { background:#6a1e9b; }
+  .badge-pink   { background:#c2006e; }
+
+  /* ── CENTER VISUAL ── */
+  .center-vis {
+    background: linear-gradient(160deg, #e8f4ff 0%, #d4ecff 100%);
+    border: 2.5px dashed #4a8fd4;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 10px;
+    gap: 6px;
+    min-height: 200px;
+  }
+  .center-vis .ai-blob {
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, #bde0ff 30%, #6ab4f0 100%);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.1rem;
+    box-shadow: 0 4px 16px rgba(74,143,212,0.4);
+    margin-bottom: 4px;
+  }
+  .center-vis .flow-label {
+    font-family: 'Caveat', cursive;
+    font-size: 0.88rem;
+    color: #1a5fa8;
+    font-weight: 600;
+    text-align: center;
+    background: rgba(255,255,255,0.7);
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+  .arrow-down {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #9b59b6;
+    margin: -4px 0;
+  }
+  .flow-arrow {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: #9b59b6;
+    margin: 0 0;
+  }
+
+  /* ── ALERT BOX ── */
+  .alert-phone {
+    background: linear-gradient(135deg, #fff5e0 0%, #ffecc0 100%);
+    border: 2.5px solid #e8923a;
+    border-radius: 12px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .alert-phone .phone-icon { font-size: 2rem; }
+  .alert-phone .alert-title {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #b85a00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin: 4px 0;
+  }
+  .alert-phone ul { list-style: none; padding: 0; text-align: left; }
+  .alert-phone ul li {
+    font-size: 0.8rem;
+    color: #3a2a1a;
+    margin-bottom: 3px;
+    padding-left: 16px;
+    position: relative;
+  }
+  .alert-phone ul li span.tick { position: absolute; left: 0; color: #2ecc71; font-weight: 700; }
+
+  /* ── TAGLINE ── */
+  .tagline {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    border: 2.5px solid #3aad5e;
+    border-radius: 12px;
+    padding: 13px 20px;
+    text-align: center;
+    font-family: 'Caveat', cursive;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e5c35;
+    line-height: 1.5;
+  }
+
+  /* ── WHERE subcard ── */
+  .where-card {
+    background: #f0fff4;
+    border: 2px solid #3aad5e;
+    border-radius: 9px;
+    padding: 8px 10px;
+    margin-top: 8px;
+  }
+  .where-card .wt {
+    font-family: 'Caveat', cursive;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e7e42;
+    margin-bottom: 4px;
+  }
+  .where-card p { font-size: 0.8rem; color: #2d5a3a; }
+
+  /* ── user illustration ── */
+  .user-illo {
+    text-align: center;
+    padding: 6px 0 2px;
+  }
+  .user-illo .face { font-size: 2.6rem; }
+  .user-illo .caption {
+    font-family: 'Caveat', cursive;
+    font-size: 0.88rem;
+    color: #1a5fa8;
+    margin-top: 2px;
+  }
+
+  /* print */
+  @media print {
+    body { background: white; padding: 0; }
+    .poster { margin: 0; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- ══ TITLE ══ -->
+  <div class="title-bar">
+    <span class="title-icon">🩺</span>
+    <h1>Invisible Illness: The <span>Silent Disease Crisis</span> in Rural India</h1>
+    <p>AI-Based Smart Health Detection System — Pranava Health AI</p>
+  </div>
+
+  <!-- ══ ROW 1: Challenge (left) | User (right) ══ -->
+  <div class="grid-top">
+
+    <!-- 1 Challenge -->
+    <div class="card red">
+      <div class="card-title">
+        <span class="badge badge-red">1</span> THE CHALLENGE
+      </div>
+      <ul>
+        <li>Patients falling sick with <strong>no early warning</strong></li>
+        <li>Diseases spreading silently in remote areas</li>
+        <li>Traditional diagnosis methods <strong>not working</strong></li>
+        <li>No access to specialist doctors nearby</li>
+      </ul>
+      <div class="where-card">
+        <div class="wt">📍 Where?</div>
+        <p>Rural India &amp; remote villages — <strong>11+ districts</strong><br/>Limited hospital access, poor connectivity</p>
+      </div>
+    </div>
+
+    <!-- 2 The User -->
+    <div class="card blue">
+      <div class="card-title">
+        <span class="badge badge-blue">2</span> THE USER
+        <div class="user-illo" style="margin-left:auto">
+          <div class="face">👨‍🌾</div>
+        </div>
+      </div>
+      <ul>
+        <li><strong>Main User:</strong> Rural Patients &amp; Caregivers</li>
+        <li>Age <strong>18–65</strong></li>
+        <li>Lives in hilly, remote &amp; semi-urban areas</li>
+        <li>Depends on govt hospitals for healthcare</li>
+        <li>Low digital literacy — needs simple UI</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ══ ROW 2: Left cards | Center visual | Right cards ══ -->
+  <div class="grid-mid">
+
+    <!-- Left column -->
+    <div class="grid-mid-left">
+
+      <!-- Who is affected -->
+      <div class="card orange">
+        <div class="card-title">
+          <span class="badge badge-orange">👥</span> Who is Affected?
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;padding:4px 0 2px;">
+          <div style="text-align:center;font-size:1.8rem;">🤒</div>
+          <div style="text-align:center;font-size:1.8rem;">👩‍⚕️</div>
+          <div style="text-align:center;font-size:1.8rem;">👴</div>
+        </div>
+        <div style="font-size:0.76rem;color:#5a3a10;text-align:center;margin-top:2px;">
+          Patient &nbsp;•&nbsp; Caregiver &nbsp;•&nbsp; Elderly
+        </div>
+      </div>
+
+      <!-- 3C Process – Collecting Dreams -->
+      <div class="card green">
+        <div class="card-title">
+          <span class="badge badge-green">3</span> 3 C PROCESS
+        </div>
+        <div style="font-size:0.85rem;font-weight:700;color:#1e7e42;margin-bottom:5px;">🌱 Collecting Dreams</div>
+        <ul>
+          <li>Wants to detect illness <strong>early</strong></li>
+          <li>Needs <strong>clear health guidance</strong></li>
+          <li>Avoids trial-and-error treatment</li>
+          <li>Wants affordable, easy-to-use solution</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Center visual -->
+    <div class="center-vis">
+      <div style="font-size:0.78rem;font-family:'Caveat',cursive;color:#7a4a1e;font-weight:700;margin-bottom:2px;">Data Flow</div>
+      <div style="font-size:1.4rem;">📷 + 🎙️ + 📡</div>
+      <div class="flow-label">Image · Voice · Data</div>
+      <div class="arrow-down">↓</div>
+      <div class="ai-blob">🤖</div>
+      <div class="flow-label">Pranava AI Engine</div>
+      <div class="arrow-down">↓</div>
+      <div style="font-size:1.1rem;">📱💊📋</div>
+      <div class="flow-label">Alert · Medicine · Plan</div>
+    </div>
+
+    <!-- Right column -->
+    <div class="grid-mid-right">
+
+      <!-- Big Problem -->
+      <div class="card purple">
+        <div class="card-title">
+          <span style="font-size:1.1rem;">⚠️</span> Big Problem
+        </div>
+        <ul>
+          <li>Can't identify disease <strong>early</strong></li>
+          <li>High treatment &amp; travel costs</li>
+          <li>Better health &amp; income stability needed</li>
+          <li>No specialist access in rural areas</li>
+        </ul>
+      </div>
+
+      <!-- AI Solution (overview) -->
+      <div class="card pink">
+        <div class="card-title">
+          <span class="badge badge-pink">4</span> AI IN YOUR SOLUTION
+        </div>
+        <ul>
+          <li>Analyzes skin image using <strong>CNN</strong></li>
+          <li>Analyzes cough audio using <strong>ML</strong></li>
+          <li>Predicts Top 3 conditions with accuracy %</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ ROW 3: Your Solution | Alert Phone | Impact ══ -->
+  <div class="grid-bot">
+
+    <!-- Your Solution -->
+    <div class="card green">
+      <div class="card-title">
+        <span class="badge badge-green">5</span> YOUR SOLUTION — Pranava Health AI
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:2.2rem;flex-shrink:0;">📱</div>
+        <ul>
+          <li><strong>Skin Disease:</strong> Upload photo → AI diagnoses condition</li>
+          <li><strong>Cough Analysis:</strong> Record cough → Detects respiratory disease</li>
+          <li><strong>AI Doctor:</strong> Chat-based triage &amp; nearest doctor finder</li>
+          <li><strong>Smart Alerts:</strong> Critical findings flagged immediately</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Impact -->
+    <div class="card yellow">
+      <div class="card-title">
+        <span class="badge badge-orange">6</span> IMPACT
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:2.2rem;flex-shrink:0;">✅</div>
+        <ul>
+          <li>Faster disease identification</li>
+          <li>Accurate treatment guidance</li>
+          <li>Saves time &amp; reduces travel costs</li>
+          <li>Reduces wrong medications</li>
+          <li>Patients get <strong>expert AI advice</strong> instantly</li>
+          <li>Accessible in <strong>low-connectivity</strong> areas</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ ALERT DETAIL BOX ══ -->
+  <div class="alert-phone" style="margin-bottom:12px;">
+    <div class="alert-title">
+      <span>🔔</span> fAlert — Smart Notification System
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;">
+      <div style="background:#fff;border:1.5px solid #e8923a;border-radius:8px;padding:7px 10px;">
+        <div style="font-size:0.78rem;font-weight:700;color:#b85a00;margin-bottom:3px;">🩹 Skin</div>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:0.76rem;color:#3a2a1a;padding-left:14px;position:relative;"><span class="tick" style="position:absolute;left:0;color:#2ecc71;">✓</span> Top 3 Diseases</li>
+          <li style="font-size:0.76rem;color:#3a2a1a;padding-left:14px;position:relative;"><span class="tick" style="position:absolute;left:0;color:#2ecc71;">✓</span> Confidence %</li>
+          <li style="font-size:0.76rem;color:#3a2a1a;padding-left:14px;position:relative;"><span class="tick" style="position:absolute;left:0;color:#2ecc71;">✓</span> Treatment Plan</li>
+        </ul>
+      </div>
+      <div style="background:#fff;border:1.5px solid #4a8fd4;border-radius:8px;padding:7px 10px;">
+        <div style="font-size:0.78rem;font-weight:700;color:#1a5fa8;margin-bottom:3px;">🫁 Cough</div>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:0.76rem;color:#3a2a1a;padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:#2ecc71;">✓</span> Disease Type</li>
+          <li style="font-size:0.76rem;color:#3a2a1a;padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:#2ecc71;">✓</span> Severity Level</li>
+          <li style="font-size:0.76rem;color:#3a2a1a;padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:#2ecc71;">✓</span> Doctor Advice</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAGLINE ══ -->
+  <div class="tagline">
+    🌿 From unseen symptoms to smart decisions —<br/>
+    protecting rural patients with AI. 🤖
+  </div>
+
+</div>
+
+<div style="text-align:center;font-family:'Nunito',sans-serif;font-size:0.8rem;color:#888;padding:8px 0 20px;">
+  Print this page (Ctrl+P) → Save as PDF → A4 Portrait
+</div>
+</body>
+</html>

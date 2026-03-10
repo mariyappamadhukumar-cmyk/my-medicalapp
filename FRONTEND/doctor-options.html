@@ -338,23 +338,24 @@
         <button class="select-btn">Start AI Consultation →</button>
       </div>
 
-      <!-- Offline Doctor -->
-      <div class="doctor-option" onclick="selectOption('offline-doctor')">
-        <div class="doctor-icon">👨‍⚕️</div>
-        <h2 class="doctor-title">Offline Doctor</h2>
+      <!-- Online Consultation -->
+      <div class="doctor-option" onclick="selectOption('online-consultation')">
+        <div class="doctor-icon">🎥</div>
+        <h2 class="doctor-title">Online Consultation</h2>
         <p class="doctor-description">
-          Find nearby doctors based on your location for in-person consultation and care.
+          Book a live video call with a verified doctor from home. No travel needed.
         </p>
         <ul class="features-list">
-          <li>Location-Based Search</li>
-          <li>Verified Doctors</li>
-          <li>Specialization Filter</li>
-          <li>Ratings & Reviews</li>
-          <li>Appointment Booking</li>
-          <li>In-Person Consultation</li>
+          <li>Free Video Calls (Jitsi)</li>
+          <li>Real Licensed Doctors</li>
+          <li>Choose by Specialization</li>
+          <li>Tamil, Hindi, English &amp; more</li>
+          <li>E-Prescription Included</li>
+          <li>Practo / Apollo 247 links</li>
         </ul>
-        <button class="select-btn">Find Nearby Doctors →</button>
+        <button class="select-btn">Book Video Consultation →</button>
       </div>
+
     </main>
   </div>
 
@@ -373,8 +374,8 @@
         case 'ai-doctor':
           window.location.href = 'ai-doctor.html';
           break;
-        case 'offline-doctor':
-          window.location.href = 'offline-doctor.html';
+        case 'online-consultation':
+          window.location.href = 'online-consultation.html';
           break;
       }
     }

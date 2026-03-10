@@ -15,7 +15,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { Client } from "@googlemaps/google-maps-services-js";
 import { connectToDatabase, getConnectionStatus } from './database.js';
-import { User, CoughAnalysis, ChatConversation, MedicalRecord } from './models/index.js';
+import { User, CoughAnalysis, ChatConversation, MedicalRecord, Doctor } from './models/index.js';
 import { authenticateToken, generateToken, optionalAuth } from './auth-middleware.js';
 import bcrypt from 'bcryptjs';
 
@@ -772,9 +772,14 @@ async function aiSuggestNextQuestion(session){
   const hist = (session.triage?.history || []).slice(-12); // last 12 turns
   const convo = hist.map(h => (h.role==="user" ? `U: ${h.text}` : `A: ${h.text}`)).join("\n");
 
+  // Include image diagnosis as context so questions are condition-specific
+  const imageNote = session.last_derma?.top
+    ? `\nIMPORTANT: Image analysis has already confirmed the diagnosis as "${session.last_derma.top}". Ask follow-up questions that are clinically relevant to THIS specific condition (e.g., exposure history, symptom onset, severity, affected area). Do NOT ask generic unrelated triage questions.`
+    : "";
+
   const contents = [
     { role:"user", parts:[{ text: TRIAGE_QUESTION_SYSTEM }] },
-    { role:"user", parts:[{ text: "Conversation so far:\n" + (convo || "(empty)") }] }
+    { role:"user", parts:[{ text: "Conversation so far:\n" + (convo || "(empty)") + imageNote }] }
   ];
 
   const raw = await geminiGenerate({ contents });
@@ -807,6 +812,14 @@ async function generateDoctorPlan({ session, focus = "", detail = "detailed" }) 
     { role: "user", parts: [{ text: "Conversation (last turns):\n" + (hx || "(empty)") }] },
     { role: "user", parts: [{ text: "CASE:\n" + JSON.stringify(caseObj, null, 2) }] }
   ];
+
+  // If image diagnosis exists, explicitly anchor the plan on it
+  if (session.last_derma?.top) {
+    contents.push({
+      role: "user",
+      parts: [{ text: `CRITICAL: The patient's medical image was analyzed and confirmed the diagnosis is "${session.last_derma.top}". Your entire treatment plan MUST be specifically for "${session.last_derma.top}". Do NOT replace this with a generic viral/bacterial label. The triage conversation only provides additional symptom context.` }]
+    });
+  }
 
   const raw = await geminiGenerate({ contents });
   const p = extractLeadingJSON(raw) || {};
@@ -1690,10 +1703,10 @@ app.post("/api/cough/analyze", optionalAuth, upload.single("audio"), async (req,
     try {
       console.log('🔬 Attempting MATLAB analysis...');
       
-      // Add a race condition with timeout to prevent hanging
+      // Race with timeout — give MATLAB 60s (it needs ~30s just to start up)
       const matlabPromise = callMatlabAnalysis(req.file);
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('MATLAB timeout - taking too long')), 8000);
+        setTimeout(() => reject(new Error('MATLAB timeout - taking too long')), 60000);
       });
       
       analysisResult = await Promise.race([matlabPromise, timeoutPromise]);
@@ -2079,6 +2092,16 @@ app.post("/api/triage/next", async (req, res) => {
   try {
     const session     = getSession(req);                 // your session getter
     const userTextRaw = (req.body?.userText || "").trim();
+
+    // Inject image diagnosis into triage context on first chat after image analysis
+    if (session.last_derma?.top && !session.triage.imageContextInjected) {
+      session.triage = session.triage || { history: [], answers: {}, expecting: null, key: null };
+      session.triage.history.unshift({
+        role: "assistant",
+        text: `Medical image analysis already confirmed: "${session.last_derma.top}" (${session.last_derma.image_type || "skin"} image). All follow-up questions and plans must be relevant to this confirmed diagnosis.`
+      });
+      session.triage.imageContextInjected = true;
+    }
 
     // 👉 D) Most important: short-circuit triage when message is a question
     if (session.mode === "qa" || isQuestionLike(userTextRaw)) {
@@ -3171,6 +3194,126 @@ app.get('/api/chat-conversations', authenticateToken, async (req, res) => {
   }
 });
 
+// -------------------------------------------------------------------------------------
+// Online Doctor Registration & Listing API
+// -------------------------------------------------------------------------------------
+
+// Register a real doctor
+app.post('/api/online-doctors/register', async (req, res) => {
+  try {
+    const { name, email, password, phone, specialization, experience, qualifications,
+            languages, consultationFee, about, slots, registrationNumber, avatar } = req.body;
+
+    if (!name || !email || !password || !phone || !specialization || !experience || !consultationFee) {
+      return res.status(400).json({ ok: false, error: 'Missing required fields.' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ ok: false, error: 'Password must be at least 6 characters.' });
+    }
+
+    const existing = await Doctor.findOne({ email });
+    if (existing) {
+      return res.status(409).json({ ok: false, error: 'A doctor with this email is already registered.' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const doctor = new Doctor({
+      name, email, passwordHash, phone, specialization,
+      experience: Number(experience),
+      qualifications: qualifications || '',
+      languages: Array.isArray(languages) ? languages : (languages ? [languages] : ['English']),
+      consultationFee: Number(consultationFee),
+      avatar: avatar || '👨‍⚕️',
+      about: about || '',
+      slots: Array.isArray(slots) ? slots : ['9:00 AM','10:00 AM','11:00 AM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'],
+      registrationNumber: registrationNumber || '',
+      availableNow: false,
+      verified: false
+    });
+    await doctor.save();
+
+    const token = generateToken({ id: doctor._id, role: 'doctor' });
+    res.status(201).json({
+      ok: true,
+      message: 'Registration successful! Your profile will appear once verified.',
+      token,
+      doctor: { id: doctor._id, name: doctor.name, email: doctor.email, specialization: doctor.specialization }
+    });
+  } catch (err) {
+    console.error('Doctor register error:', err);
+    res.status(500).json({ ok: false, error: 'Registration failed. Please try again.' });
+  }
+});
+
+// Doctor login
+app.post('/api/online-doctors/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ ok: false, error: 'Email and password required.' });
+
+    const doctor = await Doctor.findOne({ email });
+    if (!doctor) return res.status(401).json({ ok: false, error: 'Invalid email or password.' });
+
+    const valid = await doctor.comparePassword(password);
+    if (!valid) return res.status(401).json({ ok: false, error: 'Invalid email or password.' });
+
+    doctor.lastSeen = new Date();
+    await doctor.save();
+
+    const token = generateToken({ id: doctor._id, role: 'doctor' });
+    res.json({
+      ok: true,
+      token,
+      doctor: {
+        id: doctor._id, name: doctor.name, email: doctor.email,
+        specialization: doctor.specialization, availableNow: doctor.availableNow,
+        verified: doctor.verified
+      }
+    });
+  } catch (err) {
+    console.error('Doctor login error:', err);
+    res.status(500).json({ ok: false, error: 'Login failed.' });
+  }
+});
+
+// Get all registered doctors (for the consultation page)
+app.get('/api/online-doctors', async (req, res) => {
+  try {
+    const { spec, lang, avail } = req.query;
+    const filter = { isActive: true };
+    if (spec && spec !== 'all') filter.specialization = spec;
+    if (lang && lang !== 'all') filter.languages = lang;
+    if (avail === 'now') filter.availableNow = true;
+
+    const doctors = await Doctor.find(filter)
+      .select('-passwordHash -email -registrationNumber')
+      .sort({ verified: -1, rating: -1, createdAt: -1 })
+      .limit(50);
+
+    res.json({ ok: true, doctors, count: doctors.length });
+  } catch (err) {
+    console.error('Get doctors error:', err);
+    res.status(500).json({ ok: false, error: 'Failed to load doctors.' });
+  }
+});
+
+// Doctor updates own availability (requires doctor token)
+app.put('/api/online-doctors/availability', authenticateToken, async (req, res) => {
+  try {
+    const { availableNow } = req.body;
+    const doctor = await Doctor.findByIdAndUpdate(
+      req.userId,
+      { availableNow: !!availableNow, lastSeen: new Date() },
+      { new: true }
+    ).select('-passwordHash');
+    if (!doctor) return res.status(404).json({ ok: false, error: 'Doctor not found.' });
+    res.json({ ok: true, availableNow: doctor.availableNow });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: 'Update failed.' });
+  }
+});
+
+// -------------------------------------------------------------------------------------
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({ 
@@ -3194,18 +3337,26 @@ app.get('/', (req, res) => {
 async function startServer() {
   // Connect to MongoDB
   await connectToDatabase();
-  
-  app.listen(PORT, () => {
-    console.log(`✅ Pranava Health AI listening on http://localhost:${PORT}`);
-    console.log(`📊 Health check available at http://localhost:${PORT}/health`);
-    console.log(`🏠 API info available at http://localhost:${PORT}/`);
-    
-    // Show database connection status
-    const dbStatus = getConnectionStatus();
-    if (dbStatus.isConnected) {
-      console.log(`🗄️  MongoDB connected: ${dbStatus.dbName}`);
-    } else {
-      console.log(`⚠️  MongoDB not connected - using in-memory storage`);
+
+  // Express 5 returns a Promise from app.listen() — must await it
+  const server = await app.listen(PORT);
+
+  console.log(`✅ Pranava Health AI listening on http://localhost:${PORT}`);
+  console.log(`📊 Health check available at http://localhost:${PORT}/health`);
+  console.log(`🏠 API info available at http://localhost:${PORT}/`);
+
+  const dbStatus = getConnectionStatus();
+  if (dbStatus.isConnected) {
+    console.log(`🗄️  MongoDB connected: ${dbStatus.dbName}`);
+  } else {
+    console.log(`⚠️  MongoDB not connected - using in-memory storage`);
+  }
+
+  server.on('error', (err) => {
+    console.error('❌ Server error:', err.message);
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Stop the other process and try again.`);
+      process.exit(1);
     }
   });
 }
@@ -3213,4 +3364,12 @@ async function startServer() {
 startServer().catch(err => {
   console.error('❌ Failed to start server:', err);
   process.exit(1);
+});
+
+// Prevent MongoDB or other async errors from crashing the server
+process.on('unhandledRejection', (reason) => {
+  console.warn('⚠️  Unhandled promise rejection (non-fatal):', reason?.message || reason);
+});
+process.on('uncaughtException', (err) => {
+  console.warn('⚠️  Uncaught exception (non-fatal):', err.message);
 });
