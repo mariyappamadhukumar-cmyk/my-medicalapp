@@ -1193,7 +1193,7 @@
         <div class="upload-section">
           <div class="upload-buttons">
             <label for="imageUpload" class="upload-btn">📷 Upload</label>
-            <button class="analyze-btn" id="analyzeBtn">🔬 Analyze image</button>
+            <button class="analyze-btn" id="analyzeBtn">🔬 Analyze Medical Image</button>
             <span class="file-status" id="fileStatus">No image selected</span>
           </div>
           <input type="file" id="imageUpload" accept="image/*" class="hidden" />
@@ -1673,7 +1673,7 @@
     function renderInlineSymptomUI(){
       return `<div class="chip-card">
         <div style="font-weight:600;margin-bottom:12px;">🩺 Ready for personalized treatment recommendations?</div>
-        <div style="color:#94A3B8;margin-bottom:16px;">I'll guide you through a few quick questions to provide the best care plan for your skin condition.</div>
+        <div style="color:#94A3B8;margin-bottom:16px;">I'll guide you through a few quick questions to provide the best care plan for your condition.</div>
         <div style="display:flex;gap:10px;">
           <button class="analyze-btn chip-wizard-start">Start Treatment Wizard</button>
           <button class="upload-btn chip-skip">Skip for now</button>
@@ -1715,12 +1715,12 @@
         if (!Array.isArray(rows) || !rows.length) return "";
         const tr = rows.map(r => `
           <tr style="border-bottom:1px solid rgba(233,30,140,0.1)">
-            <td style="padding:8px 10px;vertical-align:top;white-space:nowrap">${r.name||""}</td>
+            <td style="padding:8px 10px;vertical-align:top;white-space:nowrap">${r.food||r.name||""}</td>
             <td style="padding:8px 10px;vertical-align:top;white-space:nowrap">${r.portion||""}</td>
             <td style="padding:8px 10px;vertical-align:top;white-space:nowrap">${r.protein_pct||""}</td>
-            <td style="padding:8px 10px;vertical-align:top">${Array.isArray(r.key_vitamins)?r.key_vitamins.join(", "):""}</td>
-            <td style="padding:8px 10px;vertical-align:top">${r.why||""}</td>
-            <td style="padding:8px 10px;vertical-align:top">${Array.isArray(r.alternatives)?r.alternatives.join(", "):""}</td>
+            <td style="padding:8px 10px;vertical-align:top">${r.key_vitamins||(Array.isArray(r.key_vitamins)?r.key_vitamins.join(", "):"")||""}</td>
+            <td style="padding:8px 10px;vertical-align:top">${r.why_now||r.why||""}</td>
+            <td style="padding:8px 10px;vertical-align:top">${r.alternatives||(Array.isArray(r.alternatives)?r.alternatives.join(", "):"")||""}</td>
           </tr>`).join("");
         return `
           <div class="advice">
@@ -2086,7 +2086,7 @@
         return;
       }
 
-      addMessage(`Analyzing image: ${currentImage.name}...`);
+      addMessage(`🔬 Analyzing medical image: ${currentImage.name}...`);
 
       try {
         const formData = new FormData();

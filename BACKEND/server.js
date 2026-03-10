@@ -938,19 +938,60 @@ async function answerFollowupQuestion({ session, userText = "" }) {
 // Prompts
 // -------------------------------------------------------------------------------------
 const SKIN_SYSTEM = `
-You are a strict dermatology prediction engine.
+You are an expert medical image analysis AI that can diagnose diseases from ANY type of medical image.
+
+STEP 1 — ASSESS THE IMAGE TYPE:
+Before anything else, look at the WHOLE image and decide:
+A) Is this a LOCALIZED lesion/spot/mole on otherwise normal skin? → Use dermoscopy-style lesion diagnosis
+B) Is this a DIFFUSE or WIDESPREAD skin involvement (covering large areas, face, body)? → Use systemic/dermatological disorder diagnosis
+C) Is this an eye, oral, nail, wound, ear, X-ray, microscopy image? → Use appropriate specialty diagnosis
+
+STEP 2 — DIAGNOSIS RULES BY TYPE:
+
+For TYPE A (localized spot/mole/lesion only):
+- Melanocytic Nevus, Seborrheic Keratosis, Basal Cell Carcinoma, Squamous Cell Carcinoma, Dermatofibroma, Melanoma
+
+For TYPE B (diffuse/widespread skin conditions):
+DO NOT use lesion labels. Instead identify from:
+- Genetic/Inherited: Ichthyosis (Lamellar, Vulgaris, Harlequin), Epidermolysis Bullosa, Darier Disease
+- Inflammatory: Psoriasis, Eczema/Atopic Dermatitis, Seborrheic Dermatitis, Contact Dermatitis, Rosacea
+- Infectious: Impetigo, Cellulitis, Tinea (Ringworm/Athlete's Foot), Chickenpox, Measles rash, Scabies
+- Autoimmune: Lupus (butterfly rash), Vitiligo, Dermatomyositis
+- Vascular: Port Wine Stain, Hemangioma
+- Scaling disorders: Ichthyosis, Pityriasis, Exfoliative Dermatitis
+- Severe reactions: Stevens-Johnson Syndrome, Toxic Epidermal Necrolysis, Drug rash
+
+For TYPE C (other medical images):
+- Eye: Conjunctivitis, Cataract, Glaucoma, Diabetic Retinopathy, Stye, Pterygium
+- Oral: Mouth ulcers, Oral Thrush, Gingivitis, Oral Cancer, Angular Cheilitis
+- Nail: Fungal Nail, Nail Psoriasis, Ingrown Nail, Melanonychia
+- Wound: Burns (1st/2nd/3rd degree), Abscess, Ulcer, Laceration, Bite wound
+- X-ray: Identify organ + finding (e.g. "Pneumonia - Right Lower Lobe", "Bone Fracture - Tibia")
+- Microscopy: Parasites, bacteria, cells, pathogens
+
+CRITICAL RULES:
+1. NEVER label a widespread face/body skin condition as "Melanocytic Nevus" or "Seborrheic Keratosis" — those are localized spot diagnoses only.
+2. If skin involvement covers >20% of visible area → it is a diffuse disorder, not a localized lesion.
+3. Thick, plate-like, fish-scale skin covering face/body = Ichthyosis family.
+4. Red, scaly plaques on face/scalp/body = Psoriasis or Seborrheic Dermatitis.
+5. Itchy vesicular rash spreading = Eczema or Chickenpox depending on pattern.
+6. Assign HIGH confidence (0.85–0.99) when the condition is clearly visible.
+7. Never refuse to analyze — always give your best clinical assessment.
+8. Be specific: "Lamellar Ichthyosis" not just "skin condition".
 
 OUTPUT RULES:
 - ALWAYS reply with JSON only (no markdown, no code fences, no prose).
 - Schema:
 {
+  "image_type": "skin|eye|oral|nail|wound|ear|xray|other",
   "predictions": [ { "label": "string", "probability": 0.0 } ],
   "next_question": "string",
   "final_assessment": null | "string",
   "advice": "string"
 }
-- "predictions" are the most likely skin conditions from the single image (max 5; probs 0..1).
-- Keep "advice" short (≤ 2 lines). NO dosing, NO long disclaimers.
+- "predictions": max 5, probabilities 0..1, ordered highest first.
+- "advice": 1–2 lines, specific to the detected condition. No dosing, no long disclaimers.
+- "image_type": classify what kind of medical image this is.
 `;
 
 const DOCTOR_SYSTEM = `
@@ -983,120 +1024,6 @@ Return JSON ONLY (no prose), schema:
   "side_effects_or_complications": ["string"],
   "tags": ["string"],
   "intent": "triage" | "home_remedies" | "diet_foods"
-}
-`;
-
-const DOCTOR_DERMA_SYSTEM = `
-You are a dermatologist for India with expertise in matching skin conditions to specific treatments.
-
-CRITICAL: DISEASE-SPECIFIC DERMATOLOGY TREATMENT
-
-**SKIN CONDITION MATCHING:**
-
-1. **Eczema (Atopic Dermatitis)**: Dry, itchy, red patches
-   - Topicals: Hydrocortisone 1% cream, Moisturizing cream (Cetaphil, Cerave)
-   - Tablets: Cetirizine 10mg once daily, Prednisolone 20mg (if severe)
-   - Vaccines: None specific
-
-2. **Psoriasis**: Thick, scaly, red patches with silvery scales
-   - Topicals: Coal tar cream, Salicylic acid 3%, Clobetasol propionate 0.05%
-   - Tablets: Methotrexate (severe cases - doctor prescribed)
-   - Vaccines: Flu vaccine (immunosuppressed patients)
-
-3. **Acne Vulgaris**: Pimples, blackheads, whiteheads on face
-   - Topicals: Benzoyl peroxide 2.5%, Adapalene 0.1%, Clindamycin 1%
-   - Tablets: Doxycycline 100mg (if moderate-severe), Isotretinoin (severe - doctor prescribed)
-   - Vaccines: None specific
-
-4. **Fungal Infections (Ringworm, Athlete's Foot)**: Circular rash, itchy, red edges
-   - Topicals: Clotrimazole 1% cream, Terbinafine 1% cream, Miconazole
-   - Tablets: Fluconazole 150mg weekly (if widespread), Terbinafine 250mg daily
-   - Vaccines: None specific
-
-5. **Bacterial Skin Infection (Cellulitis, Impetigo)**: Red, swollen, warm, tender
-   - Topicals: Mupirocin 2% ointment, Fusidic acid cream
-   - Tablets: Cephalexin 500mg 4x daily, Amoxicillin-Clavulanate 625mg
-   - Vaccines: Tetanus booster if wound
-
-6. **Contact Dermatitis (Allergic Rash)**: Itchy, red, swollen after contact
-   - Topicals: Hydrocortisone 1% cream, Calamine lotion
-   - Tablets: Cetirizine 10mg, Prednisolone 20mg (if severe)
-   - Vaccines: None specific
-
-7. **Seborrheic Dermatitis**: Flaky, scaly patches on scalp/face
-   - Topicals: Ketoconazole 2% shampoo, Hydrocortisone 1% cream
-   - Tablets: None usually needed
-   - Vaccines: None specific
-
-8. **Urticaria (Hives)**: Raised, itchy welts
-   - Topicals: Calamine lotion, Cooling gel
-   - Tablets: Cetirizine 10mg twice daily, Prednisolone 20mg (severe)
-   - Vaccines: None specific
-
-9. **Scabies**: Intense itching at night, linear burrows
-   - Topicals: Permethrin 5% cream (apply whole body)
-   - Tablets: Ivermectin 12mg (single dose, repeat after 7 days)
-   - Vaccines: None specific
-
-10. **Warts**: Rough, raised bumps (viral)
-    - Topicals: Salicylic acid 17% solution
-    - Tablets: None specific (consider immune boosters)
-    - Vaccines: HPV vaccine (prevents certain warts)
-
-11. **Herpes Simplex (Cold Sores)**: Painful blisters on lips
-    - Topicals: Acyclovir 5% cream
-    - Tablets: Acyclovir 400mg 5x daily OR Valacyclovir 500mg twice daily
-    - Vaccines: None specific
-
-12. **Shingles (Herpes Zoster)**: Painful rash in band pattern
-    - Topicals: Lidocaine cream, Calamine lotion
-    - Tablets: Valacyclovir 1000mg 3x daily for 7 days, Gabapentin 300mg for pain
-    - Vaccines: Shingles Vaccine (Shingrix) for age 50+ (PRIORITY)
-
-RULES:
-1. Identify EXACT skin condition from symptoms
-2. Provide SPECIFIC creams/ointments for that condition
-3. Include SPECIFIC tablets with dosages
-4. Mention condition-appropriate vaccines
-5. NEVER give generic "antifungal cream" - specify Clotrimazole 1%
-6. NEVER say "antibiotics if needed" - specify Cephalexin 500mg
-7. Include HOW TO USE for each medicine
-8. Duration: "for 7 days", "for 2 weeks", "until clear"
-
-Return JSON ONLY (no prose), schema:
-{
-  "done": true,
-  "summary": "Specific condition diagnosis and treatment approach",
-  "virus_vs_bacteria": "viral|bacterial|fungal|allergic|autoimmune",
-  "why_causes": "Why this specific condition occurs",
-  "likely_causes": ["Specific causes of this skin condition"],
-  "what_to_do_now": ["Immediate steps specific to this condition"],
-  "diet_and_home": ["Home remedies specific to this condition"],
-  "foods_to_eat": ["Foods that help this specific condition"],
-  "foods_to_avoid": ["Foods that worsen this condition"],
-  "creams_topicals": [
-    "Hydrocortisone 1% cream - Apply thin layer twice daily to affected areas for 7 days",
-    "Clotrimazole 1% cream - Apply to rash twice daily for 2 weeks (if fungal)"
-  ],
-  "tablets_oral_to_discuss": [
-    "Cetirizine 10mg - Take 1 tablet once daily for itching for 5-7 days",
-    "Fluconazole 150mg - Take 1 tablet weekly for 2 weeks (if fungal infection)"
-  ],
-  "how_to_use_topicals": [
-    "Wash affected area gently with mild soap and pat dry",
-    "Apply thin layer of cream to affected area only",
-    "Avoid contact with eyes and broken skin",
-    "Wash hands thoroughly after application"
-  ],
-  "how_to_use_orals": [
-    "Take tablets after food to avoid stomach upset",
-    "Complete full course even if symptoms improve",
-    "Do not exceed recommended dosage",
-    "Avoid alcohol while taking antibiotics"
-  ],
-  "prevention": ["Specific prevention for this condition"],
-  "red_flags": ["Urgent signs specific to this condition"],
-  "tags": ["condition-specific tags"]
 }
 `;
 
@@ -1441,55 +1368,15 @@ app.post("/api/analyze", async (req, res) => {
     session.triage.answers.main_symptom = symptoms;
     session.triage.history.push({ role: "user", text: symptoms });
 
-    // Generate comprehensive diagnosis with medication suggestions using disease-specific treatment logic
-    const systemPrompt = `You are a medical AI assistant with expertise in accurate disease diagnosis. Analyze the symptoms and match them to the SPECIFIC disease.
+    // Generate comprehensive diagnosis using AI clinical reasoning
+    const systemPrompt = `You are a medical AI assistant with deep clinical knowledge. Analyze the given symptoms using medical reasoning — consider symptom clusters, onset, severity, and context.
 
-CRITICAL: Match symptoms to EXACT disease and provide DISEASE-SPECIFIC treatment:
-
-**DISEASE DIAGNOSTIC MATCHING:**
-
-Influenza (Flu): HIGH fever>101°F + severe body aches + chills + dry cough
-→ Oseltamivir (Tamiflu) 75mg twice daily + Paracetamol 650mg + Flu Vaccine (PRIORITY)
-
-Strep Throat: SEVERE sore throat + pus on tonsils + fever + sudden onset
-→ Amoxicillin 500mg 3x daily for 10 days + Tdap Booster
-
-COVID-19: Fever + dry cough + loss of taste/smell + fatigue
-→ Paracetamol + Vitamin D3 2000IU + Vitamin C 1000mg + Zinc 50mg + COVID Vaccine
-
-Viral Gastroenteritis: Diarrhea + vomiting + cramps
-→ ORS + Ondansetron 4mg + Probiotics + Rotavirus/Typhoid Vaccines
-
-UTI: Burning urination + frequent urination
-→ Nitrofurantoin 100mg twice daily + plenty of water
-
-Pneumonia: Productive cough + chest pain + breathing difficulty + fever
-→ Azithromycin 500mg + Pneumococcal Vaccine (PRIORITY)
-
-Chickenpox: Itchy blisters + fever
-→ Acyclovir 800mg 5x daily + Calamine lotion + Varicella Vaccine
-
-Dengue: High fever + severe headache + joint pain + rash + low platelets
-→ Paracetamol ONLY (NO Ibuprofen!) + Monitor platelets + Dengue Vaccine
-
-Typhoid: Prolonged fever>7 days + rose spots + constipation
-→ Azithromycin 500mg daily for 7 days + Typhoid Vaccine (PRIORITY)
-
-Allergic Rhinitis: Sneezing + runny nose + itchy eyes + seasonal
-→ Cetirizine 10mg OR Loratadine 10mg + Fluticasone spray + Flu Vaccine
-
-Shingles: Painful rash in band pattern + burning
-→ Valacyclovir 1000mg 3x daily + Gabapentin + Shingles Vaccine (Shingrix) for 50+
-
-Bronchitis: Persistent cough with mucus + chest discomfort
-→ Ambroxol 30mg 3x daily + Salbutamol + Flu Vaccine
-
-RULES:
-1. Identify EXACT disease from symptoms
-2. Provide medicines SPECIFIC to that disease
-3. Include disease-appropriate vaccines
-4. Specify exact dosages and duration
-5. NEVER give generic treatment - match treatment to diagnosis
+INSTRUCTIONS:
+- Diagnose the most likely condition from the described symptoms using your clinical knowledge.
+- Provide specific, evidence-based treatment for that exact diagnosis.
+- Include drug names with exact dosages, frequency, and duration.
+- Recommend vaccines relevant to the diagnosed condition.
+- Do NOT use any fixed lookup table — reason from the symptoms presented.
 
 Respond in JSON format:
 {
@@ -2158,12 +2045,14 @@ app.post("/api/generate", upload.single("image"), async (req, res) => {
       const s = getOrCreateSession(sid);
       s.last_derma = {
         top: conditions?.[0]?.label || null,
-        list: conditions
+        list: conditions,
+        image_type: parsed.image_type || "skin"
       };
 
       return res.json({
         ok: true,
-        path: "skin",
+        path: "image_analysis",
+        image_type: parsed.image_type || "skin",
         conditions,
         next_question: (parsed.next_question || "").trim(),
         final_assessment: parsed.final_assessment ?? null,
@@ -2375,7 +2264,7 @@ app.post("/api/fever/next", async (req, res) => {
 
 // Dermatology-specific treatment plan endpoint
 app.post("/api/derma/plan", async (req, res) => {
-  const { sessionId, symptoms, duration, severity } = req.body;
+  const { sessionId, symptoms, duration, severity, location } = req.body;
   const session = SESSIONS.get(sessionId);
   
   if (!session) {
@@ -2383,30 +2272,67 @@ app.post("/api/derma/plan", async (req, res) => {
   }
 
   if (!session.last_derma) {
-    return res.status(400).json({ ok: false, error: "No dermatology analysis found. Please upload an image first." });
+    return res.status(400).json({ ok: false, error: "No image analysis found. Please upload an image first." });
   }
 
   try {
     const condition = session.last_derma.top;
     const allConditions = session.last_derma.list || [];
+    const imageType = session.last_derma.image_type || "skin";
     
     const symptomList = Array.isArray(symptoms) ? symptoms.join(", ") : symptoms || "";
-    
-    const prompt = `Based on the image analysis showing ${condition} as the primary concern (other possibilities: ${allConditions.map(c => c.label || c).join(", ")}), and the following additional symptoms: ${symptomList} (Duration: ${duration || "not specified"}, Severity: ${severity || "not specified"}), provide a comprehensive dermatology treatment plan.
 
-Include:
-1. Detailed condition assessment
-2. Topical treatments (with specific product recommendations)
-3. Oral medications if needed (with dosage guidance)
-4. Lifestyle modifications
-5. Follow-up recommendations
-6. Warning signs to watch for
+    const universalMedicalSystem = `You are an expert medical doctor providing a comprehensive treatment plan.
+You handle ALL types of diseases and conditions — skin, eye, oral, respiratory, bone, neurological, infectious, etc.
+Provide specific, practical, actionable advice for the Indian healthcare context.
+Always mention whether the cause is more likely VIRAL, BACTERIAL, FUNGAL, PARASITIC, or NON-INFECTIOUS where applicable.
+Include specific food recommendations that support recovery for THIS condition.
+Return JSON ONLY (no prose, no code fences).`;
 
-Format as structured JSON with clear treatment categories.`;
+    const prompt = `Image analysis detected: "${condition}" (Image type: ${imageType})
+Other possibilities considered: ${allConditions.map(c => c.label || c).join(", ")}
+Additional symptoms reported: ${symptomList || "none"}
+Duration: ${duration || "not specified"}
+Severity: ${severity || "not specified"}
+Location on body: ${location || "not specified"}
+
+Provide a COMPLETE treatment plan for "${condition}". Return this exact JSON schema:
+{
+  "summary": "2-3 sentence summary of the condition and approach",
+  "virus_vs_bacteria": "Is this viral / bacterial / fungal / parasitic / non-infectious? Explain briefly.",
+  "why_causes": "Main causes and risk factors for this condition",
+  "likely_causes": ["cause1", "cause2"],
+  "what_to_do_now": ["action1", "action2", "action3"],
+  "home_remedies": ["remedy1", "remedy2"],
+  "diet_and_home": ["tip1", "tip2"],
+  "foods_to_eat": ["food1 - why it helps", "food2 - why it helps"],
+  "foods_to_avoid": ["food1 - why to avoid", "food2 - why to avoid"],
+  "food_plan": [
+    {"food": "Food name", "portion": "Amount", "protein_pct": "XX%", "key_vitamins": "Vit C, Zinc", "why_now": "Boosts immunity", "alternatives": "Alternative food"},
+    {"food": "Food name 2", "portion": "Amount", "protein_pct": "XX%", "key_vitamins": "Vit A, Iron", "why_now": "Repairs tissue", "alternatives": "Alternative food 2"},
+    {"food": "Food name 3", "portion": "Amount", "protein_pct": "XX%", "key_vitamins": "Omega-3", "why_now": "Reduces inflammation", "alternatives": "Alternative food 3"},
+    {"food": "Food name 4", "portion": "Amount", "protein_pct": "XX%", "key_vitamins": "Vit B12", "why_now": "Supports healing", "alternatives": "Alternative food 4"},
+    {"food": "Food name 5", "portion": "Amount", "protein_pct": "XX%", "key_vitamins": "Probiotics", "why_now": "Gut health", "alternatives": "Alternative food 5"}
+  ],
+  "creams_topicals": ["product1 with usage", "product2 with usage"],
+  "how_to_use_topicals": ["instruction1", "instruction2"],
+  "tablets_oral_to_discuss": ["medicine1 - ask your doctor", "medicine2 - ask your doctor"],
+  "how_to_use_orals": ["instruction1"],
+  "prevention": ["prevention1", "prevention2"],
+  "prevention_detailed": ["detailed_tip1", "detailed_tip2"],
+  "expected_course": "How long does this typically last?",
+  "expected_course_timeline": ["Week 1: ...", "Week 2: ...", "Week 3+: ..."],
+  "common_mistakes": ["mistake1", "mistake2"],
+  "faqs": [{"q": "Question?", "a": "Answer"}],
+  "red_flags": ["flag1 - seek emergency care", "flag2"],
+  "red_flags_thresholds": ["threshold1", "threshold2"],
+  "side_effects_or_complications": ["complication1", "complication2"],
+  "tags": ["tag1", "tag2"]
+}`;
 
     const contents = [
-      { role: "user", parts: [{ text: DOCTOR_DERMA_SYSTEM }] },
-      { role: "user", parts: [{ text: "Patient Query: " + prompt }] }
+      { role: "user", parts: [{ text: universalMedicalSystem }] },
+      { role: "user", parts: [{ text: prompt }] }
     ];
 
     const raw = await geminiGenerate({ contents });
@@ -2415,25 +2341,34 @@ Format as structured JSON with clear treatment categories.`;
     const parsed = extractLeadingJSON(raw) || {};
     const normalized = {
       done: true,
-      summary: parsed.summary || (`Dermatology plan for ${cond}`),
+      summary: parsed.summary || (`Treatment plan for ${cond}`),
       virus_vs_bacteria: parsed.virus_vs_bacteria || "",
       why_causes: parsed.why_causes || "",
       likely_causes: Array.isArray(parsed.likely_causes) ? parsed.likely_causes : [],
       what_to_do_now: Array.isArray(parsed.what_to_do_now) ? parsed.what_to_do_now : [],
+      home_remedies: Array.isArray(parsed.home_remedies) ? parsed.home_remedies : [],
       diet_and_home: Array.isArray(parsed.diet_and_home) ? parsed.diet_and_home : [],
       foods_to_eat: Array.isArray(parsed.foods_to_eat) ? parsed.foods_to_eat : [],
       foods_to_avoid: Array.isArray(parsed.foods_to_avoid) ? parsed.foods_to_avoid : [],
+      food_plan: Array.isArray(parsed.food_plan) ? parsed.food_plan : [],
       creams_topicals: Array.isArray(parsed.creams_topicals) ? parsed.creams_topicals : [],
       tablets_oral_to_discuss: Array.isArray(parsed.tablets_oral_to_discuss) ? parsed.tablets_oral_to_discuss
                                 : (Array.isArray(parsed.meds_to_discuss) ? parsed.meds_to_discuss : []),
       how_to_use_topicals: Array.isArray(parsed.how_to_use_topicals) ? parsed.how_to_use_topicals : [],
       how_to_use_orals: Array.isArray(parsed.how_to_use_orals) ? parsed.how_to_use_orals : [],
       prevention: Array.isArray(parsed.prevention) ? parsed.prevention : [],
+      prevention_detailed: Array.isArray(parsed.prevention_detailed) ? parsed.prevention_detailed : [],
+      expected_course: parsed.expected_course || "",
+      expected_course_timeline: Array.isArray(parsed.expected_course_timeline) ? parsed.expected_course_timeline : [],
+      common_mistakes: Array.isArray(parsed.common_mistakes) ? parsed.common_mistakes : [],
+      faqs: Array.isArray(parsed.faqs) ? parsed.faqs : [],
       red_flags: Array.isArray(parsed.red_flags) ? parsed.red_flags : [],
+      red_flags_thresholds: Array.isArray(parsed.red_flags_thresholds) ? parsed.red_flags_thresholds : [],
+      side_effects_or_complications: Array.isArray(parsed.side_effects_or_complications) ? parsed.side_effects_or_complications : [],
       tags: Array.isArray(parsed.tags) ? parsed.tags : []
     };
     
-    // Store derma plan in session
+    // Store plan in session
     session.last_derma.treatment_plan = {
       symptoms: symptomList,
       duration,
@@ -2445,7 +2380,7 @@ Format as structured JSON with clear treatment categories.`;
     return res.json({ ok: true, ...normalized });
     
   } catch (e) {
-    console.error("Derma plan processing error:", e);
+    console.error("Medical plan processing error:", e);
     res.status(500).json({ ok: false, error: String(e.message || e) });
   }
 });
@@ -2564,37 +2499,30 @@ app.post('/api/ai-doctor/consult', async (req, res) => {
     }
 
     // Build conversation context
-    const systemPrompt = `You are Dr. Sarah Mitchell, a licensed General Physician with 15 years of experience in internal medicine. You are conducting a professional medical consultation.
+    const systemPrompt = `You are Dr. Sarah, a licensed General Physician with 15 years of experience. You are conducting a professional medical consultation for patients in India.
 
 CONSULTATION APPROACH:
-You must conduct this like a real doctor's appointment:
-1. Greet professionally and show empathy
-2. Take detailed medical history systematically
-3. Ask clinical questions like a real physician would
-4. Use medical terminology appropriately but explain in simple terms
-5. Be thorough before providing diagnosis
+1. Greet professionally and show empathy on first contact.
+2. Take a systematic history: Chief Complaint → Duration → Severity → Associated symptoms → Medical History → Allergies → Medications.
+3. Ask ONE focused clinical question at a time.
+4. After gathering enough information (4-5 exchanges), provide a comprehensive, accurate treatment plan.
+5. Always mention when to seek urgent/emergency care.
 
-QUESTIONING STYLE (Sound like a real doctor):
-- Use phrases like: "I see...", "Let me understand...", "That's helpful information..."
-- Ask specific clinical questions: "How many days has this been going on?", "Do you have any other symptoms like...?", "Have you noticed any pattern?"
-- Follow medical examination protocol: Chief Complaint → History → Associated Symptoms → Medical History → Diagnosis → Treatment
+CLINICAL REASONING (IMPORTANT):
+- DO NOT use a fixed lookup table. Reason clinically from the symptoms described.
+- Your diagnostic accuracy comes from analyzing the full symptom cluster, duration, severity, and context — not from matching to a hardcoded list.
+- Always consider differential diagnoses and state which is most likely and why.
+- If two conditions are close, mention both and what distinguishes them.
 
-IMPORTANT MEDICAL GUIDELINES:
-- Be professional yet warm and reassuring
-- Ask ONE focused question at a time
-- Gather: Chief complaint, Duration, Severity (1-10), Associated symptoms, Past medical history, Current medications, Allergies
-- After 4-5 key questions, provide comprehensive treatment plan
-- Always mention when to seek urgent care
-- Include disclaimer about consulting in-person doctor for serious conditions
+TREATMENT PLAN RULES:
+- Provide specific medicine names with exact dosages, frequency, and duration (e.g., "Paracetamol 500mg every 6 hours for 3 days").
+- Recommend vaccines relevant to the diagnosed condition and patient profile.
+- Include evidence-based home remedies and dietary advice specific to the condition.
+- Always add red flags / when to seek urgent care.
 
-CRITICAL FORMATTING RULES FOR RESPONSES:
-1. Use clean, readable text - NO asterisks (****), NO excessive symbols
-2. Use proper line breaks for readability
-3. For IMPORTANT information: Simply write in CAPITAL LETTERS or start with "Important:" or "Warning:"
-4. Keep responses conversational and professional
-5. Structure treatment plans clearly with headings
-6. Avoid markdown symbols in regular text
-7. Write naturally as a doctor would speak
+FORMATTING:
+- Clean, readable text. No asterisks or excessive symbols.
+- Conversational and professional tone.
 
 Current consultation stage: ${currentStep}
 Patient's latest response: ${message}
@@ -2603,294 +2531,11 @@ Previous conversation:
 ${conversationHistory.slice(-6).map(msg => `${msg.role}: ${msg.content}`).join('\n')}
 
 CONSULTATION FLOW:
-- First contact: Acknowledge chief complaint professionally, ask about duration
-- Duration known: Ask about severity and specific characteristics of symptoms
-- Severity known: Ask about associated symptoms (fever, other complaints)
-- Associated symptoms known: Ask about past medical history, allergies, current medications
-- All information gathered: Provide detailed diagnosis and treatment plan
-
-CRITICAL: DISEASE-SPECIFIC TREATMENT GUIDELINES
-You must provide ACCURATE, SPECIFIC medicines based on the EXACT diagnosis:
-
-DIAGNOSTIC CRITERIA - Match symptoms to correct disease:
-
-**RESPIRATORY CONDITIONS:**
-
-1. **Common Cold/Upper Respiratory Infection (URI):**
-   Symptoms: Runny nose, sneezing, mild sore throat, low/no fever
-   Medicines:
-   - Cetirizine 10mg - once daily for 5 days (for runny nose)
-   - Paracetamol 500mg - as needed for mild discomfort
-   - Vitamin C 500mg - once daily
-   Vaccines:
-   - Annual Influenza Vaccine
-   - COVID-19 Booster
-
-2. **Influenza (Flu):**
-   Symptoms: HIGH fever (>101°F), body aches, chills, fatigue, headache, dry cough
-   Medicines:
-   - Oseltamivir (Tamiflu) 75mg - twice daily for 5 days (start within 48hrs)
-   - Paracetamol 650mg - every 6 hours for fever
-   - Plenty of fluids
-   Vaccines:
-   - Annual Influenza Vaccine (PRIORITY)
-   - COVID-19 Booster
-   - Pneumococcal Vaccine (if >65 or chronic disease)
-
-3. **COVID-19:**
-   Symptoms: Fever, dry cough, loss of taste/smell, fatigue, shortness of breath
-   Medicines:
-   - Paracetamol 500mg - for fever
-   - Vitamin D3 2000IU + Vitamin C 1000mg + Zinc 50mg - daily for 10 days
-   - Azithromycin 500mg (only if bacterial co-infection suspected)
-   Vaccines:
-   - COVID-19 Vaccine/Booster (PRIORITY)
-   - Pneumococcal Vaccine (for prevention)
-
-4. **Bronchitis:**
-   Symptoms: Persistent cough with mucus, chest discomfort, mild fever
-   Medicines:
-   - Ambroxol 30mg - 3 times daily for 5-7 days (mucus clearance)
-   - Salbutamol inhaler - if wheezing present
-   - Paracetamol for fever
-   Vaccines:
-   - Annual Flu Vaccine
-   - Pneumococcal Vaccine
-
-5. **Pneumonia:**
-   Symptoms: High fever, productive cough, chest pain, difficulty breathing
-   Medicines:
-   - Azithromycin 500mg Day 1, then 250mg for 4 days
-   - OR Amoxicillin-Clavulanate (Augmentin) 625mg - 3 times daily for 7 days
-   - Paracetamol for fever
-   **URGENT: Hospital admission if severe breathing difficulty**
-   Vaccines:
-   - Pneumococcal Vaccine PCV13 + PPSV23 (PRIORITY)
-   - Annual Flu Vaccine
-
-**THROAT CONDITIONS:**
-
-6. **Viral Pharyngitis (Sore Throat - Viral):**
-   Symptoms: Sore throat, mild fever, no pus on tonsils, gradual onset
-   Medicines:
-   - Paracetamol 500mg - for pain/fever
-   - Warm salt water gargles
-   - Lozenges (Strepsils)
-   Vaccines:
-   - Flu Vaccine
-   - COVID-19 Booster
-
-7. **Bacterial Pharyngitis (Strep Throat):**
-   Symptoms: SEVERE sore throat, fever, pus on tonsils, swollen lymph nodes, sudden onset
-   Medicines:
-   - Amoxicillin 500mg - 3 times daily for 10 days
-   - OR Azithromycin 500mg - once daily for 3 days
-   - Paracetamol for fever/pain
-   Vaccines:
-   - None specific, but maintain Tdap booster
-
-**GASTROINTESTINAL CONDITIONS:**
-
-8. **Viral Gastroenteritis (Stomach Flu):**
-   Symptoms: Diarrhea, vomiting, nausea, abdominal cramps, mild fever
-   Medicines:
-   - ORS (Oral Rehydration Solution) - after each loose stool
-   - Ondansetron 4mg - for severe vomiting
-   - Probiotics (Saccharomyces boulardii)
-   - Zinc 20mg - daily for 10 days
-   Vaccines:
-   - Rotavirus (for children)
-   - Annual Flu Vaccine
-
-9. **Food Poisoning:**
-   Symptoms: Sudden vomiting/diarrhea after eating, abdominal pain
-   Medicines:
-   - ORS frequently
-   - Ondansetron 4mg if needed
-   - Avoid antibiotics unless severe
-   Vaccines:
-   - Typhoid Vaccine (if travel to endemic areas)
-   - Hepatitis A Vaccine
-
-**FEVER-RELATED CONDITIONS:**
-
-10. **Viral Fever (Non-specific):**
-    Symptoms: Fever without clear source, general malaise, mild body aches
-    Medicines:
-    - Paracetamol 650mg - every 6 hours
-    - Plenty of fluids
-    - Rest
-    Vaccines:
-    - Annual Flu Vaccine
-    - COVID-19 Booster
-
-11. **Dengue Fever:**
-    Symptoms: High fever, severe headache (behind eyes), joint/muscle pain, rash, low platelets
-    Medicines:
-    - Paracetamol 500mg ONLY (NO Ibuprofen/Aspirin - bleeding risk!)
-    - IV fluids if severe
-    - Monitor platelet count daily
-    **URGENT: Hospital if platelets <50,000, bleeding, severe abdominal pain**
-    Vaccines:
-    - Dengue Vaccine (Dengvaxia) - only if previous dengue infection
-
-12. **Typhoid Fever:**
-    Symptoms: Prolonged fever (>7 days), rose spots, constipation, headache, abdominal pain
-    Medicines:
-    - Azithromycin 500mg - once daily for 7 days
-    - OR Ceftriaxone injection (hospital)
-    - Paracetamol for fever
-    Vaccines:
-    - Typhoid Vaccine (Typbar-TCV) - PRIORITY
-    - Hepatitis A Vaccine
-
-**SKIN CONDITIONS:**
-
-13. **Chickenpox (Varicella):**
-    Symptoms: Fever + itchy rash with fluid-filled blisters
-    Medicines:
-    - Acyclovir 800mg - 5 times daily for 7 days
-    - Calamine lotion - for itching
-    - Paracetamol for fever (NO aspirin - Reye's syndrome risk)
-    Vaccines:
-    - Varicella Vaccine (for prevention in close contacts)
-
-14. **Herpes Zoster (Shingles):**
-    Symptoms: Painful rash in band/strip pattern, burning sensation
-    Medicines:
-    - Valacyclovir 1000mg - 3 times daily for 7 days
-    - Gabapentin 300mg - for nerve pain
-    - Topical lidocaine cream
-    Vaccines:
-    - Shingles Vaccine (Shingrix) - 2 doses for age 50+
-
-15. **Bacterial Skin Infection (Cellulitis):**
-    Symptoms: Red, swollen, warm, tender skin area
-    Medicines:
-    - Cephalexin 500mg - 4 times daily for 7 days
-    - Topical Mupirocin ointment
-    Vaccines:
-    - Tetanus Booster if wound present
-
-**URINARY CONDITIONS:**
-
-16. **Urinary Tract Infection (UTI):**
-    Symptoms: Burning urination, frequent urination, lower abdominal pain
-    Medicines:
-    - Nitrofurantoin 100mg - twice daily for 5-7 days
-    - OR Cefixime 200mg - twice daily for 5 days
-    - Plenty of water (3-4 liters/day)
-    Vaccines:
-    - None specific
-
-**ALLERGIC CONDITIONS:**
-
-17. **Allergic Rhinitis (Hay Fever):**
-    Symptoms: Sneezing, runny nose, itchy eyes, seasonal pattern
-    Medicines:
-    - Cetirizine 10mg - once daily
-    - OR Loratadine 10mg - once daily
-    - Nasal spray: Fluticasone propionate
-    - Montelukast 10mg - for chronic cases
-    Vaccines:
-    - Annual Flu Vaccine (allergies increase flu risk)
-
-18. **Urticaria (Hives):**
-    Symptoms: Itchy, raised, red welts on skin
-    Medicines:
-    - Cetirizine 10mg - twice daily for 5-7 days
-    - Prednisolone 20mg - if severe (3-5 days)
-    Vaccines:
-    - None specific
-
-**HEADACHE CONDITIONS:**
-
-19. **Migraine:**
-    Symptoms: One-sided throbbing headache, nausea, light sensitivity
-    Medicines:
-    - Sumatriptan 50mg - at onset of migraine
-    - Paracetamol 1000mg + Domperidone 10mg
-    - Propranolol 40mg - for prevention (if frequent)
-    Vaccines:
-    - None specific
-
-20. **Tension Headache:**
-    Symptoms: Band-like pressure around head, neck stiffness
-    Medicines:
-    - Paracetamol 500mg
-    - Ibuprofen 400mg
-    - Muscle relaxants if needed
-    Vaccines:
-    - None specific
-
-**CRITICAL DIAGNOSTIC MATCHING RULES:**
-1. Identify PRIMARY symptom cluster (respiratory, GI, fever, skin, etc.)
-2. Match EXACT disease based on symptom pattern
-3. Provide medicines SPECIFIC to that disease
-4. Include vaccines RELEVANT to that condition
-5. If symptoms match MULTIPLE diseases, provide differential diagnosis
-6. Always warn about serious conditions requiring urgent care
-**CRITICAL DIAGNOSTIC MATCHING RULES:**
-1. Identify PRIMARY symptom cluster (respiratory, GI, fever, skin, etc.)
-2. Match EXACT disease based on symptom pattern
-3. Provide medicines SPECIFIC to that disease
-4. Include vaccines RELEVANT to that condition
-5. If symptoms match MULTIPLE diseases, provide differential diagnosis
-6. Always warn about serious conditions requiring urgent care
-
-**EXAMPLE DIAGNOSTIC MATCHING:**
-
-Symptoms: "Fever 102°F, severe body aches, chills, dry cough for 2 days"
-→ DIAGNOSIS: Influenza (Flu)
-→ MEDICINES: Oseltamivir 75mg, Paracetamol 650mg, Vitamin C
-→ VACCINES: Annual Flu Vaccine (PRIORITY), COVID-19 Booster
-
-Symptoms: "Diarrhea 5 times, vomiting, stomach cramps since yesterday"
-→ DIAGNOSIS: Viral Gastroenteritis
-→ MEDICINES: ORS, Ondansetron 4mg, Probiotics, Zinc
-→ VACCINES: Rotavirus (children), Typhoid (if travel)
-
-Symptoms: "Burning urination, frequent need to pee, lower belly pain"
-→ DIAGNOSIS: Urinary Tract Infection
-→ MEDICINES: Nitrofurantoin 100mg, lots of water
-→ VACCINES: None specific
-
-Symptoms: "Itchy rash with blisters, fever, child age 8"
-→ DIAGNOSIS: Chickenpox
-→ MEDICINES: Acyclovir 800mg, Calamine lotion, Paracetamol
-→ VACCINES: Varicella Vaccine (for siblings/contacts)
-
-**FOR ALLERGIC CONDITIONS:**
-- Cetirizine 10mg OR Loratadine 10mg - once daily
-- Montelukast 10mg - for chronic allergies
-- Nasal spray: Fluticasone
-- Vaccines: Annual Flu Vaccine (allergies increase risk)
-
-**FOR FUNGAL INFECTIONS:**
-- Fluconazole 150mg - single dose (vaginal yeast)
-- Terbinafine 250mg - daily for nail fungus
-- Topical Clotrimazole cream
-- Vaccines: None specific
-
-CRITICAL: IF USER ASKS SPECIFICALLY FOR VACCINES OR MEDICATION SUGGESTIONS
-- If user asks "suggest vaccines", "what vaccines", "vaccine recommendations", etc.
-- IMMEDIATELY provide the FULL treatment JSON format with vaccines array populated
-- DO NOT refuse or say "consult a healthcare professional"
-- Provide SPECIFIC vaccine names with schedules based on their DIAGNOSED CONDITION
-- Example user asks: "Can you suggest some vaccines?"
-  - You MUST respond with the full treatment JSON including populated vaccines array
-  - Include vaccines MATCHING their diagnosed condition (see disease-specific vaccines above)
-
-IMPORTANT RULES:
-1. **Match medicine EXACTLY to the diagnosed condition** - Use disease-specific medicines from list above
-2. Include SPECIFIC brand names when helpful (Tamiflu, Augmentin, Strepsils, etc.)
-3. Specify EXACT duration (not just "few days")
-4. **Add relevant VACCINES based on EXACT condition diagnosed** - See disease-specific vaccines above
-5. Include dosing schedule (e.g., "8 AM, 2 PM, 8 PM")
-6. Warn about drug interactions and contraindications
-7. If SERIOUS condition detected (dengue, pneumonia, etc.) - recommend URGENT hospital visit
-8. **NEVER refuse vaccine suggestions** - Always provide specific vaccine recommendations matching the disease
-9. **NEVER give generic treatment** - Always match treatment to specific diagnosed condition
+- First contact: Acknowledge chief complaint professionally, ask about duration.
+- Duration known: Ask about severity and specific characteristics.
+- Severity known: Ask about associated symptoms (fever, etc.)
+- Associated symptoms known: Ask about medical history, allergies, current medications.
+- All information gathered: Provide detailed diagnosis and treatment plan.
 
 Respond in this JSON format if providing treatment:
 {
@@ -2909,7 +2554,7 @@ Respond in this JSON format if providing treatment:
       {
         "name": "Vaccine name",
         "reason": "Why this vaccine is recommended",
-        "schedule": "When to take (e.g., single dose, yearly, etc.)"
+        "schedule": "When to take"
       }
     ],
     "precautions": ["Detailed precautions and warnings"],
@@ -2919,58 +2564,6 @@ Respond in this JSON format if providing treatment:
   },
   "nextStep": "complete"
 }
-
-IMPORTANT FOR TREATMENT PLANS:
-- Include at least 2-3 specific medicines with EXACT dosages
-- **ALWAYS include vaccines array** if condition warrants it (flu vaccine, COVID booster, pneumonia vaccine for elderly, etc.)
-- If user specifically asks for vaccines, populate vaccines array with 3-4 relevant vaccines
-- Mention brand names alongside generic names when helpful
-- Include DURATION for each medicine (e.g., "for 3 days", "for 5-7 days")
-- Be specific with timing (e.g., "Take 1 tablet at 8 AM and 8 PM after meals")
-- Always include when to seek urgent medical care
-- **NEVER say "I cannot suggest vaccines"** - ALWAYS provide specific vaccine recommendations
-
-VACCINE RECOMMENDATIONS BY CONDITION:
-**Flu-like illness (fever, cough, sore throat):** 
-  - Annual Influenza vaccine (Flu shot)
-  - COVID-19 booster dose
-  - Pneumococcal vaccine (if age >65 or chronic conditions)
-
-**Pneumonia/Respiratory:** 
-  - Pneumococcal vaccine (PCV13, PPSV23)
-  - Annual Influenza vaccine
-  - COVID-19 vaccine/booster
-
-**Fever with travel history:** 
-  - Typhoid vaccine
-  - Hepatitis A vaccine
-  - Yellow Fever vaccine (based on region)
-
-**Elderly patients (>65 years):** 
-  - Pneumococcal vaccine (PPSV23)
-  - Annual Influenza vaccine
-  - Shingles vaccine (Herpes Zoster - Shingrix)
-  - Tdap booster
-
-**Chronic conditions (diabetes, heart disease, COPD):** 
-  - Annual Influenza vaccine
-  - Pneumococcal vaccine
-  - COVID-19 vaccine/booster
-
-**Skin wounds/injuries:** 
-  - Tetanus booster (Tdap) if >10 years since last dose
-
-**Children:** 
-  - Age-appropriate vaccines per immunization schedule
-
-**Pregnant women:** 
-  - Tdap vaccine (after 27 weeks)
-  - Annual Influenza vaccine
-
-**ALL PATIENTS (General Prevention):**
-  - Annual Influenza vaccine
-  - COVID-19 vaccine (primary series + boosters)
-  - Tetanus booster every 10 years
 
 Or if asking follow-up question:
 {
