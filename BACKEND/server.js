@@ -192,7 +192,10 @@ async function geminiOnlyGenerate({ contents, model = "gemini-2.5-flash" }, retr
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents }),
+    body: JSON.stringify({
+      contents,
+      generationConfig: { thinkingConfig: { thinkingBudget: 0 } }  // disable thinking for image JSON tasks
+    }),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -204,7 +207,7 @@ async function geminiOnlyGenerate({ contents, model = "gemini-2.5-flash" }, retr
     throw new Error(`Gemini error ${res.status}: ${text.slice(0, 400)}`);
   }
   const json = await res.json();
-  return json?.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("\n") || "";
+  return json?.candidates?.[0]?.content?.parts?.filter(p => !p.thought)?.map((p) => p.text || "").join("\n") || "";
 }
 
 async function geminiGenerate({ contents, model = "gemini-2.5-flash" }, retryCount = 0) {

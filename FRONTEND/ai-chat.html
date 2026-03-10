@@ -2098,7 +2098,9 @@
         });
 
         if (!response.ok) {
-          throw new Error(`Server error: ${response.status}`);
+          let errMsg = `Server error: ${response.status}`;
+          try { const e = await response.json(); if (e.error) errMsg = e.error; } catch(_) {}
+          throw new Error(errMsg);
         }
 
         const data = await response.json();
