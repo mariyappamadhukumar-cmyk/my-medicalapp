@@ -168,14 +168,41 @@ async function checkDrugInteractions(drugNames) {
 // Groq (PRIMARY): converts Gemini-style contents to OpenAI messages format
 async function groqGenerate(contents) {
   if (!GROQ_API_KEY) throw new Error('No Groq API key');
-  const messages = contents.map(c => ({
-    role: c.role === 'model' ? 'assistant' : 'user',
-    content: c.parts.map(p => p.text || '').join('')
-  }));
+
+  // Detect if any part contains inline image data
+  const hasImage = contents.some(c => c.parts?.some(p => p.inline_data));
+
+  const messages = contents.map(c => {
+    if (hasImage) {
+      // Build multimodal content array for vision model
+      const contentParts = [];
+      for (const p of (c.parts || [])) {
+        if (p.text) {
+          contentParts.push({ type: 'text', text: p.text });
+        } else if (p.inline_data) {
+          contentParts.push({
+            type: 'image_url',
+            image_url: { url: `data:${p.inline_data.mime_type};base64,${p.inline_data.data}` }
+          });
+        }
+      }
+      return { role: c.role === 'model' ? 'assistant' : 'user', content: contentParts };
+    } else {
+      return {
+        role: c.role === 'model' ? 'assistant' : 'user',
+        content: c.parts.map(p => p.text || '').join('')
+      };
+    }
+  });
+
+  // Use vision model when image is present, text model otherwise
+  const model = hasImage ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile';
+  const temperature = hasImage ? 0.2 : 0.7; // Lower temp for medical image accuracy
+
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
-    body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, temperature: 0.7 })
+    body: JSON.stringify({ model, messages, temperature })
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
